@@ -31,6 +31,15 @@ species_list <- as.character(unique(atraits$taxon))
 #sort(species_list)
 atraits$SLA<-as.numeric(as.character(atraits$SLA)) 
 
+#Scale traits
+atraits$leaf_area_mm2<-scale(atraits$leaf_area_mm2)  
+atraits$dry_mass_mg<-scale(atraits$dry_mass_mg)  
+atraits$SLA_m2_kg<-scale(atraits$SLA_m2_kg)  
+atraits$biomass_per_ind<-scale(atraits$biomass_per_ind)    
+atraits$height <- scale(atraits$height)
+
+
+
 data_out<-NULL
 for(i in 1:length(species_list)){
   taxon <- as.character( species_list[i] )
