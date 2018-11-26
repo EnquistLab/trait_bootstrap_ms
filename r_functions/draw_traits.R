@@ -27,8 +27,38 @@ out_df<-NULL
   return(out_df)  
   
 }#end fx
+####################################################
+
+#code to randomly draw from all traits in proprtion to sample size
+
+draw_traits_random_proportion<-function(traits_df, sample_proportion, community_df){
+  
+  traits_df <- na.omit(traits_df)
+  
+  
+  out_df<-NULL  
+  
+  
+  for(i in 1:length(unique(traits_df$taxon))){
+    
+    
+    taxon_i<-unlist(unique(traits_df$taxon))[i]
+    number_draws<-ceiling(sample_proportion*community_df$abundance[which(community_df$taxon==taxon_i)])
+    
+    #print(taxon_i)
+    
+    if(length(which(traits_df$taxon==taxon_i))<number_draws){number_draws<-length(which(traits_df$taxon==taxon_i))}
+    
+    out_df <- rbind(out_df,traits_df[resample(x = which(traits_df$taxon==taxon_i),size = number_draws),] )
+    
+  }#for i  
+  
+  return(out_df)  
+  
+}#end fx
 
 
+####################################################
 #code to randomly draw traits and calculate a mean
 
 draw_traits_random_means<-function(traits_df, sample_size){
@@ -74,6 +104,12 @@ draw_traits_random_means<-function(traits_df, sample_size){
   return(out_df)  
   
 }#end fx
+###################
+
+
+
+
+
 
 ####################
 distribution_to_means<-function(trait_df){

@@ -1,5 +1,5 @@
-#Comparing trait inferences on the same simulated data
-#Code not complete...or even close
+#compare inferences sampling proportional to abundance
+
 
 source("r_functions/trait_distribution_fx.R")
 source("r_functions/draw_traits.R")
@@ -12,7 +12,7 @@ community<-readRDS("data/species_presence_RMBL.rds")
 
 simulation_output<-NULL
 
-n_to_sample<-c(1,2,3,4,5,6,7,8,9,10,50,100,200,500)
+prop_to_sample<-c(.01,.05,.1,.2,.3,.4,.5,.6,.7,.8,.9,1)
 n_reps_trait<-10
 n_reps_boot <- 200
 
@@ -23,43 +23,46 @@ n_reps_boot <- 200
 set.seed(1)
 for(s in 1:length(unique(community$site))){
   site<-unique(community$site)[s]
+  community_s<-community[which(community$site==site),]
   
-  
-  for(i in n_to_sample){
+  for(i in prop_to_sample){
     
     for(t in 1:n_reps_trait){
       
-      traits_df<-draw_traits_random(traits_df = atraits[which(atraits$site==site),which(colnames(atraits)!="site")],sample_size = i)  
+      traits_df<-draw_traits_random_proportion(traits_df = atraits[which(atraits$site==site),which(colnames(atraits)!="site")],
+                                               sample_proportion = i,
+                                               community_df = community_s)  
+      
       trait_means<-distribution_to_means(traits_df)
       
       out_dist_t_boot<-trait_distributions(number_replicates = n_reps_boot, abundance_data = community[c("taxon","abundance")][which(community$site==site),]  ,trait_data = traits_df)
       out_dist_t_mean<-trait_distributions(number_replicates = n_reps_boot, abundance_data = community[c("taxon","abundance")][which(community$site==site),]  ,trait_data = trait_means)
       
-
+      
       for( l in 1: length(out_dist_t_boot)){
         
         #write output  
         write.csv(x = out_dist_t_boot[[l]],
-                  file = paste("output_distributions/RMBL_random_sampling/RMBL",site,names(out_dist_t_boot)[l],paste("n_",i,sep = ""),"draw",t,sep = "."),
+                  file = paste("output_distributions/RMBL_proportional_sampling/RMBL",site,names(out_dist_t_boot)[l],paste("n_",i,sep = ""),"draw",t,sep = "."),
                   row.names = F  )
         
         
         write.csv(x = out_dist_t_mean[[l]],
-                  file = paste("output_distributions/RMBL_random_sampling_mean_values/RMBL",site,names(out_dist_t_mean)[l],paste("n_",i,sep = ""),"draw",t,sep = "."),
+                  file = paste("output_distributions/RMBL_proportional_sampling_mean_values/RMBL",site,names(out_dist_t_mean)[l],paste("n_",i,sep = ""),"draw",t,sep = "."),
                   row.names = F  )
-
+        
         
         mean_in_95ci <- if(
-                    calc_ci(rowMeans(out_dist_t_boot[[l]]))$ci_min<=  mean(atraits[which(atraits$site==site),which(colnames(atraits)==names(out_dist_t_mean)[l])],na.rm = T)
-                  & calc_ci(rowMeans(out_dist_t_boot[[l]]))$ci_max>=  mean(atraits[which(atraits$site==site),which(colnames(atraits)==names(out_dist_t_mean)[l])],na.rm = T) 
-                    ){1}else(0)
+          calc_ci(rowMeans(out_dist_t_boot[[l]]))$ci_min<=  mean(atraits[which(atraits$site==site),which(colnames(atraits)==names(out_dist_t_mean)[l])],na.rm = T)
+          & calc_ci(rowMeans(out_dist_t_boot[[l]]))$ci_max>=  mean(atraits[which(atraits$site==site),which(colnames(atraits)==names(out_dist_t_mean)[l])],na.rm = T) 
+        ){1}else(0)
         
         mean_in_100ci <- if(
           min(rowMeans(out_dist_t_boot[[l]]))<=  mean(atraits[which(atraits$site==site),which(colnames(atraits)==names(out_dist_t_mean)[l])],na.rm = T)
           & max(rowMeans(out_dist_t_boot[[l]])) >=  mean(atraits[which(atraits$site==site),which(colnames(atraits)==names(out_dist_t_mean)[l])],na.rm = T) 
         ){1}else(0)
         
-          
+        
         var_in_95ci <- if(
           calc_ci(apply(X = out_dist_t_boot[[l]], MARGIN = 1,FUN = var))$ci_min<=  var(atraits[which(atraits$site==site),which(colnames(atraits)==names(out_dist_t_mean)[l])],na.rm = T)
           & calc_ci(apply(X = out_dist_t_boot[[l]], MARGIN = 1,FUN = var))$ci_max>=  var(atraits[which(atraits$site==site),which(colnames(atraits)==names(out_dist_t_mean)[l])],na.rm = T) 
@@ -94,52 +97,52 @@ for(s in 1:length(unique(community$site))){
         
         
         
-        output_l_mean<-cbind(i,#sample size
-                t,#rep number
-                nrow(traits_df),#number sampled
-                names(out_dist_t_mean)[l], #trait
-                as.character(site), #site
-                "mean", #moment
-                mean(rowMeans(out_dist_t_boot[[l]])),#boot mean
-                mean(rowMeans(out_dist_t_mean[[l]]) ), #cwm mean
-                mean(atraits[which(atraits$site==site),which(colnames(atraits)==names(out_dist_t_mean)[l])],na.rm = T), #actual mean
-                (mean(rowMeans(out_dist_t_boot[[l]]))-mean(rowMeans(out_dist_t_mean[[l]]) ))/sd(rowMeans(out_dist_t_boot[[l]])),#SESmean
-                (mean(rowMeans(out_dist_t_boot[[l]]))-mean(atraits[which(atraits$site==site),which(colnames(atraits)==names(out_dist_t_mean)[l])],na.rm = T))/sd(rowMeans(out_dist_t_boot[[l]])),#SESactual
-                mean_in_95ci,
-                mean_in_100ci
-                
-                #included?
-                )#mean output
-        
-        output_l_var<-cbind(i,#sample size
-                             t,#rep number 
+        output_l_mean<-cbind(i,#proportion
+                             t,#rep number
                              nrow(traits_df),#number sampled
                              names(out_dist_t_mean)[l], #trait
                              as.character(site), #site
-                             "variance", #moment
-                             mean(apply(X = out_dist_t_boot[[l]], MARGIN = 1,FUN = var)),#boot mean
-                             mean(apply(X = out_dist_t_mean[[l]], MARGIN = 1,FUN = var)), #cwm mean
-                             var(atraits[which(atraits$site==site),which(colnames(atraits)==names(out_dist_t_mean)[l])],na.rm = T), #actual mean
-                             (mean(apply(X = out_dist_t_boot[[l]], MARGIN = 1,FUN = var))-mean(apply(X = out_dist_t_mean[[l]], MARGIN = 1,FUN = var)))/sd(apply(X = out_dist_t_boot[[l]], MARGIN = 1,FUN = var)),#SESmean
-                             (mean(apply(X = out_dist_t_boot[[l]], MARGIN = 1,FUN = var))-var(atraits[which(atraits$site==site),which(colnames(atraits)==names(out_dist_t_mean)[l])],na.rm = T))/sd(apply(X = out_dist_t_boot[[l]], MARGIN = 1,FUN = var)),#SESactual
-                             var_in_95ci,
+                             "mean", #moment
+                             mean(rowMeans(out_dist_t_boot[[l]])),#boot mean
+                             mean(rowMeans(out_dist_t_mean[[l]]) ), #cwm mean
+                             mean(atraits[which(atraits$site==site),which(colnames(atraits)==names(out_dist_t_mean)[l])],na.rm = T), #actual mean
+                             (mean(rowMeans(out_dist_t_boot[[l]]))-mean(rowMeans(out_dist_t_mean[[l]]) ))/sd(rowMeans(out_dist_t_boot[[l]])),#SESmean
+                             (mean(rowMeans(out_dist_t_boot[[l]]))-mean(atraits[which(atraits$site==site),which(colnames(atraits)==names(out_dist_t_mean)[l])],na.rm = T))/sd(rowMeans(out_dist_t_boot[[l]])),#SESactual
+                             mean_in_95ci,
+                             mean_in_100ci
+                             
+                             #included?
+        )#mean output
+        
+        output_l_var<-cbind(i,#sample size
+                            t,#rep number 
+                            nrow(traits_df),#number sampled
+                            names(out_dist_t_mean)[l], #trait
+                            as.character(site), #site
+                            "variance", #moment
+                            mean(apply(X = out_dist_t_boot[[l]], MARGIN = 1,FUN = var)),#boot mean
+                            mean(apply(X = out_dist_t_mean[[l]], MARGIN = 1,FUN = var)), #cwm mean
+                            var(atraits[which(atraits$site==site),which(colnames(atraits)==names(out_dist_t_mean)[l])],na.rm = T), #actual mean
+                            (mean(apply(X = out_dist_t_boot[[l]], MARGIN = 1,FUN = var))-mean(apply(X = out_dist_t_mean[[l]], MARGIN = 1,FUN = var)))/sd(apply(X = out_dist_t_boot[[l]], MARGIN = 1,FUN = var)),#SESmean
+                            (mean(apply(X = out_dist_t_boot[[l]], MARGIN = 1,FUN = var))-var(atraits[which(atraits$site==site),which(colnames(atraits)==names(out_dist_t_mean)[l])],na.rm = T))/sd(apply(X = out_dist_t_boot[[l]], MARGIN = 1,FUN = var)),#SESactual
+                            var_in_95ci,
                             var_in_100ci
         )#var output
         
         
         output_l_skew<-cbind(i,#sample size
-                            t,#rep number
-                            nrow(traits_df),#number sampled
-                            names(out_dist_t_mean)[l], #trait
-                            as.character(site), #site
-                            "skewness", #moment
-                            mean(apply(X = out_dist_t_boot[[l]], MARGIN = 1,FUN = skewness)),#boot mean
-                            mean(apply(X = out_dist_t_mean[[l]], MARGIN = 1,FUN = skewness)), #cwm mean
-                            skewness(atraits[which(atraits$site==site),which(colnames(atraits)==names(out_dist_t_mean)[l])],na.rm = T), #actual mean
-                            (mean(apply(X = out_dist_t_boot[[l]], MARGIN = 1,FUN = skewness))-mean(apply(X = out_dist_t_mean[[l]], MARGIN = 1,FUN = skewness)))/sd(apply(X = out_dist_t_boot[[l]], MARGIN = 1,FUN = skewness)),#SESmean
-                            (mean(apply(X = out_dist_t_boot[[l]], MARGIN = 1,FUN = skewness))-skewness(atraits[which(atraits$site==site),which(colnames(atraits)==names(out_dist_t_mean)[l])],na.rm = T))/sd(apply(X = out_dist_t_boot[[l]], MARGIN = 1,FUN = skewness)),#SESactual
-                            skew_in_95ci,
-                            skew_in_100ci
+                             t,#rep number 
+                             nrow(traits_df),#number sampled
+                             names(out_dist_t_mean)[l], #trait
+                             as.character(site), #site
+                             "skewness", #moment
+                             mean(apply(X = out_dist_t_boot[[l]], MARGIN = 1,FUN = skewness)),#boot mean
+                             mean(apply(X = out_dist_t_mean[[l]], MARGIN = 1,FUN = skewness)), #cwm mean
+                             skewness(atraits[which(atraits$site==site),which(colnames(atraits)==names(out_dist_t_mean)[l])],na.rm = T), #actual mean
+                             (mean(apply(X = out_dist_t_boot[[l]], MARGIN = 1,FUN = skewness))-mean(apply(X = out_dist_t_mean[[l]], MARGIN = 1,FUN = skewness)))/sd(apply(X = out_dist_t_boot[[l]], MARGIN = 1,FUN = skewness)),#SESmean
+                             (mean(apply(X = out_dist_t_boot[[l]], MARGIN = 1,FUN = skewness))-skewness(atraits[which(atraits$site==site),which(colnames(atraits)==names(out_dist_t_mean)[l])],na.rm = T))/sd(apply(X = out_dist_t_boot[[l]], MARGIN = 1,FUN = skewness)),#SESactual
+                             skew_in_95ci,
+                             skew_in_100ci
         )#var output
         
         output_l_kurt<-cbind(i,#sample size
@@ -156,10 +159,10 @@ for(s in 1:length(unique(community$site))){
                              kurt_in_95ci,
                              kurt_in_100ci
         )#var output
-          
+        
         simulation_output<-rbind(simulation_output,output_l_mean,output_l_var,output_l_skew,output_l_kurt)
         rm(output_l_kurt,output_l_mean,output_l_skew,output_l_var)
-            
+        
         
       }#l loop  
     }#t n reps trait
@@ -167,9 +170,9 @@ for(s in 1:length(unique(community$site))){
 }#s site
 rm(i,l,s,t,site,out_dist_t_boot,out_dist_t_mean,trait_means,traits_df)
 simulation_output<-as.data.frame(simulation_output)
-colnames(simulation_output)<-c("sample_size","replicate","total_samples","trait","site","moment","boot_mean","cwm_mean","actual_mean","SES_boot_v_cwm","SES_boot_v_actual","in_95ci","in_100ci")
+colnames(simulation_output)<-c("sample_proportion","replicate","total_samples","trait","site","moment","boot_mean","cwm_mean","actual_mean","SES_boot_v_cwm","SES_boot_v_actual","in_95ci","in_100ci")
 
-saveRDS(object = simulation_output,file = "output_distributions/simulation_output.rds")
+saveRDS(object = simulation_output,file = "output_distributions/simulation_output_proportional.rds")
 
 #################################
 
@@ -249,7 +252,7 @@ ggplot(data = simulation_output[which(simulation_output$moment=="mean"),], aes(x
   geom_point(position=position_dodge(width = .01),color="magenta",alpha=.5)+geom_abline(aes(slope = 0,intercept = actual_mean))+
   geom_point(aes(x= log10(sample_size), y=boot_mean),color="blue",alpha=0.5)+
   facet_wrap(~trait+site)+ggtitle("mean")
-    
+
 ggplot(data = simulation_output[which(simulation_output$moment=="variance"),], aes(x= log10(sample_size), y=cwm_mean))+
   geom_point(position=position_dodge(width = .01),color="magenta",alpha=.5)+geom_abline(aes(slope = 0,intercept = actual_mean))+
   geom_point(aes(x= log10(sample_size), y=boot_mean),color="blue",alpha=0.5)+
