@@ -30,6 +30,10 @@ atraits$taxon<-gsub(pattern = "Artemesia", replacement = "Artemisia",x = atraits
 species_list <- as.character(unique(atraits$taxon))
 #sort(species_list)
 atraits$SLA<-as.numeric(as.character(atraits$SLA)) 
+atraits<-atraits[c("site","taxon","leaf_area_mm2","dry_mass_mg","SLA_m2_kg","height","biomass_per_ind" )]
+saveRDS(object = atraits,file = "data/all_traits_unscaled_RMBL.rds")
+
+
 
 #Scale traits
 atraits$leaf_area_mm2<-scale(atraits$leaf_area_mm2)  
