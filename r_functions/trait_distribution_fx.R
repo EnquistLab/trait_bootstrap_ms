@@ -58,4 +58,92 @@ trait_distributions<-function(number_replicates, abundance_data, trait_data){
 #################################################
 
 
+
+trait_distributions_parametric<-function(number_replicates, abundance_data, trait_data){
+  
+  #output<-list()
+  output<-vector("list", ncol(trait_data)-1)
+  names(output)<-colnames(trait_data)[2:ncol(trait_data)]
+  
+  
+  
+  for(t in 2:ncol(trait_data)){
+    trait_t<-colnames(trait_data)[t]  
+    dist_type<-NULL
+    
+    #hist(atraits$SLA_m2_kg[which(atraits$taxon=="Poa pratensis")])
+    
+    if(trait_t %in% c("leaf_area_mm2", "dry_mass_mg", "height", "biomass_per_ind","SLA_m2_kg")){dist_type<-"lognormal"}
+    
+        
+    if(is.null(dist_type)){stop("Don't have that trait associated with a flavor of distribution")}
+    
+    
+    out_t<-NULL
+    for(n in 1:number_replicates){
+      rep_n<-NULL  
+      
+      for( i in 1:nrow( abundance_data)){
+        
+        species_i<-as.character(abundance_data[i,1])    
+        abund_i<-abundance_data[i,2]
+        traits_i<-trait_data[which(trait_data[,1]==species_i),]
+        trait_ti<-na.omit(traits_i[,trait_t])
+        trait_ti<-as.data.frame(trait_ti)
+        
+        #Dont do anything if there's no trait data
+        
+        
+        #Fit distribution, draw points accordingly
+        
+        #Log-normal
+        if(dist_type=="lognormal"){
+        if(nrow(trait_ti)!=0){  
+        
+        #skewness(trait_ti[,1])  
+        #hist(trait_ti[,1])  
+        
+        if(nrow(trait_ti)>1){
+          fit_ti<-NULL
+          try(fit_ti<-fitdist(data = trait_ti[,1],distr = "lnorm"),silent = T)
+          if(is.null(fit_ti)){fit_ti<-fitdist(data = trait_ti[,1],distr = "lnorm",method = "mme")}
+          
+          rep_n<-c(rep_n,rlnorm(n = abund_i, meanlog = fit_ti$estimate[1],sdlog = fit_ti$estimate[2]))
+        
+          
+        }
+          
+        if(nrow(trait_ti)==1){
+          rep_n<-c(rep_n,resample(x = trait_ti[,1],size = abund_i,replace = T))
+        }
+        
+          
+          
+          
+        }}
+      
+      }# i abundance loop
+      
+      out_t<-rbind(out_t,rep_n)
+      
+    }#n replicates loop
+    
+    if(!is.null(out_t)  ){
+      if(nrow(out_t)!=0 & ncol(out_t)!=0){
+        output[[t-1]]<-out_t
+      }}
+    
+    
+    
+  }#t traits loop  
+  #names(output)<-colnames(trait_data)[2:ncol(trait_data)]
+  
+  return(output)  
+  
+}# trait_distribution function
+
+
+
+#################################################
+
 resample <- function(x, ...) x[sample.int(length(x), ...)]
