@@ -248,6 +248,7 @@ simulation_output<-readRDS("output_distributions/simulation_output.rds")
 
 simulation_output$moment<-as.character(simulation_output$moment)
 simulation_output$boot_mean<-as.numeric(as.character(simulation_output$boot_mean))
+simulation_output$parametric_mean<-as.numeric(as.character(simulation_output$parametric_mean))
 simulation_output$sample_size<-as.numeric(as.character(simulation_output$sample_size))
 simulation_output$SES_boot_v_cwm<-as.numeric(as.character(simulation_output$SES_boot_v_cwm))
 simulation_output$SES_boot_v_actual<-as.numeric(as.character(simulation_output$SES_boot_v_actual))
@@ -306,7 +307,36 @@ ggplot(data = ci_output[which(ci_output$moment=="kurtosis"),], aes(x= log10(samp
   facet_wrap(~trait+site)+ggtitle("kurtosis")
 
 
+#################################################################
 
 
+ggplot(data = simulation_output[which(simulation_output$moment=="mean"),], aes(x= log10(sample_size), y=cwm_mean))+
+  geom_point(position=position_dodge(width = .01),color="magenta",alpha=.5,shape=1)+geom_abline(aes(slope = 0,intercept = actual_mean))+
+  geom_point(aes(x= log10(sample_size), y=boot_mean),color="blue",alpha=0.5,shape=4)+
+  geom_point(aes(x= log10(sample_size), y=parametric_mean),color="green",alpha=0.25,shape=4)+
+  facet_wrap(~trait+site,scales = "free_y")+ggtitle("mean")
+
+ggplot(data = simulation_output[which(simulation_output$moment=="variance"),], aes(x= log10(sample_size), y=cwm_mean))+
+  geom_point(position=position_dodge(width = .01),color="magenta",alpha=.5,shape=1)+geom_abline(aes(slope = 0,intercept = actual_mean))+
+  geom_point(aes(x= log10(sample_size), y=boot_mean),color="blue",alpha=0.5,shape=4)+
+  geom_point(aes(x= log10(sample_size), y=parametric_mean),color="green",alpha=0.25,shape=4)+
+  facet_wrap(~trait+site,scales = "free_y")+ggtitle("variance")
+
+ggplot(data = simulation_output[which(simulation_output$moment=="skewness"),], aes(x= log10(sample_size), y=cwm_mean))+
+  geom_point(position=position_dodge(width = .01),color="magenta",alpha=.5,shape=1)+geom_abline(aes(slope = 0,intercept = actual_mean))+
+  geom_point(aes(x= log10(sample_size), y=boot_mean),color="blue",alpha=0.5,shape=4)+
+  geom_point(aes(x= log10(sample_size), y=parametric_mean),color="green",alpha=0.25,shape=4)+
+    geom_point(aes(x= log10(sample_size), y=actual_mean),color="green",alpha=0,shape=4)+ #added this to make sure true mean was included in the plot
+  facet_wrap(~trait+site,scales = "free_y")+ggtitle("skewness")
+
+ggplot(data = simulation_output[which(simulation_output$moment=="kurtosis"),], aes(x= log10(sample_size), y=cwm_mean))+
+  geom_point(position=position_dodge(width = .01),color="magenta",alpha=.5,shape=1)+geom_abline(aes(slope = 0,intercept = actual_mean))+
+  geom_point(aes(x= log10(sample_size), y=boot_mean),color="blue",alpha=0.5,shape=4)+
+  geom_point(aes(x= log10(sample_size), y=parametric_mean),color="green",alpha=0.25,shape=4)+
+  geom_point(aes(x= log10(sample_size), y=actual_mean),color="green",alpha=0,shape=4)+ #added this to make sure true mean was included in the plot
+  facet_wrap(~trait+site,scales = "free_y")+ggtitle("kurtosis")
 
 
+?guides
+
+?legend

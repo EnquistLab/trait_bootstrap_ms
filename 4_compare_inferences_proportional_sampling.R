@@ -6,9 +6,12 @@ source("r_functions/draw_traits.R")
 source("r_functions/calc_ci.R")
 library(moments)
 
-atraits<-readRDS("data/all_traits_RMBL.rds")
-mean_traits<-readRDS("data/species_mean_traits_RMBL.rds")
+atraits<-readRDS("data/all_traits_unscaled_RMBL.rds")
+atraits$site<-as.character(atraits$site)
+#mean_traits<-readRDS("data/species_mean_traits_RMBL.rds")
 community<-readRDS("data/species_presence_RMBL.rds")
+
+
 
 simulation_output<-NULL
 
