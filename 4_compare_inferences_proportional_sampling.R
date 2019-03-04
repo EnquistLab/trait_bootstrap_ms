@@ -257,6 +257,7 @@ simulation_output_proportional$cwm_mean<-as.numeric(as.character(simulation_outp
 simulation_output_proportional$actual_mean<-as.numeric(as.character(simulation_output_proportional$actual_mean))
 simulation_output_proportional$in_95ci<-as.numeric(as.character(simulation_output_proportional$in_95ci))
 simulation_output_proportional$in_100ci<-as.numeric(as.character(simulation_output_proportional$in_100ci))
+simulation_output_proportional$parametric_mean<-as.numeric(as.character(simulation_output_proportional$parametric_mean))
 
 
 #Generate output data showing how percent in ci changes with sample size
@@ -273,39 +274,81 @@ ci_output_proportional<-proportion_ci_correct_proportional_sampling(simulation_o
 
 #Plots
 
-
 library(ggplot2)
+
+
+
+
+ggplot(data = simulation_output_proportional[which(simulation_output_proportional$moment=="mean"),], aes(x= sample_proportion, y=cwm_mean))+
+  geom_point(position=position_dodge(width = .01),color="magenta",alpha=.5,shape=1)+geom_abline(aes(slope = 0,intercept = actual_mean))+
+  geom_point(aes(x= sample_proportion, y=boot_mean),color="blue",alpha=0.5,shape=4)+
+  geom_point(aes(x= sample_proportion, y=parametric_mean),color="green",alpha=0.25,shape=4)+
+  facet_wrap(~trait+site,scales = "free_y")+ggtitle("mean")
+
+ggplot(data = simulation_output_proportional[which(simulation_output_proportional$moment=="variance"),], aes(x= sample_proportion, y=cwm_mean))+
+  geom_point(position=position_dodge(width = .01),color="magenta",alpha=.5,shape=1)+geom_abline(aes(slope = 0,intercept = actual_mean))+
+  geom_point(aes(x= sample_proportion, y=boot_mean),color="blue",alpha=0.5,shape=4)+
+  geom_point(aes(x= sample_proportion, y=parametric_mean),color="green",alpha=0.25,shape=4)+
+  facet_wrap(~trait+site,scales = "free_y")+ggtitle("variance")
+
+ggplot(data = simulation_output_proportional[which(simulation_output_proportional$moment=="skewness"),], aes(x= sample_proportion, y=cwm_mean))+
+  geom_point(position=position_dodge(width = .01),color="magenta",alpha=.5,shape=1)+geom_abline(aes(slope = 0,intercept = actual_mean))+
+  geom_point(aes(x= sample_proportion, y=boot_mean),color="blue",alpha=0.5,shape=4)+
+  geom_point(aes(x= sample_proportion, y=parametric_mean),color="green",alpha=0.25,shape=4)+
+  geom_point(aes(x= sample_proportion, y=actual_mean),color="green",alpha=0,shape=4)+ #added this to make sure true mean was included in the plot
+  facet_wrap(~trait+site,scales = "free_y")+ggtitle("skewness")
+
+ggplot(data = simulation_output_proportional[which(simulation_output_proportional$moment=="kurtosis"),], aes(x= sample_proportion, y=cwm_mean))+
+  geom_point(position=position_dodge(width = .01),color="magenta",alpha=.5,shape=1)+geom_abline(aes(slope = 0,intercept = actual_mean))+
+  geom_point(aes(x= sample_proportion, y=boot_mean),color="blue",alpha=0.5,shape=4)+
+  geom_point(aes(x= sample_proportion, y=parametric_mean),color="green",alpha=0.25,shape=4)+
+  geom_point(aes(x= sample_proportion, y=actual_mean),color="green",alpha=0,shape=4)+ #added this to make sure true mean was included in the plot
+  facet_wrap(~trait+site,scales = "free_y")+ggtitle("kurtosis")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 ggplot(data = ci_output_proportional[which(ci_output_proportional$moment=="mean"),], aes(x= sample_proportion, y=proportion_ci95_correct))+
   geom_point(position=position_dodge(width = .1))+ylim(c(0,1))+
   facet_wrap(~trait+site)+ggtitle("mean")
 
-ggplot(data = ci_output[which(ci_output$moment=="variance"),], aes(x= log10(sample_size), y=proportion_ci95_correct))+
+ggplot(data = ci_output[which(ci_output$moment=="variance"),], aes(x= sample_proportion, y=proportion_ci95_correct))+
   geom_point(position=position_dodge(width = .1))+ylim(c(0,1))+
   facet_wrap(~trait+site)+ggtitle("variance")
 
-ggplot(data = ci_output[which(ci_output$moment=="skewness"),], aes(x= log10(sample_size), y=proportion_ci95_correct))+
+ggplot(data = ci_output[which(ci_output$moment=="skewness"),], aes(x= sample_proportion, y=proportion_ci95_correct))+
   geom_point(position=position_dodge(width = .1))+ylim(c(0,1))+
   facet_wrap(~trait+site)+ggtitle("skewness")
 
-ggplot(data = ci_output[which(ci_output$moment=="kurtosis"),], aes(x= log10(sample_size), y=proportion_ci95_correct))+
+ggplot(data = ci_output[which(ci_output$moment=="kurtosis"),], aes(x= sample_proportion, y=proportion_ci95_correct))+
   geom_point(position=position_dodge(width = .1))+ylim(c(0,1))+
   facet_wrap(~trait+site)+ggtitle("kurtosis")
 
-ggplot(data = ci_output[which(ci_output$moment=="mean"),], aes(x= log10(sample_size), y=proportion_ci100_correct))+
+ggplot(data = ci_output[which(ci_output$moment=="mean"),], aes(x= sample_proportion, y=proportion_ci100_correct))+
   geom_point(position=position_dodge(width = .1))+ylim(c(0,1))+
   facet_wrap(~trait+site)+ggtitle("mean")
 
-ggplot(data = ci_output[which(ci_output$moment=="variance"),], aes(x= log10(sample_size), y=proportion_ci100_correct))+
+ggplot(data = ci_output[which(ci_output$moment=="variance"),], aes(x= sample_proportion, y=proportion_ci100_correct))+
   geom_point(position=position_dodge(width = .1))+ylim(c(0,1))+
   facet_wrap(~trait+site)+ggtitle("variance")
 
-ggplot(data = ci_output[which(ci_output$moment=="skewness"),], aes(x= log10(sample_size), y=proportion_ci100_correct))+
+ggplot(data = ci_output[which(ci_output$moment=="skewness"),], aes(x= sample_proportion, y=proportion_ci100_correct))+
   geom_point(position=position_dodge(width = .1))+ylim(c(0,1))+
   facet_wrap(~trait+site)+ggtitle("skewness")
 
-ggplot(data = ci_output[which(ci_output$moment=="kurtosis"),], aes(x= log10(sample_size), y=proportion_ci100_correct))+
+ggplot(data = ci_output[which(ci_output$moment=="kurtosis"),], aes(x= sample_proportion, y=proportion_ci100_correct))+
   geom_point(position=position_dodge(width = .1))+ylim(c(0,1))+
   facet_wrap(~trait+site)+ggtitle("kurtosis")
 
@@ -315,79 +358,79 @@ ggplot(data = ci_output[which(ci_output$moment=="kurtosis"),], aes(x= log10(samp
 
 
 
-ggplot(data = simulation_output[which(simulation_output$moment=="mean"),], aes(x= sample_size, y=boot_mean))+
+ggplot(data = simulation_output_proportional[which(simulation_output_proportional$moment=="mean"),], aes(x= sample_proportion, y=boot_mean))+
   geom_point(position=position_dodge(width = .1))+
   facet_wrap(~trait+site)
 
-ggplot(data = simulation_output[which(simulation_output$moment=="mean"),], aes(x= log10(sample_size), y=cwm_mean))+
+ggplot(data = simulation_output_proportional[which(simulation_output_proportional$moment=="mean"),], aes(x= sample_proportion, y=cwm_mean))+
   geom_point(position=position_dodge(width = .01),color="magenta",alpha=.5)+geom_abline(aes(slope = 0,intercept = actual_mean))+
-  geom_point(aes(x= log10(sample_size), y=boot_mean),color="blue",alpha=0.5)+
+  geom_point(aes(x= sample_proportion, y=boot_mean),color="blue",alpha=0.5)+
   facet_wrap(~trait+site)+ggtitle("mean")
 
-ggplot(data = simulation_output[which(simulation_output$moment=="variance"),], aes(x= log10(sample_size), y=cwm_mean))+
+ggplot(data = simulation_output_proportional[which(simulation_output_proportional$moment=="variance"),], aes(x= sample_proportion, y=cwm_mean))+
   geom_point(position=position_dodge(width = .01),color="magenta",alpha=.5)+geom_abline(aes(slope = 0,intercept = actual_mean))+
-  geom_point(aes(x= log10(sample_size), y=boot_mean),color="blue",alpha=0.5)+
+  geom_point(aes(x= sample_proportion, y=boot_mean),color="blue",alpha=0.5)+
   facet_wrap(~trait+site)+ggtitle("variance")
 
-ggplot(data = simulation_output[which(simulation_output$moment=="skewness"),], aes(x= log10(sample_size), y=cwm_mean))+
+ggplot(data = simulation_output_proportional[which(simulation_output_proportional$moment=="skewness"),], aes(x= sample_proportion, y=cwm_mean))+
   geom_point(position=position_dodge(width = .01),color="magenta",alpha=.5)+geom_abline(aes(slope = 0,intercept = actual_mean))+
-  geom_point(aes(x= log10(sample_size), y=boot_mean),color="blue",alpha=0.5)+
+  geom_point(aes(x= sample_proportion, y=boot_mean),color="blue",alpha=0.5)+
   facet_wrap(~trait+site)+ggtitle("skewness")
 
-ggplot(data = simulation_output[which(simulation_output$moment=="kurtosis"),], aes(x= log10(sample_size), y=cwm_mean))+
+ggplot(data = simulation_output_proportional[which(simulation_output_proportional$moment=="kurtosis"),], aes(x= sample_proportion, y=cwm_mean))+
   geom_point(position=position_dodge(width = .01),color="magenta",alpha=.5)+geom_abline(aes(slope = 0,intercept = actual_mean))+
-  geom_point(aes(x= log10(sample_size), y=boot_mean),color="blue",alpha=0.5)+
+  geom_point(aes(x= sample_proportion, y=boot_mean),color="blue",alpha=0.5)+
   facet_wrap(~trait+site)+ggtitle("kurtosis")
 
 
-ggplot(data = simulation_output[which(simulation_output$moment=="mean"),], aes(x= log10(sample_size), y=boot_mean))+
+ggplot(data = simulation_output_proportional[which(simulation_output_proportional$moment=="mean"),], aes(x= sample_proportion, y=boot_mean))+
   geom_point(position=position_dodge(width = .1),color="blue")+
   facet_wrap(~trait+site)
 
-ggplot(data = simulation_output[which(simulation_output$moment=="mean"),], aes(x= log10(sample_size), y=SES_boot_v_cwm))+
+ggplot(data = simulation_output_proportional[which(simulation_output_proportional$moment=="mean"),], aes(x= sample_proportion, y=SES_boot_v_cwm))+
   geom_point(position=position_dodge(width = .1),color="blue")+
   facet_wrap(~trait+site)
 
-ggplot(data = simulation_output[which(simulation_output$moment=="mean"),], aes(x= log10(sample_size), y=SES_boot_v_actual))+
+ggplot(data = simulation_output_proportional[which(simulation_output_proportional$moment=="mean"),], aes(x= sample_proportion, y=SES_boot_v_actual))+
   geom_point(position=position_dodge(width = .1),color="blue")+
   facet_wrap(~trait+site)
 
-ggplot(data = simulation_output[which(simulation_output$moment=="variance"),], aes(x= log10(sample_size), y=SES_boot_v_actual))+
+ggplot(data = simulation_output_proportional[which(simulation_output_proportional$moment=="variance"),], aes(x= sample_proportion, y=SES_boot_v_actual))+
   geom_point(position=position_dodge(width = .1),color="blue")+
   facet_wrap(~trait+site)+ggtitle("Variance")
 
-ggplot(data = simulation_output[which(simulation_output$moment=="skewness"),], aes(x= log10(sample_size), y=SES_boot_v_actual))+
+ggplot(data = simulation_output_proportional[which(simulation_output_proportional$moment=="skewness"),], aes(x= sample_proportion, y=SES_boot_v_actual))+
   geom_point(position=position_dodge(width = .1),color="blue")+
   facet_wrap(~trait+site)+ggtitle("skewnesss")
 
-ggplot(data = simulation_output[which(simulation_output$moment=="kurtosis"),], aes(x= log10(sample_size), y=SES_boot_v_actual))+
+ggplot(data = simulation_output_proportional[which(simulation_output_proportional$moment=="kurtosis"),], aes(x= sample_proportion, y=SES_boot_v_actual))+
   geom_point(position=position_dodge(width = .1),color="blue")+
   facet_wrap(~trait+site)+ggtitle("kurtosis")
 
 
 
-simulation_output$SES_boot_v_cwm
+simulation_output_proportional$SES_boot_v_cwm
 
 
 
 
-ggplot(data = simulation_output[which(simulation_output$moment=="mean"),], aes(x= log10(sample_size), y=in_95ci))+
+ggplot(data = simulation_output_proportional[which(simulation_output_proportional$moment=="mean"),], aes(x= sample_proportion, y=in_95ci))+
   geom_point(position=position_dodge(width = .1),alpha=0.1)+
   facet_wrap(~trait+site)
 
-ggplot(data = simulation_output[which(simulation_output$moment=="mean"),], aes(x= log10(sample_size), y=in_100ci))+
+ggplot(data = simulation_output_proportional[which(simulation_output_proportional$moment=="mean"),], aes(x= sample_proportion, y=in_100ci))+
   geom_point(position=position_dodge(width = .1),alpha=0.1)+
   facet_wrap(~trait+site)+ggtitle("mean")
 
-ggplot(data = simulation_output[which(simulation_output$moment=="variance"),], aes(x= log10(sample_size), y=in_100ci))+
+ggplot(data = simulation_output_proportional[which(simulation_output_proportional$moment=="variance"),], aes(x= sample_proportion, y=in_100ci))+
   geom_point(position=position_dodge(width = .1),alpha=0.1)+
   facet_wrap(~trait+site)+ggtitle("variance")
 
-ggplot(data = simulation_output[which(simulation_output$moment=="skewness"),], aes(x= log10(sample_size), y=in_100ci))+
+ggplot(data = simulation_output_proportional[which(simulation_output_proportional$moment=="skewness"),], aes(x= sample_proportion, y=in_100ci))+
   geom_point(position=position_dodge(width = .1),alpha=0.1)+
   facet_wrap(~trait+site)+ggtitle("skewness")
 
-ggplot(data = simulation_output[which(simulation_output$moment=="kurtosis"),], aes(x= log10(sample_size), y=in_100ci))+
+ggplot(data = simulation_output_proportional[which(simulation_output_proportional$moment=="kurtosis"),], aes(x= sample_proportion, y=in_100ci))+
   geom_point(position=position_dodge(width = .1),alpha=0.1)+
   facet_wrap(~trait+site)+ggtitle("kurtosis")
 
