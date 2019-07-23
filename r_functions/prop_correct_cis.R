@@ -6,7 +6,8 @@ proportion_ci_correct<-function(simulation_output){
 output<-unique(simulation_output[c('trait','site','moment','sample_size','total_samples')])  
 output$proportion_ci95_correct<-NA  
 output$proportion_ci100_correct<-NA
-  
+output$proportion_log_ci95_correct<-NA  
+output$proportion_log_ci100_correct<-NA
   
 for(i in 1:nrow(output)){
 
@@ -24,10 +25,33 @@ output$proportion_ci100_correct[i] <-
                                                                       simulation_output$trait==output$trait[i] &
                                                                       simulation_output$site==output$site[i] &
                                                                       simulation_output$moment==output$moment[i])])/
+                                                        length(which(simulation_output$sample_size==output$sample_size[i] & 
+                                                                       simulation_output$trait==output$trait[i] &
+                                                                       simulation_output$site==output$site[i] &
+                                                                      simulation_output$moment==output$moment[i]))    
+
+
+
+output$proportion_log_ci95_correct[i]<-
+  sum(as.numeric(as.character(simulation_output$in_95ci_log[which(simulation_output$sample_size==output$sample_size[i] &
+                                        simulation_output$trait==output$trait[i] &
+                                        simulation_output$site==output$site[i] &
+                                        simulation_output$moment==output$moment[i])])))/length(which(simulation_output$sample_size==output$sample_size[i] &
+                                                                                                     simulation_output$trait==output$trait[i] &
+                                                                                                     simulation_output$site==output$site[i] &
+                                                                                                     simulation_output$moment==output$moment[i]))    
+
+output$proportion_log_ci100_correct[i] <- 
+  sum(as.numeric(as.character(simulation_output$in_100ci_log[which(simulation_output$sample_size==output$sample_size[i] &
+                                         simulation_output$trait==output$trait[i] &
+                                         simulation_output$site==output$site[i] &
+                                         simulation_output$moment==output$moment[i])])))/
   length(which(simulation_output$sample_size==output$sample_size[i] & 
                  simulation_output$trait==output$trait[i] &
                  simulation_output$site==output$site[i] &
-                simulation_output$moment==output$moment[i]))    
+                 simulation_output$moment==output$moment[i]))
+
+
 
   
 }  
@@ -39,6 +63,8 @@ output$method<-"nonparametric_bootstrapping"
 output_p<-unique(simulation_output[c('trait','site','moment','sample_size','total_samples')])  
 output_p$proportion_ci95_correct<-NA  
 output_p$proportion_ci100_correct<-NA
+output_p$proportion_log_ci95_correct<-NA  
+output_p$proportion_log_ci100_correct<-NA
 
 
 for(i in 1:nrow(output)){
@@ -60,7 +86,33 @@ for(i in 1:nrow(output)){
     length(which(simulation_output$sample_size==output$sample_size[i] & 
                    simulation_output$trait==output$trait[i] &
                    simulation_output$site==output$site[i] &
-                   simulation_output$moment==output$moment[i]))    
+                   simulation_output$moment==output$moment[i]))
+  
+  
+  
+  output_p$proportion_log_ci95_correct[i]<-
+    sum(as.numeric(as.character(simulation_output$in_95ci_para_log[which(simulation_output$sample_size==output$sample_size[i] &
+                                               simulation_output$trait==output$trait[i] &
+                                               simulation_output$site==output$site[i] &
+                                               simulation_output$moment==output$moment[i])])))/length(which(simulation_output$sample_size==output$sample_size[i] &
+                                                                                                            simulation_output$trait==output$trait[i] &
+                                                                                                            simulation_output$site==output$site[i] &
+                                                                                                            simulation_output$moment==output$moment[i]))    
+  
+  output_p$proportion_log_ci100_correct[i] <- 
+    sum(as.numeric(as.character(simulation_output$in_100_ci_para_log[which(simulation_output$sample_size==output$sample_size[i] &
+                                                 simulation_output$trait==output$trait[i] &
+                                                 simulation_output$site==output$site[i] &
+                                                 simulation_output$moment==output$moment[i])])))/
+    length(which(simulation_output$sample_size==output$sample_size[i] & 
+                   simulation_output$trait==output$trait[i] &
+                   simulation_output$site==output$site[i] &
+                   simulation_output$moment==output$moment[i]))
+  
+  
+  
+  
+  
   
   
 }  
