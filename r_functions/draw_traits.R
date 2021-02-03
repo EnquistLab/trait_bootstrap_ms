@@ -107,63 +107,6 @@ draw_traits_random_means<-function(traits_df, sample_size){
 ###################
 
 
-
-
-
-
-####################
-distribution_to_means<-function(trait_df){
-  out_df<-matrix(nrow = length(unique(trait_df$taxon)),ncol = ncol(trait_df))
-  out_df<-as.data.frame(out_df)
-  colnames(out_df)<-colnames(trait_df)
-  
-  #out_df<-trait_df[0,]
-  
-  for(i in 1:length(unique(traits_df$taxon))){
-    
-    
-    taxon<-unique(traits_df$taxon)[i]
-    
-    
-    
-    
-    if(length(which(trait_df$taxon==taxon))==1){
-      
-      out_df[i,]<-trait_df[which(trait_df$taxon==taxon),]
-      
-    }# one observation
-    
-    if(length(which(trait_df$taxon==taxon))>1){
-      
-      temp<-c(taxon,colMeans(   trait_df[which(trait_df$taxon==taxon),2:ncol(trait_df)]))
-      #temp<-unname(temp)
-      
-      
-      #names(temp)<-names(out_df)
-              
-              
-        out_df[i,1:ncol(out_df)]<-temp
-      
-      
-      }#
-    
-  }#for i  
-  
-  #out_df<-as.data.frame(out_df)
-  
-  
-  out_df[2:ncol(out_df)]<-apply(X = out_df[2:ncol(out_df)],MARGIN = 2,FUN = function(x){as.numeric(as.character(x))})
-  
-  
-  
-    
-  return(out_df)  
-  
-  
-  
-  
-}#end fx
-
 #####################
 resample <- function(x, ...) x[sample.int(length(x), ...)]
 
