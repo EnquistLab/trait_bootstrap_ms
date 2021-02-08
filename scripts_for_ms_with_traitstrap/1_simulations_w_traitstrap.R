@@ -144,10 +144,10 @@ output<-NULL
       pbs_results_nt <-
         trait_summarise_boot_moments(BootstrapMoments = pbs_results_nt)
       
-      output <- rbind(output,rbind(cbind("nonparametric bs",np_results_nt),
-            cbind("parametric bs",pbs_results_nt),
-            cbind("global cwm",cwm_species_results_nt),
-            cbind("site-specic CWM",cwm_species_x_site_results_nt))
+      output <- rbind(output,rbind(cbind(method = "nonparametric bs", sample_size = n, np_results_nt),
+            cbind(method = "parametric bs", sample_size = n, pbs_results_nt),
+            cbind(method = "global cwm", sample_size = n, cwm_species_results_nt),
+            cbind(method = "site-specic CWM", sample_size = n, cwm_species_x_site_results_nt))
             )
       
     
@@ -159,23 +159,25 @@ output<-NULL
 rm(cwm_species_results_nt,cwm_species_x_site_results_nt,imputed_full,imputed_species_mean,imputed_species_x_site_mean,
    np_results_nt,pbs_results_nt,species_means_nt,species_site_means_nt,traits_nt,n,t)
 
+#Append true moments to data
+
+#First, calculate true moments for each site x trait
+
+atraits %>% group_by(site,trait) %>% summarise(true_mean=mean(value),
+                                               true_variance=var(value),
+                                               true_skewness = skewness(value),
+                                               true_kurtosis = kurtosis(value)) -> true_moments
+
+#Next, append true moments to output data for convenience
+output <- merge(x = output,y = true_moments,by = c("site","trait"))
+
+#cleanup
+rm(true_moments)
+
 #save output
 saveRDS(object = output,file = "output_data/simulation_results.RDS")
 
 
 
-
 ###############################################################################
-
-
-
-
-
-
-
-
-
-
-
-
 
