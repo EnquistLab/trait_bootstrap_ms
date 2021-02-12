@@ -191,7 +191,10 @@ saveRDS(object = output,file = "output_data/simulation_results.RDS")
 
 ###############################################################################
 
-#Global vs local should be a separate simulation
+#Global vs local should be a separate simulation 
+
+  # Using "best guess" means
+  # Using all data (gives wider CIs)
 
 
 #Get global data
@@ -210,9 +213,5 @@ BIEN_trait_list()
 BIEN_trait_means <- lapply(X = c("leaf area","leaf dry mass","whole plant height","leaf area per leaf dry mass"),FUN = function(x){BIEN_trait_mean(species = taxa,trait = x)})
 BIEN_trait_means <- do.call(rbind,BIEN_trait_means) 
 table(BIEN_trait_means$level_used)#Very little data at species level
-BIEN_trait_means$mean_value <- as.numeric(as.character(BIEN_trait_means$mean_value))
 
-hist(log10(1/BIEN_trait_means$mean_value[which(BIEN_trait_means$trait=="leaf area per leaf dry mass")]))
-hist(log10(atraits$value[which(atraits$trait=="LMA_mg_mm2")]))
-
-unique(atraits$trait)
+#Need to mak

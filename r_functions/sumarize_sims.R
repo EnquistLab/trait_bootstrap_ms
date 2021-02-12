@@ -2,7 +2,7 @@
 
 #take in table of simulations results
 
-summarize_simulations <- function(simulation_result){
+summarize_simulations <- function(simulation_results){
   
   out <- unique(simulation_results[,which(!colnames(simulation_results)%in%c("estimate","ci_high","ci_low"))])
 
