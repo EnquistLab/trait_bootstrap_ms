@@ -7,6 +7,8 @@ library(moments)
 library(traitstrap)
 library(devtools)
 library(tidyr)
+library(dplyr)
+library(ggplot2)
 
 source("C:/Users/Brian/Desktop/current_projects/traitstrap/R/parametric_bs.R")
 source("r_functions/draw_traits_tidy.R")
@@ -47,6 +49,14 @@ atraits <- gather(data = atraits,key = "trait","value",3:7)
 #Get community data
 atraits %>% group_by(taxon,site) %>% summarise(across(ID,~(length(unique(.x))),.names = "abundance"),.groups="drop") -> community
 
+#log transform
+ggplot(data = atraits,mapping = aes(x=value))+geom_histogram()+facet_wrap(trait~site,scales = "free")
+atraits$value <- log10(atraits$value)
+ggplot(data = atraits,mapping = aes(x=value))+geom_histogram()+facet_wrap(trait~site,scales = "free")
+
+
+
+
 
 
 ###########################################################################
@@ -57,7 +67,7 @@ atraits %>% group_by(taxon,site) %>% summarise(across(ID,~(length(unique(.x))),.
 n_to_sample <- (1:22)^2 #sample sizes
 n_reps_trait <- 10 #controls the number of replicated draws for each  sample size
 n_reps_boot <- 200 #number of bootstrap replicates to use
-set.seed(2005) #set seed for reproducability.  2005 = Year Transformers: The Movie (cartoon version) is set.
+set.seed(2005) #set seed for reproducibility.  2005 = Year Transformers: The Movie (cartoon version) is set.
 output<-NULL
 
   for( n in n_to_sample){
@@ -181,3 +191,28 @@ saveRDS(object = output,file = "output_data/simulation_results.RDS")
 
 ###############################################################################
 
+#Global vs local should be a separate simulation
+
+
+#Get global data
+traits <- unique(atraits$trait)
+taxa <- unique(atraits$taxon)
+
+BIEN_trait_list()
+
+#needed:  
+#"leaf_area_mm2"   
+#"dry_mass_mg"     
+#"height"          
+#"biomass_per_ind" 
+#"LMA_mg_mm2"     
+
+BIEN_trait_means <- lapply(X = c("leaf area","leaf dry mass","whole plant height","leaf area per leaf dry mass"),FUN = function(x){BIEN_trait_mean(species = taxa,trait = x)})
+BIEN_trait_means <- do.call(rbind,BIEN_trait_means) 
+table(BIEN_trait_means$level_used)#Very little data at species level
+BIEN_trait_means$mean_value <- as.numeric(as.character(BIEN_trait_means$mean_value))
+
+hist(log10(1/BIEN_trait_means$mean_value[which(BIEN_trait_means$trait=="leaf area per leaf dry mass")]))
+hist(log10(atraits$value[which(atraits$trait=="LMA_mg_mm2")]))
+
+unique(atraits$trait)
