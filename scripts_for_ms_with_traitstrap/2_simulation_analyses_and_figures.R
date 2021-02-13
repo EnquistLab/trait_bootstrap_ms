@@ -53,10 +53,10 @@ rm(sim_mean,sim_var,sim_skew,sim_kurt)
 unique(simdata$method)
 simdata$method[which(simdata$method=="global cwm")] <- "Cross-Site CWM"
 simdata$method[which(simdata$method=="site-specic CWM")] <- "Site-Specific CWM"
-simdata$method[which(simdata$method=="nonparametric bs")] <- "Nonparametrics BS"
-simdata$method[which(simdata$method=="parametric bs")] <- "Parametrics BS"
+simdata$method[which(simdata$method=="nonparametric bs")] <- "Non-Parametric BS"
+simdata$method[which(simdata$method=="parametric bs")] <- "Parametric BS"
 
-simdata$method <- ordered(simdata$method,levels = c("Cross-Site CWM","Site-Specific CWM","Parametrics BS","Nonparametrics BS"))
+simdata$method <- ordered(simdata$method,levels = c("Cross-Site CWM","Site-Specific CWM","Parametric BS","Non-Parametric BS"))
 
 library(ggplot2)
 
@@ -64,28 +64,30 @@ library(ggplot2)
 ##############################################################
 #Accuracy vs sample size
 
-ggplot(data = simdata[which(simdata$moment=="mean"),], mapping = aes(y=(estimate-true_value)/true_value,x = sample_size^.5,color=method))+
-  geom_abline(intercept=0,slope = 0)+geom_point()+
+ggplot(data = simdata[which(simdata$moment=="mean"),], mapping = aes(y=log10(estimate/true_value),x = sample_size,color=method))+
+  geom_abline(intercept=0,slope = 0)+geom_point(alpha=0.25)+geom_smooth()+scale_x_continuous(trans = "sqrt",breaks = c(0,10,50,100,200,500))+
   facet_grid(rows = site~trait,scales = "free")+ggtitle("Mean")
 
-
-ggplot(data = simdata[which(simdata$moment=="variance"),], mapping = aes(y=(estimate-true_value)/true_value,x = sample_size^.5,color=method))+
-  geom_abline(intercept=0,slope = 0)+geom_point()+
+ggplot(data = simdata[which(simdata$moment=="variance"),], mapping = aes(y=log10(estimate/true_value),x = sample_size,color=method))+
+  geom_abline(intercept=0,slope = 0)+geom_point(alpha=0.25)+geom_smooth()+scale_x_continuous(trans = "sqrt",breaks = c(0,10,50,100,200,500))+
   facet_grid(rows = site~trait,scales = "free")+ggtitle("Variance")
 
-ggplot(data = simdata[which(simdata$moment=="skewness"),], mapping = aes(y=(estimate-true_value)/true_value,x = sample_size^.5,color=method))+
-  geom_abline(intercept=0,slope = 0)+geom_point()+
+ggplot(data = simdata[which(simdata$moment=="skewness"),], mapping = aes(y=log10(estimate/true_value),x = sample_size,color=method))+
+  geom_abline(intercept=0,slope = 0)+geom_point(alpha=0.25)+geom_smooth()+scale_x_continuous(trans = "sqrt",breaks = c(0,10,50,100,200,500))+
   facet_grid(rows = site~trait,scales = "free")+ggtitle("Skewness")
 
-ggplot(data = simdata[which(simdata$moment=="kurtosis"),], mapping = aes(y=(estimate-true_value)/true_value,x = sample_size^.5,color=method))+
-  geom_abline(intercept=0,slope = 0)+geom_point()+
+ggplot(data = simdata[which(simdata$moment=="kurtosis"),], mapping = aes(y=log10(abs(estimate/true_value)),x = sample_size,color=method))+
+  geom_abline(intercept=0,slope = 0)+geom_point(alpha=0.25)+geom_smooth()+scale_x_continuous(trans = "sqrt",breaks = c(0,10,50,100,200,500))+
   facet_grid(rows = site~trait,scales = "free")+ggtitle("Kurtosis")
+
 
 
 ############################################################
 
 source("r_functions/sumarize_sims.R")
 sim_summary <- summarize_simulations(simulation_result = simdata)
+sim_summary$moment <- ordered(sim_summary$moment,levels=c("mean","variance","skewness","kurtosis"))
+
 colnames(sim_summary)
 
 ggplot(data = sim_summary[which(sim_summary$moment=="mean"),], mapping = aes(y=pct_in_CI,x = sample_size^.5,color=method))+
@@ -129,4 +131,11 @@ ggplot(data = sim_summary[which(sim_summary$moment=="kurtosis"),],
   geom_abline(intercept=0,slope = 0)+geom_point()+geom_smooth()+
   facet_grid(rows = site~trait,scales = "free")+ggtitle("Kurtosis")
 
+
+#####################
+
+ggplot(data = sim_summary[which(sim_summary$site=="Almont"),], 
+       mapping = aes(y=fractional_difference,x = sample_size^.5,color=method))+
+  geom_abline(intercept=0,slope = 0)+geom_point()+geom_smooth()+
+  facet_grid(rows = moment~trait,scales = "free")
 

@@ -25,7 +25,12 @@ source("r_functions/draw_traits_tidy.R")
 #atraits$SLA<-as.numeric(as.character(atraits$SLA)) 
 #atraits<-atraits[c("site","taxon","leaf_area_mm2","dry_mass_mg","SLA_m2_kg","height","biomass_per_ind" )]
 #saveRDS(object = atraits,file = "data/all_traits_unscaled_RMBL.rds")
+#elevs <- na.omit(unique(traits[c('site',"elev")])) %>%group_by(site) %>%summarise(mean_elev=mean(elev))
+#elevs <- elevs[which(elevs$site %in% atraits$site),]
+#saveRDS(object = elevs,file = "data/elevations.RDS")
 
+
+?summarise
 atraits <- readRDS(file = "data/all_traits_unscaled_RMBL.rds")
 
 #Removed 7% of records with any missing data
