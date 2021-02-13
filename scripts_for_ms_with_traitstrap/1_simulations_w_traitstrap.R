@@ -10,7 +10,7 @@ library(tidyr)
 library(dplyr)
 library(ggplot2)
 
-source("C:/Users/Brian/Desktop/current_projects/traitstrap/R/parametric_bs.R")
+source("r_functions/parametric_bs.R")
 source("r_functions/draw_traits_tidy.R")
 
 
