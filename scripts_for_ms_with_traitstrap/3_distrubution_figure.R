@@ -227,6 +227,8 @@ ggplot(all_dists[which(all_dists$trait=="leaf_area_mm2"),],
 
 ##Tanya's zone
 
+### Joy (Ridge) Plots ----
+
 all_dists$method <- factor(all_dists$method,
                            levels = c("True",
                                       "Cross-Site CWM",
@@ -234,104 +236,96 @@ all_dists$method <- factor(all_dists$method,
                                       "Non-parametric BS",
                                       "Parametric BS"))
 
-ggplot(all_dists[which(all_dists$trait=="leaf_area_mm2"),],
-       aes(x = value,
-           y = factor(paste(mean_elev,"m")),
-           fill=method,
-           color=method,
-           linetype = method,
-           alpha= method,
-           size = method)) +
-  scale_color_manual(values = colors) +
-  scale_fill_manual(values=colors) +
-  scale_linetype_manual(values=c(2,1,1,1,1)) +
-  scale_alpha_manual(values=c(0.8,0.4,0.4,0.4,0.4)) +
-  scale_size_manual(values=c(1.5,0.5,0.5,0.5,0.5)) +
-  stat_density_ridges(rel_min_height = 0.003,
-                      quantile_lines = TRUE,
-                      quantiles = 2) +
-  scale_y_discrete(expand = c(0.01, 0)) +
-  scale_x_continuous(expand = c(0.1, 0)) +
-  theme_ridges() +
-  labs(x = "Leaf Area",
-       y = NULL) +
-  guides(alpha = 'none',
-         size = 'none') +
-  theme(legend.position = 'bottom')
-
-ggsave(here::here("figures/densityestimate3.png"),
-       height = 8.3, width = 15,
-       units = "in", dpi = 600)
-
-colors <- c("Cross-Site CWM" = "#492259",
-            "Site-Specific CWM" = "#D95284",
-            "True" = "#D98032",
-            "Non-parametric BS" = "#546FBF",
-            "Parametric BS" = "#62F4B6")
-
-
-ggplot(all_dists[which(all_dists$trait=="leaf_area_mm2"),],
-       aes(x = value,
-           y = factor(paste(mean_elev,"m")),
-           fill=method,
-           color=method,
-           linetype = method,
-           alpha= method,
-           size = method)) +
-  scale_color_manual(values = colors) +
-  scale_fill_manual(values=c("#D98032",NA,NA,NA,NA)) +
-  scale_linetype_manual(values=c(2,1,1,1,1)) +
-  scale_alpha_manual(values=c(0.8,0.4,0.4,0.4,0.4)) +
-  scale_size_manual(values=c(1.5,0.5,0.5,0.5,0.5)) +
-  stat_density_ridges(rel_min_height = 0.003,
-                      quantile_lines = TRUE,
-                      quantiles = 2) +
+ggplot() +
+  scale_fill_manual(guide = guide_legend(title = "Method",
+                                         #nrow = 1,
+                                         override.aes = list(alpha = 0.7, shape = 2, size = 8),
+                                         title.position="top",
+                                         title.hjust = 0.5),
+                    values = pal_df$c,
+                    labels = pal_df$l) +
+  stat_density_ridges(data = all_dists %>%
+                        filter(trait == "leaf_area_mm2" &
+                                 method == "True"),
+                      aes(x = value,
+                          y = factor(paste(mean_elev,"m"))),
+                      rel_min_height = 0.003,
+                      colour = NA,
+                      scale = 1,
+                      fill = unname(colors)[5],
+                      alpha = 0.3) +
+  stat_density_ridges(data = all_dists %>%
+                        filter(trait == "leaf_area_mm2" &
+                                 method != "True"),
+                      aes(x = value,
+                          y = factor(paste(mean_elev,"m")),
+                          fill = method),
+                      rel_min_height = 0.003,
+                      colour = NA,
+                      scale = 1,
+                      alpha = 0.7) +
   scale_y_discrete(expand = c(0.01, 0)) +
   scale_x_continuous(expand = c(0.1, 0)) +
   theme_classic() +
   labs(x = "Leaf Area",
        y = NULL) +
-  guides(alpha = 'none',
-         size = 'none') +
-  theme(legend.position = 'bottom')
+  guides(alpha = 'none')  +
+  theme(panel.grid.minor = element_blank(),
+        panel.grid.major.x = element_blank(),
+        panel.grid.major.y = element_line(size = 0.1),
+        axis.text.x = element_text(size = 11, face = "bold"),
+        axis.text.y = element_text(size = 9, color = "grey65"),
+        legend.position = 'bottom')
 
-ggsave(here::here("figures/densityestimate2.png"),
+ggsave(here::here("figures/densityestimate_joy.png"),
        height = 8.3, width = 15,
        units = "in", dpi = 600)
 
-all_dists$method <- factor(all_dists$method,
-                           levels = c("Cross-Site CWM",
-                                      "Site-Specific CWM",
-                                      "Non-parametric BS",
-                                      "Parametric BS",
-                                      "True"))
 
-ggplot(all_dists[which(all_dists$trait=="leaf_area_mm2"),],
-       aes(x = value,
-           y = factor(paste(mean_elev,"m")),
-           fill=method,
-           color=method,
-           linetype = method,
-           alpha= method,
-           size = method)) +
-  scale_color_manual(values = colors) +
-  scale_fill_manual(values=c( "#492259","#D95284","#546FBF", "#62F4B6",NA)) +
-  scale_linetype_manual(values=c(1,1,1,1,2)) +
-  scale_alpha_manual(values=c(0.4,0.4,0.4,0.4,0.8)) +
-  scale_size_manual(values=c(0.5,0.5,0.5,0.5,1.5)) +
-  stat_density_ridges(rel_min_height = 0.003,
-                      quantile_lines = TRUE,
-                      quantiles = 2) +
-  scale_y_discrete(expand = c(0.01, 0)) +
-  scale_x_continuous(expand = c(0.1, 0)) +
+### Halfeye plots ----
+
+library(tidybayes)
+ggplot() +
+  stat_interval(data = all_dists %>%
+                  filter(trait == "leaf_area_mm2" &
+                           method == "True"),
+                aes(y = value, 
+                    x = factor(paste(mean_elev,"m"))),
+                .width = c(.1, .25, .5, .75, 1), 
+                height = 5, show.legend = F) +
+  rcartocolor::scale_color_carto_d(palette = "RedOr") + 
+  stat_halfeye(data = all_dists %>%
+                 filter(trait == "leaf_area_mm2" &
+                          method == "True"),
+               aes(y = value, 
+                   x = factor(paste(mean_elev,"m"))), 
+               .width = 0, fill = "#D98032", alpha = 0.2, height = 0.7, point_color = NA) + 
+  stat_halfeye(data = all_dists %>%
+                 filter(trait == "leaf_area_mm2" &
+                          method != "True"),
+               aes(y = value, 
+                   x = factor(paste(mean_elev,"m")),
+                   group = method,
+                   fill = method), 
+               .width = 0, 
+               alpha = 0.7, height = 0.7,
+               point_color = NA) +
+  scale_fill_manual(values  = pal_df$c,
+                    labels = pal_df$l) +
+  scale_discrete_manual("point_color",
+                        values  = pal_df$c,
+                        labels = pal_df$l) +
+  coord_flip() +
+  labs(x = "", y = "Leaf Area") +
   theme_classic() +
-  labs(x = "Leaf Area",
-       y = NULL) +
-  guides(alpha = 'none',
-         size = 'none') +
-  theme(legend.position = 'bottom')
+  theme(panel.grid.minor = element_blank(),
+        panel.grid.major.x = element_blank(),
+        panel.grid.major.y = element_line(size = 0.1),
+        axis.text.x = element_text(size = 11, face = "bold"),
+        axis.text.y = element_text(size = 9, color = "grey65"),
+        legend.position = 'bottom')
 
-ggsave(here::here("figures/densityestimate1.png"),
+ggsave(here::here("figures/densityestimates.png"),
        height = 8.3, width = 15,
        units = "in", dpi = 600)
 
@@ -365,6 +359,7 @@ ggplot(data = np_dist_3x[which(np_dist_3x$site=="Almont" & np_dist_3x$trait=="le
   geom_density(alpha=0.5)+
   scale_color_manual(group.colors)
 np_dist_3x$n
+
 
 
 unique(np_dist_3x$n)
