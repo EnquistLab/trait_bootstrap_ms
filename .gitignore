@@ -1,0 +1,9 @@
+.Rproj.user
+.Rproj
+.Rhistory
+.RData
+.Ruserdata
+
+# MacOS nonsense
+.DS_Store
+*.Rproj

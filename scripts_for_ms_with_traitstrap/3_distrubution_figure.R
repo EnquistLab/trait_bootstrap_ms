@@ -12,8 +12,9 @@ library(tidyr)
 library(dplyr)
 library(ggplot2)
 
-source("C:/Users/Brian/Desktop/current_projects/traitstrap/R/parametric_bs.R")
+source("r_functions/parametric_bs.R")
 source("r_functions/draw_traits_tidy.R")
+source("scripts_for_ms_with_traitstrap/plotting_aesthetics.R")
 
 
 #Code commented out to keep track of origin of trait data
@@ -24,7 +25,7 @@ source("r_functions/draw_traits_tidy.R")
 #atraits <- atraits[,which(!is.na(atraits[1,]))]
 #atraits$taxon<-gsub(pattern = "Artemesia", replacement = "Artemisia",x = atraits$taxon)#correct name error
 #Prune trait data to needed columns
-#atraits$SLA<-as.numeric(as.character(atraits$SLA)) 
+#atraits$SLA<-as.numeric(as.character(atraits$SLA))
 #atraits<-atraits[c("site","taxon","leaf_area_mm2","dry_mass_mg","SLA_m2_kg","height","biomass_per_ind" )]
 #saveRDS(object = atraits,file = "data/all_traits_unscaled_RMBL.rds")
 
@@ -81,7 +82,7 @@ species_means_nt$site <- "ALL" #Note: adding a "dummy" site here so traitstrap w
 species_site_means_nt <- samples_to_means(tidy_traits = traits_nt,level = "taxon_by_site")
 
 #Trait imputation for distributions
-imputed_full <- 
+imputed_full <-
   trait_impute(comm = community,
                traits = traits_nt,
                scale_hierarchy = "site",
@@ -92,7 +93,7 @@ imputed_full <-
                abundance_col = "abundance")
 
 #Trait imputation for species mean
-imputed_species_mean <- 
+imputed_species_mean <-
   trait_impute(comm = community,
                traits = species_means_nt,
                scale_hierarchy = "site",
@@ -103,7 +104,7 @@ imputed_species_mean <-
                abundance_col = "abundance")
 
 #Trait imputation for species x site mean
-imputed_species_x_site_mean <- 
+imputed_species_x_site_mean <-
   trait_impute(comm = community,
                traits = species_site_means_nt,
                scale_hierarchy = "site",
@@ -129,7 +130,7 @@ pbs_dist$method <- "Parametric BS"
 cwm_dist$method <- "Cross-Site CWM"
 cwm_site_dist$method <- "Site-Specific CWM"
 
-all_dists <- rbind(np_dist,pbs_dist,cwm_dist,cwm_site_dist)
+all_dists <- rbind(as_tibble(np_dist),as_tibble(pbs_dist),as_tibble(cwm_dist),as_tibble(cwm_site_dist))
 
 
 atraits_dist <- atraits
@@ -149,24 +150,37 @@ rm(atraits_dist)
 
 
 
-ggplot(data = all_dists[which(all_dists$site=="Road"),],mapping = aes(x=value,color=method,fill=method,alpha=0.5))+geom_density()+facet_wrap(~trait,scales = "free")
+ggplot(data = all_dists[which(all_dists$site=="Road"),],
+       mapping = aes(x=value,color=method,fill=method,alpha=0.5)) +
+  geom_density() +
+  facet_wrap(~trait,scales = "free")
 
-ggplot(data = all_dists[which(all_dists$trait=="height"),],mapping = aes(x=value,color=method,fill=method,alpha=0.5))+geom_density()+facet_wrap(~site,scales = "free_y")
+ggplot(data = all_dists[which(all_dists$trait=="height"),],
+       mapping = aes(x=value,color=method,fill=method,alpha=0.5)) +
+  geom_density() +
+  facet_wrap(~site,scales = "free_y")
+
 library(ggridges)
 
-colors <- c("Cross-Site CWM" = "#461E52",
-            "Site-Specific CWM" = "#DD517F",
-            "True" = "#E68E36",
-            "Non-parametric BS" = "#556DC8",
-            "Parametric BS" = "#7998EE")
+colors <- c("Cross-Site CWM" = "#492259",
+            "Site-Specific CWM" = "#D95284",
+            "True" = "#D98032",
+            "Non-parametric BS" = "#546FBF",
+            "Parametric BS" = "#62F4B6")
 
 
 
-ggplot(all_dists[which(all_dists$trait=="height"),], aes(x = value, y = as.factor(round(mean_elev)),color=method,fill=method)) +
+ggplot(all_dists[which(all_dists$trait=="height"),],
+       aes(x = value,
+           y = as.factor(round(mean_elev)),
+           color = method,
+           fill = method)) +
   geom_density_ridges(rel_min_height = 0.005,alpha=0.5) +
   scale_y_discrete(expand = c(0.01, 0)) +
   scale_x_continuous(expand = c(0.1, 0)) +
-  theme_ridges()+scale_color_manual(values = colors)+scale_fill_manual(values=colors)
+  theme_ridges() +
+  scale_color_manual(values = colors) +
+  scale_fill_manual(values=colors)
 
 ggplot(all_dists[which(all_dists$trait=="biomass_per_ind"),], aes(x = value, y = as.factor(round(mean_elev)),color=method,fill=method)) +
   geom_density_ridges(rel_min_height = 0.005,alpha=0.5) +
@@ -193,14 +207,118 @@ ggplot(all_dists[which(all_dists$trait=="LMA_mg_mm2"),], aes(x = value, y = as.f
   theme_ridges()
 
 
-ggplot(all_dists[which(all_dists$trait=="leaf_area_mm2"),], 
-       aes(x = value, 
+ggplot(all_dists[which(all_dists$trait=="leaf_area_mm2"),],
+       aes(x = value,
            y = factor(paste(mean_elev,"m")),
-           fill=method,color=method)) +
-  geom_density_ridges(rel_min_height = 0.005,alpha=0.5) +
+           fill=method,
+           color=method,
+           linetype = method,
+           alpha= method)) +
+  geom_density_ridges(rel_min_height = 0.005) +
   scale_y_discrete(expand = c(0.01, 0)) +
   scale_x_continuous(expand = c(0.1, 0)) +
-  theme_ridges()+xlab("Leaf Area")+ylab(NULL)
+  theme_ridges() +
+  labs(x = "Leaf Area",
+       y = NULL) +
+  scale_color_manual(values = colors) +
+  scale_fill_manual(values=colors) +
+  scale_linetype_manual(values=c(1,1,1,1,2)) +
+  scale_alpha_manual(values=c(0.5,0.5,0.5,0.5,0.7)) +
+  guides(alpha = 'none')
+
+##Tanya's zone
+
+### Joy (Ridge) Plots ----
+
+all_dists$method <- factor(all_dists$method,
+                           levels = c("True",
+                                      "Cross-Site CWM",
+                                      "Site-Specific CWM",
+                                      "Non-parametric BS",
+                                      "Parametric BS"))
+
+ggplot() +
+  scale_fill_manual(guide = guide_legend(title = "Method",
+                                         #nrow = 1,
+                                         override.aes = list(alpha = 0.7, shape = 2, size = 8),
+                                         title.position="top",
+                                         title.hjust = 0.5),
+                    values = pal_df$c,
+                    labels = pal_df$l) +
+  stat_density_ridges(data = all_dists %>%
+                        filter(trait == "leaf_area_mm2" &
+                                 method == "True"),
+                      aes(x = value,
+                          y = factor(paste(mean_elev,"m"))),
+                      rel_min_height = 0.003,
+                      colour = NA,
+                      scale = 1,
+                      fill = unname(colors)[5],
+                      alpha = 0.3) +
+  stat_density_ridges(data = all_dists %>%
+                        filter(trait == "leaf_area_mm2" &
+                                 method != "True"),
+                      aes(x = value,
+                          y = factor(paste(mean_elev,"m")),
+                          fill = method),
+                      rel_min_height = 0.003,
+                      colour = NA,
+                      scale = 1,
+                      alpha = 0.7) +
+  scale_y_discrete(expand = c(0.01, 0)) +
+  scale_x_continuous(expand = c(0.1, 0)) +
+  theme_classic() +
+  labs(x = "Leaf Area",
+       y = NULL) +
+  guides(alpha = 'none')  +
+  figure_theme
+
+ggsave(here::here("figures/densityestimate_joy.png"),
+       height = 8.3, width = 15,
+       units = "in", dpi = 600)
+
+
+### Halfeye plots ----
+
+library(tidybayes)
+ggplot() +
+  stat_interval(data = all_dists %>%
+                  filter(trait == "leaf_area_mm2" &
+                           method == "True"),
+                aes(y = value, 
+                    x = factor(paste(mean_elev,"m"))),
+                .width = c(.1, .25, .5, .75, 1), 
+                height = 5, show.legend = F) +
+  rcartocolor::scale_color_carto_d(palette = "RedOr") + 
+  stat_halfeye(data = all_dists %>%
+                 filter(trait == "leaf_area_mm2" &
+                          method == "True"),
+               aes(y = value, 
+                   x = factor(paste(mean_elev,"m"))), 
+               .width = 0, fill = "#D98032", alpha = 0.2, height = 0.7, point_color = NA) + 
+  stat_halfeye(data = all_dists %>%
+                 filter(trait == "leaf_area_mm2" &
+                          method != "True"),
+               aes(y = value, 
+                   x = factor(paste(mean_elev,"m")),
+                   group = method,
+                   fill = method), 
+               .width = 0, 
+               alpha = 0.7, height = 0.7,
+               point_color = NA) +
+  scale_fill_manual(values  = pal_df$c,
+                    labels = pal_df$l) +
+  scale_discrete_manual("point_color",
+                        values  = pal_df$c,
+                        labels = pal_df$l) +
+  coord_flip() +
+  labs(x = "", y = "Leaf Area") +
+  theme_classic()  +
+  figure_theme
+
+ggsave(here::here("figures/densityestimates.png"),
+       height = 8.3, width = 15,
+       units = "in", dpi = 600)
 
 #For some reason grouping by elevation will place the plots on a nice elevation scale, but breaks the coloring.  Not sure if there is a fix for this
 
@@ -232,6 +350,7 @@ ggplot(data = np_dist_3x[which(np_dist_3x$site=="Almont" & np_dist_3x$trait=="le
   geom_density(alpha=0.5)+
   scale_color_manual(group.colors)
 np_dist_3x$n
+
 
 
 unique(np_dist_3x$n)
