@@ -173,6 +173,96 @@ ggsave(here::here("figures/Lollipops_LeafArea.png"),
        height = 8.3, width = 15,
        units = "in", dpi = 600)
 
+#All traits
+
+simmeans = 
+  simdata %>%
+  group_by(trait, moment, site) %>%
+  mutate(true_val = mean(true_value)) %>%
+  group_by(trait, moment, method, site, true_val) %>%
+  summarise(estimate = mean(estimate)) %>%
+  filter(site == 'Road')
+
+simdata_lollipop =
+  simdata %>%
+  filter(site == 'Road')
+
+#re-order to match moment 'numbers'
+simmeans$moment <- factor(simmeans$moment,
+                          levels = c("mean",
+                                     "variance",
+                                     "skewness",
+                                     "kurtosis"))
+
+simdata_lollipop$moment <- factor(simdata_lollipop$moment,
+                                  levels = c("mean",
+                                             "variance",
+                                             "skewness",
+                                             "kurtosis"))
+
+
+
+ggplot(simmeans) + 
+  geom_vline(aes(xintercept = true_val), 
+             color = "grey50",
+             size = 1.5) +
+  geom_jitter(data = simdata_lollipop,
+              aes(x = estimate, 
+                  y = method, 
+                  fill = method,
+                  size = sample_size), 
+              color = "grey85", 
+              width = 0, height = 0.2, alpha = 0.3, shape = 21) +
+  geom_segment(data = simmeans,
+               aes(x = true_val, 
+                   xend = estimate, 
+                   y = method, 
+                   yend = method), 
+               color = "grey50", 
+               size = 1) +
+  geom_point(data = simmeans,
+             aes(x = estimate, 
+                 y = method),
+             color = "grey50", size = 6) + 
+  geom_point(data = simmeans,
+             aes(x = estimate, 
+                 y = method,
+                 color = method), 
+             size = 5) +
+  facet_grid(cols = vars(moment),
+             rows = vars(trait),
+             labeller = labeller(
+               trait = traits_parsed,
+               .default = capitalize
+             ),
+             scales = 'free',
+             switch = 'y') +
+  scale_fill_manual(guide = guide_legend(title = "Method"),
+                    values = pal_df$c,
+                    labels = pal_df$l) +
+  scale_colour_manual(guide = guide_legend(title = "Method"),
+                      values = pal_df$c,
+                      labels = pal_df$l) +
+  scale_size(guide = guide_legend(title = "Sample Size")) +
+  theme_void() +
+  theme(
+    legend.position = "bottom",
+    legend.title = element_text(size = 14),
+    plot.background = element_rect(fill = "white",
+                                   colour = NA),
+    panel.background = element_rect(fill = "white",
+                                    colour = NA),
+    strip.text.x = element_text(margin = margin(0, 0, 10, 0),
+                                size = 16, face = "bold"),
+    strip.text.y.left = element_text(colour = "grey65",
+                                     margin = margin(0, 10, 10, 10),
+                                     angle = 0,
+                                     size = 16)
+  )
+
+ggsave(here::here("figures/Lollipops_All.png"),
+       height = 8.3, width = 15,
+       units = "in", dpi = 600)
 
 ############################################################
 
