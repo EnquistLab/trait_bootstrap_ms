@@ -140,21 +140,12 @@ ggplot(data = sim_summary[which(sim_summary$site=="Almont"),],
   facet_grid(rows = moment~trait,scales = "free")
 
 
-##### Balloon plots - accuracy of moments - 'global'
+### Balloon plots - accuracy of moments - 'global' ----
 
 library(ggforce)
 library(prismatic)
 
 f = 0.7 #shape of baloons
-
-colors <- c("Cross-Site CWM" = "#492259",
-            "Site-Specific CWM" = "#D95284",
-            "Non-parametric BS" = "#546FBF",
-            "Parametric BS" = "#62F4B6",
-            "True" = "#D98032")
-
-# Join colors with categories
-pal_df <- data.frame(c = unname(colors)[1:4], l = names(colors)[1:4])
 
 #create balloons
 simdata_shapes =
@@ -217,10 +208,10 @@ ggplot(simdata_shapes %>%
          mutate(combo = paste(moment, trait))) +
   geom_point(aes(0, 0), size = 0.01, colour = "grey30")  +  # Make a "center"
   # Plot a "balloon" for every category
-  geom_bspline_closed(aes(x_1, y_1, group = combo, fill = pal[1]), alpha = 0.7) +
-  geom_bspline_closed(aes(x_2, y_2, group = combo, fill = pal[2]), alpha = 0.7) +
-  geom_bspline_closed(aes(x_3, y_3, group = combo, fill = pal[3]), alpha = 0.7) +
-  geom_bspline_closed(aes(x_4, y_4, group = combo, fill = pal[4]), alpha = 0.7) +
+  geom_bspline_closed(aes(x_1, y_1, group = combo, fill = pal_df$c[1]), alpha = 0.7) +
+  geom_bspline_closed(aes(x_2, y_2, group = combo, fill = pal_df$c[2]), alpha = 0.7) +
+  geom_bspline_closed(aes(x_3, y_3, group = combo, fill = pal_df$c[3]), alpha = 0.7) +
+  geom_bspline_closed(aes(x_4, y_4, group = combo, fill = pal_df$c[4]), alpha = 0.7) +
   scale_fill_identity(guide = guide_legend(title = "Method",
                                            #nrow = 1,
                                            override.aes = list(alpha = 0.7, shape = 2, size = 8),
@@ -241,14 +232,13 @@ ggplot(simdata_shapes %>%
   theme(
     legend.position = "bottom",
     legend.title = element_text(size = 14),
-    plot.background = element_rect(fill = "grey97",
+    plot.background = element_rect(fill = "white",
                                    colour = NA),
-    panel.background = element_rect(fill = "grey97",
+    panel.background = element_rect(fill = "white",
                                     colour = NA),
-    strip.text.x = element_text(colour = "grey20",
-                                margin = margin(0, 0, 10, 0),
-                                size = 16),
-    strip.text.y.left = element_text(colour = "grey20",
+    strip.text.x = element_text(margin = margin(0, 0, 10, 0),
+                                size = 16, face = "bold"),
+    strip.text.y.left = element_text(colour = "grey65",
                                      margin = margin(0, 10, 10, 10),
                                      angle = 0,
                                      size = 16)

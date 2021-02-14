@@ -14,6 +14,7 @@ library(ggplot2)
 
 source("r_functions/parametric_bs.R")
 source("r_functions/draw_traits_tidy.R")
+source("scripts_for_ms_with_traitstrap/plotting_aesthetics.R")
 
 
 #Code commented out to keep track of origin of trait data
@@ -270,12 +271,7 @@ ggplot() +
   labs(x = "Leaf Area",
        y = NULL) +
   guides(alpha = 'none')  +
-  theme(panel.grid.minor = element_blank(),
-        panel.grid.major.x = element_blank(),
-        panel.grid.major.y = element_line(size = 0.1),
-        axis.text.x = element_text(size = 11, face = "bold"),
-        axis.text.y = element_text(size = 9, color = "grey65"),
-        legend.position = 'bottom')
+  figure_theme
 
 ggsave(here::here("figures/densityestimate_joy.png"),
        height = 8.3, width = 15,
@@ -317,13 +313,8 @@ ggplot() +
                         labels = pal_df$l) +
   coord_flip() +
   labs(x = "", y = "Leaf Area") +
-  theme_classic() +
-  theme(panel.grid.minor = element_blank(),
-        panel.grid.major.x = element_blank(),
-        panel.grid.major.y = element_line(size = 0.1),
-        axis.text.x = element_text(size = 11, face = "bold"),
-        axis.text.y = element_text(size = 9, color = "grey65"),
-        legend.position = 'bottom')
+  theme_classic()  +
+  figure_theme
 
 ggsave(here::here("figures/densityestimates.png"),
        height = 8.3, width = 15,
