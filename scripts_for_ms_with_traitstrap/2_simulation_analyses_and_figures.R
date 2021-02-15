@@ -223,12 +223,12 @@ ggplot(simmeans) +
   geom_point(data = simmeans,
              aes(x = estimate, 
                  y = method),
-             color = "grey50", size = 6) + 
+             color = "grey50", size = 4) + 
   geom_point(data = simmeans,
              aes(x = estimate, 
                  y = method,
                  color = method), 
-             size = 5) +
+             size = 3) +
   facet_grid(cols = vars(moment),
              rows = vars(trait),
              labeller = labeller(
@@ -263,6 +263,7 @@ ggplot(simmeans) +
 ggsave(here::here("figures/Lollipops_All.png"),
        height = 8.3, width = 15,
        units = "in", dpi = 600)
+
 
 ############################################################
 
@@ -423,4 +424,181 @@ ggplot(simdata_shapes %>%
 
 ggsave(here::here("figures/CIballoons.png"),
        height = 10, width = 7.6,
+       units = "in", dpi = 600)
+
+### Moon plots - accuracy of moments - 'global' ----
+
+library(gggibbous)
+
+sim_moon =   
+  simdata %>%
+  #if true value falls in estimate's CI
+  mutate(hit = ifelse(ci_low <= true_value & true_value <= ci_high,
+                      2,
+                      1),
+         deviation = abs((estimate - true_value)/true_value)) %>%
+  group_by(trait, method, moment, sample_size) %>%
+  #calcualte proportion of 'hits' per trait, methos, moment
+  summarise(percentage = sum(hit - 1)/sum(hit),
+            deviation = mean(abs((estimate - true_value)/true_value))) 
+
+ggplot(sim_moon %>%
+         filter(trait == 'leaf_area_mm2')) + 
+  geom_hline(aes(yintercept = 0), 
+             color = "grey50",
+             size = 1.5) +
+  geom_linerange(aes(x = sample_size, 
+                     ymin = 0, 
+                     ymax = deviation), 
+                 color = "grey50", 
+                 size = 0.3) +
+  geom_point(
+    aes(
+      x = sample_size,
+      y = deviation,
+      color = method
+    ), 
+    size = 5) +
+  geom_moon(
+    aes(
+      x = sample_size,
+      y = deviation,
+      ratio = percentage, 
+      #right = right, 
+      fill = method
+    ),
+    color = "transparent",
+    size = 5
+  ) + 
+  scale_fill_manual(guide = guide_legend(title = "Method",
+                                         #nrow = 1,
+                                         title.position="top",
+                                         title.hjust = 0.5),
+                    values = pal_df$c,
+                    labels = pal_df$l) +
+  scale_colour_manual(guide = guide_legend(title = "Method",
+                                           #nrow = 1,
+                                           title.position="top",
+                                           title.hjust = 0.5),
+                      values = colorspace::lighten(pal_df$c, amount = 0.5),
+                      labels = pal_df$l) +
+  facet_grid(cols = vars(moment),
+             rows = vars(method),
+             labeller = labeller(
+               trait = traits_parsed,
+               .default = capitalize
+             ),
+             switch = 'y') +
+  # Theme
+  figure_theme +
+  theme(
+    legend.position = "bottom",
+    legend.title = element_text(size = 14),
+    plot.background = element_rect(fill = "white",
+                                   colour = NA),
+    panel.background = element_rect(fill = "white",
+                                    colour = NA),
+    strip.text.x = element_text(margin = margin(0, 0, 10, 0),
+                                size = 14, face = "bold"),
+    strip.text.y.left = element_blank()
+  )
+
+ggsave(here::here("figures/moons_LeafArea.png"),
+       height = 8.3, width = 15,
+       units = "in", dpi = 600)
+
+
+ggplot(sim_moon %>%
+         filter(trait == 'leaf_area_mm2')) + 
+  geom_hline(aes(yintercept = 0), 
+             color = "grey50",
+             size = 1.5) +
+  geom_smooth(
+    aes(
+    x = sample_size,
+    y = deviation,
+    color = method),
+    se = FALSE,
+    alpha = 0.5,
+    linetype = 2,
+    size = 0.8) +
+  geom_linerange(data = sim_moon %>%
+                   filter(trait == 'leaf_area_mm2') %>%
+                   slice(which(row_number() %% 5 == 1)),
+                 aes(x = sample_size, 
+                     ymin = 0, 
+                     ymax = deviation), 
+                 color = "grey50", 
+                 size = 0.3) +
+  geom_point(data = sim_moon %>%
+               filter(trait == 'leaf_area_mm2') %>%
+               slice(which(row_number() %% 5 == 1)),
+    aes(
+      x = sample_size,
+      y = deviation,
+      color = method
+    ), 
+    size = 9) +
+  geom_moon(data = sim_moon %>%
+              filter(trait == 'leaf_area_mm2') %>%
+              slice(which(row_number() %% 5 == 1)),
+    aes(
+      x = sample_size,
+      y = deviation,
+      ratio = percentage, 
+      #right = right, 
+      fill = method
+    ),
+    color = "transparent",
+    size = 9) + 
+  scale_fill_manual(guide = guide_legend(title = "Method",
+                                         #nrow = 1,
+                                         title.position="top",
+                                         title.hjust = 0.5),
+                    values = pal_df$c,
+                    labels = pal_df$l) +
+  scale_colour_manual(guide = guide_legend(title = "Method",
+                                           #nrow = 1,
+                                           title.position="top",
+                                           title.hjust = 0.5),
+                      values = colorspace::lighten(pal_df$c, amount = 0.5),
+                      labels = pal_df$l) +
+  geom_text(
+    data = sim_moon %>%
+      filter(trait == 'leaf_area_mm2') %>%
+      slice(which(row_number() %% 5 == 1)),
+    aes(
+      x = sample_size,
+      y = deviation + 0.5,
+      label = glue::glue("{round(percentage*100, 0.1)}%")
+      #color = region,
+    ),
+    size = 4,
+    hjust = 0,
+    nudge_x = 3.2
+    colour = 
+  ) +
+  facet_grid(cols = vars(moment),
+             rows = vars(method),
+             labeller = labeller(
+               trait = traits_parsed,
+               .default = capitalize
+             ),
+             switch = 'y') +
+  # Theme
+  figure_theme +
+  theme(
+    legend.position = "bottom",
+    legend.title = element_text(size = 14),
+    plot.background = element_rect(fill = "white",
+                                   colour = NA),
+    panel.background = element_rect(fill = "white",
+                                    colour = NA),
+    strip.text.x = element_text(margin = margin(0, 0, 10, 0),
+                                size = 14, face = "bold"),
+    strip.text.y.left = element_blank()
+  )
+
+ggsave(here::here("figures/moons_LeafArea_subset.png"),
+       height = 8.3, width = 15,
        units = "in", dpi = 600)
