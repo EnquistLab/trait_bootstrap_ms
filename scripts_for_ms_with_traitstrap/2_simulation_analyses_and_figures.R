@@ -500,14 +500,15 @@ ggplot(sim_moon %>%
                                     colour = NA),
     strip.text.x = element_text(margin = margin(0, 0, 10, 0),
                                 size = 14, face = "bold"),
-    strip.text.y.left = element_blank()
+    strip.text.y.left = element_blank(),
+    legend.key = element_blank()
   )
 
 ggsave(here::here("figures/moons_LeafArea.png"),
        height = 8.3, width = 15,
        units = "in", dpi = 600)
 
-
+#TODO: expand y axis and work on padding around text 
 ggplot(sim_moon %>%
          filter(trait == 'leaf_area_mm2')) + 
   geom_hline(aes(yintercept = 0), 
@@ -569,14 +570,14 @@ ggplot(sim_moon %>%
       slice(which(row_number() %% 5 == 1)),
     aes(
       x = sample_size,
-      y = deviation + 0.5,
+      y = deviation + 0.6,
       label = glue::glue("{round(percentage*100, 0.1)}%")
       #color = region,
     ),
-    size = 4,
+    size = 3.5,
     hjust = 0,
-    nudge_x = 3.2
-    colour = 
+    nudge_x = 8,
+    colour = "grey65"
   ) +
   facet_grid(cols = vars(moment),
              rows = vars(method),
@@ -596,9 +597,10 @@ ggplot(sim_moon %>%
                                     colour = NA),
     strip.text.x = element_text(margin = margin(0, 0, 10, 0),
                                 size = 14, face = "bold"),
-    strip.text.y.left = element_blank()
+    strip.text.y.left = element_blank(),
+    legend.key = element_blank()
   )
 
 ggsave(here::here("figures/moons_LeafArea_subset.png"),
-       height = 8.3, width = 15,
+       height = 8.3, width = 15.3,
        units = "in", dpi = 600)
