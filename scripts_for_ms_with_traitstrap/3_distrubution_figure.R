@@ -289,13 +289,14 @@ ggplot() +
                     x = factor(paste(mean_elev,"m"))),
                 .width = c(.1, .25, .5, .75, 1), 
                 height = 5, show.legend = F) +
-  rcartocolor::scale_color_carto_d(palette = "RedOr") + 
+  rcartocolor::scale_color_carto_d(palette = "RedOr") +
   stat_halfeye(data = all_dists %>%
                  filter(trait == "leaf_area_mm2" &
                           method == "True"),
                aes(y = value, 
                    x = factor(paste(mean_elev,"m"))), 
-               .width = 0, fill = "#D98032", alpha = 0.2, height = 0.7, point_color = NA) + 
+               .width = 0, fill = "#D98032", alpha = 0.2, height = 0.7, 
+               point_color = NA) + 
   stat_halfeye(data = all_dists %>%
                  filter(trait == "leaf_area_mm2" &
                           method != "True"),
