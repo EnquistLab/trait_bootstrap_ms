@@ -426,6 +426,56 @@ ggsave(here::here("figures/CIballoons.png"),
        height = 10, width = 7.6,
        units = "in", dpi = 600)
 
+# Plot - with reference ellipse
+ggplot(simdata_shapes %>%
+         mutate(combo = paste(moment, trait))) +
+  geom_ellipse(aes(x0 = 0,y0 = 0,
+                   a = 0.5, 
+                   b = 0.5, angle = 0),
+               colour = colorspace::lighten(unname(colors)[5], 0.8),
+               linetype = 4) +
+  geom_point(aes(0, 0), size = 0.01, colour = "grey30")  +  # Make a "center"
+  # Plot a "balloon" for every category
+  geom_bspline_closed(aes(x_1, y_1, group = combo, fill = pal_df$c[1]), alpha = 0.7) +
+  geom_bspline_closed(aes(x_2, y_2, group = combo, fill = pal_df$c[2]), alpha = 0.7) +
+  geom_bspline_closed(aes(x_3, y_3, group = combo, fill = pal_df$c[3]), alpha = 0.7) +
+  geom_bspline_closed(aes(x_4, y_4, group = combo, fill = pal_df$c[4]), alpha = 0.7) +
+  scale_fill_identity(guide = guide_legend(title = "Method",
+                                           #nrow = 1,
+                                           override.aes = list(alpha = 0.7, shape = 2, size = 8),
+                                           title.position="top",
+                                           title.hjust = 0.5),
+                      breaks = pal_df$c,
+                      labels = pal_df$l) +
+  coord_fixed(ratio = 1) +
+  facet_grid(col = vars(moment),
+             row = vars(trait),
+             labeller = labeller(
+               trait = traits_parsed,
+               .default = capitalize
+             ),
+             switch = 'y') +
+  # Theme
+  theme_void() +
+  theme(
+    legend.position = "bottom",
+    legend.title = element_text(size = 14),
+    plot.background = element_rect(fill = "white",
+                                   colour = NA),
+    panel.background = element_rect(fill = "white",
+                                    colour = NA),
+    strip.text.x = element_text(margin = margin(0, 0, 10, 0),
+                                size = 16, face = "bold"),
+    strip.text.y.left = element_text(colour = "grey65",
+                                     margin = margin(0, 10, 10, 10),
+                                     angle = 0,
+                                     size = 16)
+  )
+
+ggsave(here::here("figures/CIballoons_refEllipse.png"),
+       height = 10, width = 7.6,
+       units = "in", dpi = 600)
+
 ### Moon plots - accuracy of moments - 'global' ----
 
 library(gggibbous)
