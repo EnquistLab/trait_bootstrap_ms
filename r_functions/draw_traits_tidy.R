@@ -63,3 +63,45 @@ samples_to_means <- function(tidy_traits, level = "taxon_by_site"){
 
 
 #######################################
+
+
+
+#'@param tidy_traits Trait data in tidy format
+#'@param sample_size Numeric (one number only)
+#'@param focal_trait Trait used to simulate biased sampling
+#'@param prob Probability of sampling each leaf (passed to dnbinom)
+draw_traits_tidy_large <- function(tidy_traits,sample_size,focal_trait = "leaf_area_mm2",prob = 0.75){
+  
+  tidy_traits$site <- as.character(tidy_traits$site)
+  tidy_traits$taxon <- as.character(tidy_traits$taxon)
+  
+  #create a site x taxon object to apply over
+  site_x_taxon <- unique(tidy_traits[c("site","taxon")])
+  
+  trait_draw <- apply(X = site_x_taxon, MARGIN = 1,FUN = function(x){
+    
+    #get relevant individual IDs
+    IDS <- unique(tidy_traits$ID[which(tidy_traits$site == x[1] & tidy_traits$taxon == x[2])])
+    
+    #if number of IDS <= sample size, return them all
+    if(length(IDS) <= sample_size){
+      return(tidy_traits[which(tidy_traits$ID %in% IDS),])
+    }                   
+    
+    #if number of IDs > sample size, take a biased sample
+    sorted_IDS <- tidy_traits[which(tidy_traits$ID %in% IDS & tidy_traits$trait == focal_trait),"ID"][order(tidy_traits[which(tidy_traits$ID %in% IDS & tidy_traits$trait == focal_trait),]["value"],decreasing = T)]
+    
+    
+    return( tidy_traits[which(tidy_traits$ID %in% resample(x = sorted_IDS,
+                                                           size = sample_size,
+                                                           replace = F,
+                                                           prob = dnbinom(x = 1:length(sorted_IDS),size = sample_size,prob = prob))),]  )
+    
+  }  )#apply fx
+  
+  out <- do.call(rbind,trait_draw)
+  rownames(out) <- NULL
+  return(out)
+  
+}
+
