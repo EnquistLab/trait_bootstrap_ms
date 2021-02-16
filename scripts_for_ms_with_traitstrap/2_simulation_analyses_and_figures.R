@@ -266,7 +266,7 @@ ggplot(simmeans) +
                  y = method,
                  color = method), 
              size = 3) +
-  facet_wrap(~moment + trait,
+  facet_wrap(~trait + moment,
              #rows = vars(trait),
              labeller = labeller(
                trait = traits_parsed,
