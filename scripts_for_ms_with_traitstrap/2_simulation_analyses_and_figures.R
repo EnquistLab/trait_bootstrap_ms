@@ -286,7 +286,7 @@ ggplot(simmeans) +
   theme(axis.text.y = element_blank())
 
 ggsave(here::here("figures/Lollipops_All.png"),
-       height = 8.3, width = 15,
+       height = 14, width = 14,
        units = "in", dpi = 600)
 
 
