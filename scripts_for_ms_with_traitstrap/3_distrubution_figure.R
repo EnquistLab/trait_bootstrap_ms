@@ -264,7 +264,7 @@ ggplot() +
                       rel_min_height = 0.003,
                       colour = NA,
                       scale = 1,
-                      alpha = 0.7) +
+                      alpha = 0.65) +
   scale_y_discrete(expand = c(0.01, 0)) +
   scale_x_continuous(expand = c(0.1, 0)) +
   theme_classic() +
@@ -289,13 +289,14 @@ ggplot() +
                     x = factor(paste(mean_elev,"m"))),
                 .width = c(.1, .25, .5, .75, 1), 
                 height = 5, show.legend = F) +
-  rcartocolor::scale_color_carto_d(palette = "RedOr") + 
+  rcartocolor::scale_color_carto_d(palette = "RedOr") +
   stat_halfeye(data = all_dists %>%
                  filter(trait == "leaf_area_mm2" &
                           method == "True"),
                aes(y = value, 
                    x = factor(paste(mean_elev,"m"))), 
-               .width = 0, fill = "#D98032", alpha = 0.2, height = 0.7, point_color = NA) + 
+               .width = 0, fill = "#D98032", alpha = 0.2, height = 0.7, 
+               point_color = NA) + 
   stat_halfeye(data = all_dists %>%
                  filter(trait == "leaf_area_mm2" &
                           method != "True"),
@@ -354,3 +355,30 @@ np_dist_3x$n
 
 
 unique(np_dist_3x$n)
+
+ggplot() +
+  scale_fill_manual(guide = guide_legend(title = "Method",
+                                         #nrow = 1,
+                                         override.aes = list(alpha = 0.7, shape = 2, size = 8),
+                                         title.position="top",
+                                         title.hjust = 0.5),
+                    values = unname(colors),
+                    labels = names(colors)) +
+  stat_density_ridges(data = all_dists %>%
+                        filter(trait == "biomass_per_ind"),
+                      aes(x = value,
+                          y = method,
+                          fill = method),
+                      rel_min_height = 0.003,
+                      colour = NA,
+                      scale = 1,
+                      alpha = 0.7) +
+  scale_y_discrete(expand = c(0.01, 0)) +
+  scale_x_continuous(expand = c(0.1, 0)) +
+  theme_classic() +
+  labs(x = "Leaf Area",
+       y = NULL) +
+  guides(alpha = 'none')  +
+  figure_theme
+
+biomass_per_ind     dry_mass_mg          height   leaf_area_mm2      LMA_mg_mm2
