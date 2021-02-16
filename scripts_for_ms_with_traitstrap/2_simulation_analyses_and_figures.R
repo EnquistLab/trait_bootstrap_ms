@@ -86,9 +86,9 @@ simdata %>%
   mutate(accuracy = abs(log10(abs(estimate/true_value)))) %>%
   group_by(moment, method, trait, sample_size) %>%
   slice_sample(n = 6) %>%
-ggplot(aes(y = accuracy,
-           x = sample_size,
-           color = method)) +
+  ggplot(aes(y = accuracy,
+             x = sample_size,
+             color = method)) +
   geom_hline(yintercept = 0,
              color = "grey50",
              size = 1.5) +
@@ -221,14 +221,17 @@ simmeans =
 simdata_lollipop =
   simdata %>%
   filter(site == 'Road') %>%
-  mutate(facet_lab = paste0(moment,"_",trait))
+  mutate(facet_lab = paste0(moment,"_",trait)) %>%
+  group_by(trait, moment, method, site, sample_size) %>%
+  slice_sample(n = 20)
 
 #re-order to match moment 'numbers'
 simmeans$moment <- factor(simmeans$moment,
-                          levels = c("mean",
-                                     "variance",
-                                     "skewness",
-                                     "kurtosis"))
+                             levels = c("mean",
+                                        "variance",
+                                        "skewness",
+                                        "kurtosis"))
+
 
 simdata_lollipop$moment <- factor(simdata_lollipop$moment,
                                   levels = c("mean",
@@ -242,7 +245,7 @@ simdata_lollipop$moment <- factor(simdata_lollipop$moment,
 ggplot(simmeans) + 
   geom_vline(aes(xintercept = true_val), 
              color = "grey50",
-             size = 1.5) +
+             size = 1) +
   geom_jitter(data = simdata_lollipop,
               aes(x = estimate, 
                   y = method, 
@@ -256,21 +259,22 @@ ggplot(simmeans) +
                    y = method, 
                    yend = method), 
                color = "grey50", 
-               size = 1) +
+               size = 0.5) +
   geom_point(data = simmeans,
              aes(x = estimate, 
                  y = method),
-             color = "grey50", size = 4) + 
+             color = "grey50", size = 3) + 
   geom_point(data = simmeans,
              aes(x = estimate, 
                  y = method,
                  color = method), 
-             size = 3) +
+             size = 2) +
   facet_wrap(~trait + moment,
              #rows = vars(trait),
              labeller = labeller(
+               .default = capitalize,
                trait = traits_parsed,
-               .default = capitalize
+               .multi_line = FALSE
              ),
              ncol = 4,
              scales = "free_x",
@@ -281,13 +285,24 @@ ggplot(simmeans) +
   scale_colour_manual(guide = guide_legend(title = "Method"),
                       values = pal_df$c,
                       labels = pal_df$l) +
-  scale_size(guide = guide_legend(title = "Sample Size")) +
+  scale_size(guide = guide_legend(title = "Sample Size"),
+             range = c(0.5, 2)) +
+  labs(
+    x = "Estimated Value",
+    y = NULL
+  ) +
+  guides(size = 'none') +
   figure_theme +
-  theme(axis.text.y = element_blank())
+  theme(axis.text.y = element_blank(),
+        axis.text.x = element_text(size = 8),
+        panel.background = element_rect(fill = "grey18",
+                                        colour = NA),
+        panel.grid.major.y = element_blank(),
+        axis.ticks.y = element_blank())
 
 ggsave(here::here("figures/Lollipops_All.png"),
-       height = 14, width = 14,
-       units = "in", dpi = 600)
+       height = 8, width = 9,
+       units = "in", dpi = 300)
 
 
 ############################################################
@@ -505,7 +520,7 @@ sim_moon =
                       1),
          deviation = abs((estimate - true_value)/true_value)) %>%
   group_by(trait, method, moment, sample_size) %>%
-  #calcualte proportion of 'hits' per trait, methos, moment
+  #calcualte proportion of 'hits' per trait, methods, moment
   summarise(percentage = sum(hit - 1)/sum(hit),
             deviation = mean(abs((estimate - true_value)/true_value))) 
 
@@ -583,9 +598,9 @@ ggplot(sim_moon %>%
              size = 1.5) +
   geom_smooth(
     aes(
-    x = sample_size,
-    y = deviation,
-    color = method),
+      x = sample_size,
+      y = deviation,
+      color = method),
     se = FALSE,
     alpha = 0.5,
     linetype = 2,
@@ -601,24 +616,24 @@ ggplot(sim_moon %>%
   geom_point(data = sim_moon %>%
                filter(trait == 'leaf_area_mm2') %>%
                slice(which(row_number() %% 5 == 1)),
-    aes(
-      x = sample_size,
-      y = deviation,
-      color = method
-    ), 
-    size = 9) +
+             aes(
+               x = sample_size,
+               y = deviation,
+               color = method
+             ), 
+             size = 9) +
   geom_moon(data = sim_moon %>%
               filter(trait == 'leaf_area_mm2') %>%
               slice(which(row_number() %% 5 == 1)),
-    aes(
-      x = sample_size,
-      y = deviation,
-      ratio = percentage, 
-      #right = right, 
-      fill = method
-    ),
-    color = "transparent",
-    size = 9) + 
+            aes(
+              x = sample_size,
+              y = deviation,
+              ratio = percentage, 
+              #right = right, 
+              fill = method
+            ),
+            color = "transparent",
+            size = 9) + 
   scale_fill_manual(guide = guide_legend(title = "Method",
                                          #nrow = 1,
                                          title.position="top",
@@ -645,7 +660,7 @@ ggplot(sim_moon %>%
     hjust = 0,
     nudge_x = 8,
     colour = "grey65"
-  ) +
+  ) + 
   facet_grid(cols = vars(moment),
              rows = vars(method),
              labeller = labeller(
@@ -671,3 +686,109 @@ ggplot(sim_moon %>%
 ggsave(here::here("figures/moons_LeafArea_subset.png"),
        height = 8.3, width = 15.3,
        units = "in", dpi = 600)
+
+#### All traits combined
+
+sim_moon_means =   
+  simdata %>%
+  #if true value falls in estimate's CI
+  mutate(hit = ifelse(ci_low <= true_value & true_value <= ci_high,
+                      2,
+                      1),
+         deviation = abs((estimate - true_value)/true_value)) %>%
+  group_by(method, moment, sample_size) %>%
+  #calcualte proportion of 'hits' per trait, methods, moment
+  summarise(percentage = sum(hit - 1)/sum(hit),
+            deviation = mean(abs((estimate - true_value)/true_value))) 
+
+ggplot(sim_moon_means %>%
+         filter(sample_size %in% c(1,9,49,100,196,441)) %>%
+         group_by(method, moment) %>%
+         mutate(y = max(deviation))) + 
+  geom_hline(aes(yintercept = 0), 
+             color = "grey50",
+             size = 1.5) +
+  geom_smooth(aes(
+    x = sample_size,
+    y = deviation ,
+    color = method),
+    alpha = 0.5,
+    linetype = 2,
+    se = FALSE,
+    size = 0.8) +
+  geom_linerange(aes(
+    x = sample_size,
+    ymax = deviation + 0.2,
+    ymin = 0), 
+    color = "grey50", 
+    size = 0.3) +
+  geom_point(aes(
+    x = sample_size,
+    y = deviation + 0.2,
+    color = method
+  ), 
+  size = 5,
+  alpha = 0.9) +
+  geom_moon(aes(
+    x = sample_size,
+    y = deviation + 0.2,
+    ratio = percentage, 
+    #right = right, 
+    fill = method
+  ),
+  color = "transparent",
+  size = 5) + 
+  scale_fill_manual(guide = guide_legend(title = "Method",
+                                         #nrow = 1,
+                                         title.position="left",
+                                         title.hjust = 0.5),
+                    values = pal_df$c,
+                    labels = pal_df$l) +
+  scale_colour_manual(guide = guide_legend(title = "Method",
+                                           #nrow = 1,
+                                           title.position="left",
+                                           title.hjust = 0.5),
+                      values = colorspace::lighten(pal_df$c, amount = 0.6),
+                      labels = pal_df$l) +
+  geom_text(aes(
+    x = sample_size,
+    y = deviation + 0.8,
+    label = glue::glue("{round(percentage*100, 0.1)}%")
+    #color = region,
+  ),
+  size = 3.3,
+  hjust = 0,
+  #nudge_x = 8,
+  colour = "grey69"
+  ) +
+  scale_x_continuous(trans = 'sqrt', breaks = c(0,10,50,100,200,500),
+                     limits = c(0, 500)) +
+  scale_y_continuous(expand = c(0, 0.3)) +
+  facet_grid(cols = vars(moment),
+             rows = vars(method),
+             labeller = labeller(
+               trait = traits_parsed,
+               .default = capitalize
+             ),
+             switch = 'y') +
+  labs(x = "Sample Size",
+       y = "Deviation from true mean") +
+  # Theme
+  figure_theme +
+  theme(
+    legend.position = "bottom",
+    legend.title = element_text(size = 14),
+    plot.background = element_rect(fill = "white",
+                                   colour = NA),
+    panel.background = element_rect(fill = "grey18",
+                                    colour = NA),
+    strip.text.x = element_text(margin = margin(0, 0, 10, 0),
+                                size = 14, face = "bold"),
+    strip.text.y.left = element_blank(),
+    panel.grid.major.y = element_line(size = 0.05),
+    legend.key = element_blank()
+  )
+
+ggsave(here::here("figures/moons_AllTraits.png"),
+       height = 6.5, width = 12.5,
+       units = "in", dpi = 300)
