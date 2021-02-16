@@ -21,3 +21,20 @@ colors <- c("Cross-Site CWM" = "#492259",
 
 # Join colors with categories
 pal_df <- data.frame(c = unname(colors)[1:4], l = names(colors)[1:4])
+
+##For facet labels
+
+#To capitalise labels
+capitalize <- function(string) {
+  substr(string, 1, 1) <- toupper(substr(string, 1, 1))
+  string
+}
+
+#rename traits
+traits_parsed <- c(
+  biomass_per_ind = "Biomass",
+  dry_mass_mg = "Dry mass",
+  height = "Height",
+  leaf_area_mm2 = "Leaf area",
+  LMA_mg_mm2 = "LMA"
+)
