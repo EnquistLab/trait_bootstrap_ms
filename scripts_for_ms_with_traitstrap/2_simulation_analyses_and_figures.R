@@ -80,13 +80,47 @@ ggplot(data = simdata[which(simdata$moment=="kurtosis"),], mapping = aes(y=log10
   geom_abline(intercept=0,slope = 0)+geom_point(alpha=0.25)+geom_smooth()+scale_x_continuous(trans = "sqrt",breaks = c(0,10,50,100,200,500))+
   facet_grid(rows = site~trait,scales = "free")+ggtitle("Kurtosis")
 
-### Tanya tries to be accurate (creative) ----
+### Accuracy vs sample size - Tanya's version ----
 
-#To capitalise labels
-capitalize <- function(string) {
-  substr(string, 1, 1) <- toupper(substr(string, 1, 1))
-  string
-}
+simdata %>%
+  mutate(accuracy = abs(log10(abs(estimate/true_value)))) %>%
+  group_by(moment, method, trait, sample_size) %>%
+  slice_sample(n = 6) %>%
+ggplot(aes(y = accuracy,
+           x = sample_size,
+           color = method)) +
+  geom_hline(yintercept = 0,
+             color = "grey50",
+             size = 1.5) +
+  geom_jitter(alpha = 0.5) +
+  geom_smooth(data = simdata %>%
+                mutate(accuracy = abs(log10(abs(estimate/true_value)))) %>%
+                group_by(moment, method, trait, sample_size),
+              aes(y = accuracy,
+                  x = sample_size,
+                  color = method),
+              se = FALSE) +
+  scale_x_continuous(trans = "sqrt",
+                     breaks = c(0,10,50,100,200,500)) +
+  facet_grid(cols = vars(moment),
+             rows = vars(trait),
+             switch = "y",
+             labeller = labeller(
+               trait = traits_parsed,
+               .default = capitalize
+             )) +
+  scale_colour_manual(guide = guide_legend(title = "Method"),
+                      values = pal_df$c,
+                      labels = pal_df$l) +
+  labs(x = "Sample Size",
+       y = "Accuracy") +
+  figure_theme
+
+ggsave(here::here("figures/AccuracyLines.png"),
+       height = 8.3, width = 15,
+       units = "in", dpi = 600)
+
+### Tanya tries to be accurate (creative) ----
 
 simmeans = 
   simdata %>%
@@ -181,11 +215,13 @@ simmeans =
   mutate(true_val = mean(true_value)) %>%
   group_by(trait, moment, method, site, true_val) %>%
   summarise(estimate = mean(estimate)) %>%
-  filter(site == 'Road')
+  filter(site == 'Road') %>%
+  mutate(facet_lab = paste0(moment,"_",trait))
 
 simdata_lollipop =
   simdata %>%
-  filter(site == 'Road')
+  filter(site == 'Road') %>%
+  mutate(facet_lab = paste0(moment,"_",trait))
 
 #re-order to match moment 'numbers'
 simmeans$moment <- factor(simmeans$moment,
@@ -201,6 +237,7 @@ simdata_lollipop$moment <- factor(simdata_lollipop$moment,
                                              "kurtosis"))
 
 
+#TODO clean labelling
 
 ggplot(simmeans) + 
   geom_vline(aes(xintercept = true_val), 
@@ -229,14 +266,15 @@ ggplot(simmeans) +
                  y = method,
                  color = method), 
              size = 3) +
-  facet_grid(cols = vars(moment),
-             rows = vars(trait),
+  facet_wrap(~moment + trait,
+             #rows = vars(trait),
              labeller = labeller(
                trait = traits_parsed,
                .default = capitalize
              ),
-             scales = 'free',
-             switch = 'y') +
+             ncol = 4,
+             scales = "free_x",
+             strip.position = 'top') +
   scale_fill_manual(guide = guide_legend(title = "Method"),
                     values = pal_df$c,
                     labels = pal_df$l) +
@@ -244,21 +282,8 @@ ggplot(simmeans) +
                       values = pal_df$c,
                       labels = pal_df$l) +
   scale_size(guide = guide_legend(title = "Sample Size")) +
-  theme_void() +
-  theme(
-    legend.position = "bottom",
-    legend.title = element_text(size = 14),
-    plot.background = element_rect(fill = "white",
-                                   colour = NA),
-    panel.background = element_rect(fill = "white",
-                                    colour = NA),
-    strip.text.x = element_text(margin = margin(0, 0, 10, 0),
-                                size = 16, face = "bold"),
-    strip.text.y.left = element_text(colour = "grey65",
-                                     margin = margin(0, 10, 10, 10),
-                                     angle = 0,
-                                     size = 16)
-  )
+  figure_theme +
+  theme(axis.text.y = element_blank())
 
 ggsave(here::here("figures/Lollipops_All.png"),
        height = 8.3, width = 15,
@@ -371,14 +396,6 @@ simdata_shapes$moment <- factor(simdata_shapes$moment,
                                            "variance",
                                            "skewness",
                                            "kurtosis"))
-#rename traits
-traits_parsed <- c(
-  biomass_per_ind = "Biomass",
-  dry_mass_mg = "Dry mass",
-  height = "Height",
-  leaf_area_mm2 = "Leaf area",
-  LMA_mg_mm2 = "LMA"
-)
 
 
 # Plot
