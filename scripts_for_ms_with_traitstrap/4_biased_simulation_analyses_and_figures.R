@@ -65,7 +65,7 @@ simdata$method <- ordered(simdata$method,levels = c("Cross-Site CWM","Site-Speci
 ###Clenaing Biased sim data - the tidy way (for now...)
 
 simdata_biased = 
-simdata_biased %>%
+  simdata_biased %>%
   pivot_longer(cols = c('mean', 'var', 'skew', 'kurt'),
                names_to = 'moment',
                values_to = 'estimate') %>%
@@ -244,7 +244,7 @@ ggsave(here::here("figures/Lollipops_LeafArea.png"),
        height = 8.3, width = 15,
        units = "in", dpi = 600)
 
-#All traits
+#All traits - perfect data
 
 simmeans = 
   simdata %>%
@@ -262,12 +262,30 @@ simdata_lollipop =
   group_by(trait, moment, method, site, sample_size) %>%
   slice_sample(n = 20)
 
+#All traits - biased data
+
+simmeans_biased = 
+  simdata_biased %>%
+  group_by(trait, moment, site) %>%
+  mutate(true_val = mean(true_value)) %>%
+  group_by(trait, moment, method, site, true_val) %>%
+  summarise(estimate = mean(estimate)) %>%
+  filter(site == 'Road') %>%
+  mutate(facet_lab = paste0(moment,"_",trait))
+
+simdata_biased_lollipop =
+  simdata_biased %>%
+  filter(site == 'Road') %>%
+  mutate(facet_lab = paste0(moment,"_",trait)) %>%
+  group_by(trait, moment, method, site, sample_size) %>%
+  slice_sample(n = 20)
+
 #re-order to match moment 'numbers'
 simmeans$moment <- factor(simmeans$moment,
-                             levels = c("mean",
-                                        "variance",
-                                        "skewness",
-                                        "kurtosis"))
+                          levels = c("mean",
+                                     "variance",
+                                     "skewness",
+                                     "kurtosis"))
 
 
 simdata_lollipop$moment <- factor(simdata_lollipop$moment,
@@ -276,36 +294,53 @@ simdata_lollipop$moment <- factor(simdata_lollipop$moment,
                                              "skewness",
                                              "kurtosis"))
 
+simmeans_biased$moment <- factor(simmeans_biased$moment,
+                                 levels = c("mean",
+                                            "variance",
+                                            "skewness",
+                                            "kurtosis"))
+
+
+simdata_biased_lollipop$moment <- factor(simdata_biased_lollipop$moment,
+                                         levels = c("mean",
+                                                    "variance",
+                                                    "skewness",
+                                                    "kurtosis"))
 
 #TODO clean labelling
 
-ggplot(simmeans) + 
+ggplot(simmeans_biased) + 
   geom_vline(aes(xintercept = true_val), 
-             color = "grey50",
+             color = "grey69",
              size = 1) +
-  geom_jitter(data = simdata_lollipop,
+  geom_jitter(data = simdata_biased_lollipop,
               aes(x = estimate, 
                   y = method, 
                   fill = method,
                   size = sample_size), 
               color = "grey85", 
               width = 0, height = 0.2, alpha = 0.3, shape = 21) +
-  geom_segment(data = simmeans,
+  geom_segment(data = simmeans_biased,
                aes(x = true_val, 
                    xend = estimate, 
                    y = method, 
                    yend = method), 
-               color = "grey50", 
+               color = "grey69", 
                size = 0.5) +
-  geom_point(data = simmeans,
+  geom_point(data = simmeans_biased,
              aes(x = estimate, 
                  y = method),
-             color = "grey50", size = 3) + 
-  geom_point(data = simmeans,
+             color = "grey69", size = 3) + 
+  geom_point(data = simmeans_biased,
              aes(x = estimate, 
                  y = method,
                  color = method), 
              size = 2) +
+  geom_point(data = simmeans,
+             aes(x = estimate, 
+                 y = method),
+             color = "grey69", size = 3,
+             shape = 2) + 
   facet_wrap(~trait + moment,
              #rows = vars(trait),
              labeller = labeller(
@@ -337,12 +372,10 @@ ggplot(simmeans) +
         panel.grid.major.y = element_blank(),
         axis.ticks.y = element_blank())
 
-ggsave(here::here("figures/Lollipops_All.png"),
+ggsave(here::here("figures/Lollipops_biased_All.png"),
        height = 8, width = 9,
        units = "in", dpi = 300)
 
-
-############################################################
 
 ### Balloon plots - accuracy of moments - 'global' ----
 
