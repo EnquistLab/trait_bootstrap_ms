@@ -13,7 +13,7 @@ figure_theme =
       legend.key = element_blank())
 
 ##Colour palete
-colors <- c("Cross-Site CWM" = "#893FA6",
+colors <- c("Cross-Site CWM" = "#492259",
             "Site-Specific CWM" = "#D95284",
             "Parametric BS" = "#D98032",
             "Non-parametric BS" = "#546FBF",
