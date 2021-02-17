@@ -15,9 +15,9 @@ figure_theme =
 ##Colour palete
 colors <- c("Cross-Site CWM" = "#492259",
             "Site-Specific CWM" = "#D95284",
-            "Parametric BS" = "#62F4B6",
+            "Parametric BS" = "#D98032",
             "Non-parametric BS" = "#546FBF",
-            "True" = "#D98032")
+            "True" = "#62F4B6")
 
 # Join colors with categories
 pal_df <- data.frame(c = unname(colors)[1:4], l = names(colors)[1:4])

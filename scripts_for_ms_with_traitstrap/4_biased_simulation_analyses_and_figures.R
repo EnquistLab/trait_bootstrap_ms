@@ -2,14 +2,18 @@
 
 
 ##############################################
-
+source(source("scripts_for_ms_with_traitstrap/plotting_aesthetics.R"))
 
 #read in data
 simdata <- readRDS("output_data/simulation_results.RDS")
 
+simdata_biased <- readRDS("output_data/simulation_results_biased.RDS")
+
 #need to further tidy up data (add a column for moment)
 
 #could probably do this with pipes, but I'll go oldschool and cut down the googling
+
+library(tidyverse)
 
 sim_mean <- simdata[c("site","trait","method","sample_size","n",
                       "mean","ci_low_mean","ci_high_mean","true_mean")]
@@ -58,7 +62,40 @@ simdata$method[which(simdata$method=="parametric bs")] <- "Parametric BS"
 
 simdata$method <- ordered(simdata$method,levels = c("Cross-Site CWM","Site-Specific CWM","Parametric BS","Non-Parametric BS"))
 
-library(ggplot2)
+###Clenaing Biased sim data - the tidy way (for now...)
+
+simdata_biased = 
+  simdata_biased %>%
+  pivot_longer(cols = c('mean', 'var', 'skew', 'kurt'),
+               names_to = 'moment',
+               values_to = 'estimate') %>%
+  pivot_longer(cols = contains('ci_high'),
+               names_to = 'ci_high_moment',
+               values_to = 'ci_high') %>%
+  mutate(ci_high_moment = str_to_lower(str_extract(ci_high_moment,'[[:alpha:]]*$'))) %>%
+  filter(ci_high_moment == moment) %>%
+  pivot_longer(cols = contains('ci_low'),
+               names_to = 'ci_low_moment',
+               values_to = 'ci_low') %>%
+  mutate(ci_low_moment = str_to_lower(str_extract(ci_low_moment,'[[:alpha:]]*$'))) %>%
+  filter(ci_low_moment == moment) %>%
+  pivot_longer(cols = contains('true'),
+               names_to = 'true_moment',
+               values_to = 'true_value') %>%
+  mutate(true_moment = str_to_lower(str_extract(true_moment,'[[:alpha:]]*$')),
+         moment = case_when(moment == 'var' ~ 'variance',
+                            moment == 'kurt' ~ 'kurtosis',
+                            moment == 'skew' ~ 'skewness',
+                            TRUE ~ moment),
+         method = case_when(method == 'global cwm' ~ 'Cross-Site CWM',
+                            method == 'site-specic CWM' ~ 'Site-Specific CWM',
+                            method == 'nonparametric bs' ~ 'Non-Parametric BS',
+                            method == 'parametric bs' ~ 'Parametric BS',
+                            TRUE ~ method)) %>%
+  filter(true_moment == moment) %>%
+  select(-c(global, true_moment, ci_low_moment, ci_high_moment))
+
+simdata_biased$method <- ordered(simdata_biased$method,levels = c("Cross-Site CWM","Site-Specific CWM","Parametric BS","Non-Parametric BS"))
 
 
 ##############################################################
@@ -207,7 +244,7 @@ ggsave(here::here("figures/Lollipops_LeafArea.png"),
        height = 8.3, width = 15,
        units = "in", dpi = 600)
 
-#All traits
+#All traits - perfect data
 
 simmeans = 
   simdata %>%
@@ -225,12 +262,30 @@ simdata_lollipop =
   group_by(trait, moment, method, site, sample_size) %>%
   slice_sample(n = 20)
 
+#All traits - biased data
+
+simmeans_biased = 
+  simdata_biased %>%
+  group_by(trait, moment, site) %>%
+  mutate(true_val = mean(true_value)) %>%
+  group_by(trait, moment, method, site, true_val) %>%
+  summarise(estimate = mean(estimate)) %>%
+  filter(site == 'Road') %>%
+  mutate(facet_lab = paste0(moment,"_",trait))
+
+simdata_biased_lollipop =
+  simdata_biased %>%
+  filter(site == 'Road') %>%
+  mutate(facet_lab = paste0(moment,"_",trait)) %>%
+  group_by(trait, moment, method, site, sample_size) %>%
+  slice_sample(n = 20)
+
 #re-order to match moment 'numbers'
 simmeans$moment <- factor(simmeans$moment,
-                             levels = c("mean",
-                                        "variance",
-                                        "skewness",
-                                        "kurtosis"))
+                          levels = c("mean",
+                                     "variance",
+                                     "skewness",
+                                     "kurtosis"))
 
 
 simdata_lollipop$moment <- factor(simdata_lollipop$moment,
@@ -239,36 +294,53 @@ simdata_lollipop$moment <- factor(simdata_lollipop$moment,
                                              "skewness",
                                              "kurtosis"))
 
+simmeans_biased$moment <- factor(simmeans_biased$moment,
+                                 levels = c("mean",
+                                            "variance",
+                                            "skewness",
+                                            "kurtosis"))
+
+
+simdata_biased_lollipop$moment <- factor(simdata_biased_lollipop$moment,
+                                         levels = c("mean",
+                                                    "variance",
+                                                    "skewness",
+                                                    "kurtosis"))
 
 #TODO clean labelling
 
-ggplot(simmeans) + 
+ggplot(simmeans_biased) + 
   geom_vline(aes(xintercept = true_val), 
-             color = "grey50",
+             color = "grey69",
              size = 1) +
-  geom_jitter(data = simdata_lollipop,
+  geom_jitter(data = simdata_biased_lollipop,
               aes(x = estimate, 
                   y = method, 
                   fill = method,
                   size = sample_size), 
               color = "grey85", 
               width = 0, height = 0.2, alpha = 0.3, shape = 21) +
-  geom_segment(data = simmeans,
+  geom_segment(data = simmeans_biased,
                aes(x = true_val, 
                    xend = estimate, 
                    y = method, 
                    yend = method), 
-               color = "grey50", 
+               color = "grey69", 
                size = 0.5) +
-  geom_point(data = simmeans,
+  geom_point(data = simmeans_biased,
              aes(x = estimate, 
                  y = method),
-             color = "grey50", size = 3) + 
-  geom_point(data = simmeans,
+             color = "grey69", size = 3) + 
+  geom_point(data = simmeans_biased,
              aes(x = estimate, 
                  y = method,
                  color = method), 
              size = 2) +
+  geom_point(data = simmeans,
+             aes(x = estimate, 
+                 y = method),
+             color = "grey69", size = 3,
+             shape = 2) + 
   facet_wrap(~trait + moment,
              #rows = vars(trait),
              labeller = labeller(
@@ -300,67 +372,9 @@ ggplot(simmeans) +
         panel.grid.major.y = element_blank(),
         axis.ticks.y = element_blank())
 
-ggsave(here::here("figures/Lollipops_All.png"),
+ggsave(here::here("figures/Lollipops_biased_All.png"),
        height = 8, width = 9,
        units = "in", dpi = 300)
-
-
-############################################################
-
-source("r_functions/sumarize_sims.R")
-sim_summary <- summarize_simulations(simulation_result = simdata)
-sim_summary$moment <- ordered(sim_summary$moment,levels=c("mean","variance","skewness","kurtosis"))
-
-colnames(sim_summary)
-
-ggplot(data = sim_summary[which(sim_summary$moment=="mean"),], mapping = aes(y=pct_in_CI,x = sample_size^.5,color=method))+
-  geom_abline(intercept=0,slope = 0)+geom_point()+geom_smooth()+
-  facet_grid(rows = site~trait,scales = "free")+ggtitle("Mean")
-
-
-ggplot(data = sim_summary[which(sim_summary$moment=="variance"),], mapping = aes(y=pct_in_CI,x = sample_size^.5,color=method))+
-  geom_abline(intercept=0,slope = 0)+geom_point()+geom_smooth()+
-  facet_grid(rows = site~trait,scales = "free")+ggtitle("Variance")
-
-ggplot(data = sim_summary[which(sim_summary$moment=="skewness"),], mapping = aes(y=pct_in_CI,x = sample_size^.5,color=method))+
-  geom_abline(intercept=0,slope = 0)+geom_point()+geom_smooth()+
-  facet_grid(rows = site~trait,scales = "free")+ggtitle("Skewness")
-
-ggplot(data = sim_summary[which(sim_summary$moment=="kurtosis"),], mapping = aes(y=pct_in_CI,x = sample_size^.5,color=method))+
-  geom_abline(intercept=0,slope = 0)+geom_point()+geom_smooth()+
-  facet_grid(rows = site~trait,scales = "free")+ggtitle("Kurtosis")
-
-
-######
-
-ggplot(data = sim_summary[which(sim_summary$moment=="mean"),],
-       mapping = aes(y=fractional_difference,x = sample_size^.5,color=method))+
-  geom_abline(intercept=0,slope = 0)+geom_point()+geom_smooth()+
-  facet_grid(rows = site~trait,scales = "free")+ggtitle("Mean")
-
-
-ggplot(data = sim_summary[which(sim_summary$moment=="variance"),],
-       mapping = aes(y=fractional_difference,x = sample_size^.5,color=method))+
-  geom_abline(intercept=0,slope = 0)+geom_point()+geom_smooth()+
-  facet_grid(rows = site~trait,scales = "free")+ggtitle("Variance")
-
-ggplot(data = sim_summary[which(sim_summary$moment=="skewness"),],
-       mapping = aes(y=fractional_difference,x = sample_size^.5,color=method))+
-  geom_abline(intercept=0,slope = 0)+geom_point()+geom_smooth()+
-  facet_grid(rows = site~trait,scales = "free")+ggtitle("Skewness")
-
-ggplot(data = sim_summary[which(sim_summary$moment=="kurtosis"),],
-       mapping = aes(y=fractional_difference,x = sample_size^.5,color=method))+
-  geom_abline(intercept=0,slope = 0)+geom_point()+geom_smooth()+
-  facet_grid(rows = site~trait,scales = "free")+ggtitle("Kurtosis")
-
-
-#####################
-
-ggplot(data = sim_summary[which(sim_summary$site=="Almont"),],
-       mapping = aes(y=fractional_difference,x = sample_size^.5,color=method))+
-  geom_abline(intercept=0,slope = 0)+geom_point()+geom_smooth()+
-  facet_grid(rows = moment~trait,scales = "free")
 
 
 ### Balloon plots - accuracy of moments - 'global' ----
@@ -412,51 +426,6 @@ simdata_shapes$moment <- factor(simdata_shapes$moment,
                                            "skewness",
                                            "kurtosis"))
 
-
-# Plot
-ggplot(simdata_shapes %>%
-         mutate(combo = paste(moment, trait))) +
-  geom_point(aes(0, 0), size = 0.01, colour = "grey30")  +  # Make a "center"
-  # Plot a "balloon" for every category
-  geom_bspline_closed(aes(x_1, y_1, group = combo, fill = pal_df$c[1]), alpha = 0.7) +
-  geom_bspline_closed(aes(x_2, y_2, group = combo, fill = pal_df$c[2]), alpha = 0.7) +
-  geom_bspline_closed(aes(x_3, y_3, group = combo, fill = pal_df$c[3]), alpha = 0.7) +
-  geom_bspline_closed(aes(x_4, y_4, group = combo, fill = pal_df$c[4]), alpha = 0.7) +
-  scale_fill_identity(guide = guide_legend(title = "Method",
-                                           #nrow = 1,
-                                           override.aes = list(alpha = 0.7, shape = 2, size = 8),
-                                           title.position="top",
-                                           title.hjust = 0.5),
-                      breaks = pal_df$c,
-                      labels = pal_df$l) +
-  coord_fixed(ratio = 1) +
-  facet_grid(col = vars(moment),
-             row = vars(trait),
-             labeller = labeller(
-               trait = traits_parsed,
-               .default = capitalize
-             ),
-             switch = 'y') +
-  # Theme
-  theme_void() +
-  theme(
-    legend.position = "bottom",
-    legend.title = element_text(size = 14),
-    plot.background = element_rect(fill = "white",
-                                   colour = NA),
-    panel.background = element_rect(fill = "white",
-                                    colour = NA),
-    strip.text.x = element_text(margin = margin(0, 0, 10, 0),
-                                size = 16, face = "bold"),
-    strip.text.y.left = element_text(colour = "grey65",
-                                     margin = margin(0, 10, 10, 10),
-                                     angle = 0,
-                                     size = 16)
-  )
-
-ggsave(here::here("figures/CIballoons.png"),
-       height = 10, width = 7.6,
-       units = "in", dpi = 600)
 
 # Plot - with reference ellipse
 ggplot(simdata_shapes %>%
@@ -512,181 +481,6 @@ ggsave(here::here("figures/CIballoons_refEllipse.png"),
 
 library(gggibbous)
 
-sim_moon =   
-  simdata %>%
-  #if true value falls in estimate's CI
-  mutate(hit = ifelse(ci_low <= true_value & true_value <= ci_high,
-                      2,
-                      1),
-         deviation = abs((estimate - true_value)/true_value)) %>%
-  group_by(trait, method, moment, sample_size) %>%
-  #calcualte proportion of 'hits' per trait, methods, moment
-  summarise(percentage = sum(hit - 1)/sum(hit),
-            deviation = mean(abs((estimate - true_value)/true_value))) 
-
-ggplot(sim_moon %>%
-         filter(trait == 'leaf_area_mm2')) + 
-  geom_hline(aes(yintercept = 0), 
-             color = "grey50",
-             size = 1.5) +
-  geom_linerange(aes(x = sample_size, 
-                     ymin = 0, 
-                     ymax = deviation), 
-                 color = "grey50", 
-                 size = 0.3) +
-  geom_point(
-    aes(
-      x = sample_size,
-      y = deviation,
-      color = method
-    ), 
-    size = 5) +
-  geom_moon(
-    aes(
-      x = sample_size,
-      y = deviation,
-      ratio = percentage, 
-      #right = right, 
-      fill = method
-    ),
-    color = "transparent",
-    size = 5
-  ) + 
-  scale_fill_manual(guide = guide_legend(title = "Method",
-                                         #nrow = 1,
-                                         title.position="top",
-                                         title.hjust = 0.5),
-                    values = pal_df$c,
-                    labels = pal_df$l) +
-  scale_colour_manual(guide = guide_legend(title = "Method",
-                                           #nrow = 1,
-                                           title.position="top",
-                                           title.hjust = 0.5),
-                      values = colorspace::lighten(pal_df$c, amount = 0.5),
-                      labels = pal_df$l) +
-  facet_grid(cols = vars(moment),
-             rows = vars(method),
-             labeller = labeller(
-               trait = traits_parsed,
-               .default = capitalize
-             ),
-             switch = 'y') +
-  # Theme
-  figure_theme +
-  theme(
-    legend.position = "bottom",
-    legend.title = element_text(size = 14),
-    plot.background = element_rect(fill = "white",
-                                   colour = NA),
-    panel.background = element_rect(fill = "white",
-                                    colour = NA),
-    strip.text.x = element_text(margin = margin(0, 0, 10, 0),
-                                size = 14, face = "bold"),
-    strip.text.y.left = element_blank(),
-    legend.key = element_blank()
-  )
-
-ggsave(here::here("figures/moons_LeafArea.png"),
-       height = 8.3, width = 15,
-       units = "in", dpi = 600)
-
-#TODO: expand y axis and work on padding around text 
-ggplot(sim_moon %>%
-         filter(trait == 'leaf_area_mm2')) + 
-  geom_hline(aes(yintercept = 0), 
-             color = "grey50",
-             size = 1.5) +
-  geom_smooth(
-    aes(
-      x = sample_size,
-      y = deviation,
-      color = method),
-    se = FALSE,
-    alpha = 0.5,
-    linetype = 2,
-    size = 0.8) +
-  geom_linerange(data = sim_moon %>%
-                   filter(trait == 'leaf_area_mm2') %>%
-                   slice(which(row_number() %% 5 == 1)),
-                 aes(x = sample_size, 
-                     ymin = 0, 
-                     ymax = deviation), 
-                 color = "grey50", 
-                 size = 0.3) +
-  geom_point(data = sim_moon %>%
-               filter(trait == 'leaf_area_mm2') %>%
-               slice(which(row_number() %% 5 == 1)),
-             aes(
-               x = sample_size,
-               y = deviation,
-               color = method
-             ), 
-             size = 9) +
-  geom_moon(data = sim_moon %>%
-              filter(trait == 'leaf_area_mm2') %>%
-              slice(which(row_number() %% 5 == 1)),
-            aes(
-              x = sample_size,
-              y = deviation,
-              ratio = percentage, 
-              #right = right, 
-              fill = method
-            ),
-            color = "transparent",
-            size = 9) + 
-  scale_fill_manual(guide = guide_legend(title = "Method",
-                                         #nrow = 1,
-                                         title.position="top",
-                                         title.hjust = 0.5),
-                    values = pal_df$c,
-                    labels = pal_df$l) +
-  scale_colour_manual(guide = guide_legend(title = "Method",
-                                           #nrow = 1,
-                                           title.position="top",
-                                           title.hjust = 0.5),
-                      values = colorspace::lighten(pal_df$c, amount = 0.5),
-                      labels = pal_df$l) +
-  geom_text(
-    data = sim_moon %>%
-      filter(trait == 'leaf_area_mm2') %>%
-      slice(which(row_number() %% 5 == 1)),
-    aes(
-      x = sample_size,
-      y = deviation + 0.6,
-      label = glue::glue("{round(percentage*100, 0.1)}%")
-      #color = region,
-    ),
-    size = 3.5,
-    hjust = 0,
-    nudge_x = 8,
-    colour = "grey65"
-  ) + 
-  facet_grid(cols = vars(moment),
-             rows = vars(method),
-             labeller = labeller(
-               trait = traits_parsed,
-               .default = capitalize
-             ),
-             switch = 'y') +
-  # Theme
-  figure_theme +
-  theme(
-    legend.position = "bottom",
-    legend.title = element_text(size = 14),
-    plot.background = element_rect(fill = "white",
-                                   colour = NA),
-    panel.background = element_rect(fill = "white",
-                                    colour = NA),
-    strip.text.x = element_text(margin = margin(0, 0, 10, 0),
-                                size = 14, face = "bold"),
-    strip.text.y.left = element_blank(),
-    legend.key = element_blank()
-  )
-
-ggsave(here::here("figures/moons_LeafArea_subset.png"),
-       height = 8.3, width = 15.3,
-       units = "in", dpi = 600)
-
 #### All traits combined
 
 sim_moon_means =   
@@ -699,25 +493,45 @@ sim_moon_means =
   #calcualte proportion of 'hits' per trait, methods, moment
   summarise(percentage = sum(hit - 1)/sum(hit),
             deviation = mean(ifelse(estimate > true_value,
-                               estimate - true_value,
-                               true_value - estimate))) 
+                                    estimate - true_value,
+                                    true_value - estimate))) 
 
-sim_moon_means$moment = 
-  ordered(sim_moon_means$moment,levels = c("mean","variance","skewness","kurtosis"))
+sim_biased_moon_means =   
+  simdata_biased %>%
+  #if true value falls in estimate's CI
+  mutate(hit = ifelse(ci_low <= true_value & true_value <= ci_high,
+                      2,
+                      1)) %>%
+  group_by(method, moment, sample_size) %>%
+  #calcualte proportion of 'hits' per trait, methods, moment
+  summarise(percentage = sum(hit - 1)/sum(hit),
+            deviation = mean(ifelse(estimate > true_value,
+                                    estimate - true_value,
+                                    true_value - estimate))) 
 
-ggplot(sim_moon_means %>%
-         filter(sample_size %in% c(1,9,49,100,196,441)) %>%
-         group_by(method, moment) %>%
-         mutate(y = max(deviation))) + 
+sim_biased_moon_means$moment = 
+  ordered(sim_biased_moon_means$moment,levels = c("mean","variance","skewness","kurtosis"))
+
+ggplot(sim_biased_moon_means %>%
+         filter(sample_size %in% c(1,9,49,100,196,441))) + 
   geom_hline(aes(yintercept = 0), 
              color = "grey50",
              size = 1.5) +
   geom_smooth(aes(
     x = sample_size,
+    y = sim_moon_means %>%
+      filter(sample_size %in% c(1,9,49,100,196,441)) %>%
+      pull(deviation),
+    color = method),
+    linetype = 2,
+    se = FALSE,
+    size = 0.4) +
+  geom_smooth(aes(
+    x = sample_size,
     y = deviation ,
     color = method),
     alpha = 0.5,
-    linetype = 2,
+    linetype = 1,
     se = FALSE,
     size = 0.8) +
   geom_linerange(aes(
@@ -793,6 +607,6 @@ ggplot(sim_moon_means %>%
     legend.key = element_blank()
   )
 
-ggsave(here::here("figures/moons_AllTraits.png"),
+ggsave(here::here("figures/moons_biased_AllTraits.png"),
        height = 6.5, width = 12.5,
        units = "in", dpi = 300)
