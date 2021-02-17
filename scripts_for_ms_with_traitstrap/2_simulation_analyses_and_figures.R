@@ -694,12 +694,13 @@ sim_moon_means =
   #if true value falls in estimate's CI
   mutate(hit = ifelse(ci_low <= true_value & true_value <= ci_high,
                       2,
-                      1),
-         deviation = abs((estimate - true_value)/true_value)) %>%
+                      1)) %>%
   group_by(method, moment, sample_size) %>%
   #calcualte proportion of 'hits' per trait, methods, moment
   summarise(percentage = sum(hit - 1)/sum(hit),
-            deviation = mean(abs((estimate - true_value)/true_value))) 
+            deviation = mean(ifelse(estimate > true_value,
+                               estimate - true_value,
+                               true_value - estimate))) 
 
 sim_moon_means$moment = 
   ordered(sim_moon_means$moment,levels = c("mean","variance","skewness","kurtosis"))
