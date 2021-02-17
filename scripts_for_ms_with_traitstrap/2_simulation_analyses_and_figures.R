@@ -701,6 +701,9 @@ sim_moon_means =
   summarise(percentage = sum(hit - 1)/sum(hit),
             deviation = mean(abs((estimate - true_value)/true_value))) 
 
+sim_moon_means$moment = 
+  ordered(sim_moon_means$moment,levels = c("mean","variance","skewness","kurtosis"))
+
 ggplot(sim_moon_means %>%
          filter(sample_size %in% c(1,9,49,100,196,441)) %>%
          group_by(method, moment) %>%
