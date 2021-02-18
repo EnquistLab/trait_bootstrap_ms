@@ -269,25 +269,25 @@ ggplot(simmeans) +
                  y = method,
                  color = method), 
              size = 2) +
-  #facet_wrap(~trait + moment,
-  #           #rows = vars(trait),
-  #           labeller = labeller(
-  #             .default = capitalize,
-  #             trait = traits_parsed,
-  #             .multi_line = FALSE
-  #           ),
-  #           ncol = 4,
-  #           scales = "free_x",
-  #           strip.position = 'top') +
-  facet_grid(rows = vars(trait),
-             cols = vars(moment),
-                        labeller = labeller(
-                          .default = capitalize,
-                          trait = traits_parsed,
-                          .multi_line = FALSE
-                        ),
-             scales = 'free',
-             switch = 'y') +
+  facet_wrap(~trait + moment,
+             #rows = vars(trait),
+             labeller = labeller(
+               .default = capitalize,
+               trait = traits_parsed,
+               .multi_line = FALSE
+             ),
+             ncol = 4,
+             scales = "free_x",
+             strip.position = 'top') +
+  #facet_grid(rows = vars(trait),
+  #           cols = vars(moment),
+  #                      labeller = labeller(
+  #                        .default = capitalize,
+  #                        trait = traits_parsed,
+  #                        .multi_line = FALSE
+  #                      ),
+  #           scales = 'free',
+  #           switch = 'y') +
   scale_fill_manual(guide = guide_legend(title = "Method"),
                     values = pal_df$c,
                     labels = pal_df$l) +
@@ -307,10 +307,11 @@ ggplot(simmeans) +
         panel.background = element_rect(fill = "grey18",
                                         colour = NA),
         panel.grid.major.y = element_blank(),
-        axis.ticks.y = element_blank())
+        axis.ticks.y = element_blank(),
+        legend.position = 'bottom')
 
 ggsave(here::here("figures/Lollipops_All.png"),
-       height = 8, width = 9,
+       height = 8, width = 10,
        units = "in", dpi = 300)
 
 
@@ -819,16 +820,23 @@ f = 0.7 #shape of baloons
 simdata_wins_trait =
   simdata %>%
   filter(sample_size < 25) %>%
+  #get the absolute difference
   mutate(diff = ifelse(estimate > true_value,
                        estimate - true_value,
                        true_value - estimate)) %>%
+  #group by these levels - basically as small 
+  #a group as possible but keeping methods together
   group_by(moment, sample_size, site, trait) %>%
+  #only keep the smallest value for each group (i.e. the closest)
   filter(diff == min(diff)) %>%
   group_by(trait, method, moment) %>%
+  #count the number of times a mthod wins per trait and moment
   count() %>%
   group_by(trait, moment) %>%
+  #convert to a percent
   mutate(percentage = n/sum(n)*100) %>%
   select(-n) %>%
+  #This just makes sure we have zero values for methods that never win
   right_join(.,
              tibble(method = rep(rep(c("Cross-Site CWM","Site-Specific CWM","Parametric BS", "Non-Parametric BS"),
                                  4),5),
@@ -839,7 +847,7 @@ simdata_wins_trait =
   mutate(percentage = ifelse(is.na(percentage),
                              0,
                              percentage)) %>%
-  #group_by(method) %>%
+  #manually set the categories becuase grr
   mutate(category_nr = case_when(method == "Cross-Site CWM" ~1,
                                  method == "Site-Specific CWM" ~2,
                                  method == "Parametric BS" ~3,
