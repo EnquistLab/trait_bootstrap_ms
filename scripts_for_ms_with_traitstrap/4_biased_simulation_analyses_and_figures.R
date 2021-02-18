@@ -541,7 +541,7 @@ ggplot(sim_moon_means %>%
     x = sample_size,
     y = deviation ,
     color = method,
-    linetype="Simulated"),
+    linetype = "Random"),
     alpha = 0.5,
     se = FALSE,
     size = 0.8) +
@@ -579,9 +579,9 @@ ggplot(sim_moon_means %>%
                                            title.hjust = 0.5),
                       values = colorspace::lighten(pal_df$c, amount = 0.6),
                       labels = pal_df$l) +
-  scale_linetype_manual("Data Something",
+  scale_linetype_manual("Sampling",
                         values=c("Biased" = 2,
-                                 "Simulated" = 1),
+                                 "Random" = 1),
                         guide = guide_legend(override.aes = list(colour = "black"))) +
   geom_text(aes(
     x = sample_size + 3,
