@@ -518,13 +518,9 @@ sim_moon_means$moment =
                                            "skewness",
                                            "kurtosis"))
 
-txt_points = 
-sim_moon_means %>%
-  filter(sample_size %in% c(1,9,49,100,196,441)) %>%
-  pull(deviation)
-
-ggplot(sim_moon_means %>%
-         filter(sample_size %in% c(1,9,49,100,196,441))) + 
+moons <-
+  ggplot(sim_moon_means %>%
+           filter(sample_size %in% c(1,9,49,100,196,441))) + 
   geom_hline(aes(yintercept = 0), 
              color = "grey50",
              size = 1.5) +
@@ -569,34 +565,18 @@ ggplot(sim_moon_means %>%
   size = 5) + 
   scale_fill_manual(guide = guide_legend(title = "Method",
                                          #nrow = 1,
-                                         title.position="left",
-                                         title.hjust = 0.5),
+                                         title.position="top"),
                     values = pal_df$c,
                     labels = pal_df$l) +
   scale_colour_manual(guide = guide_legend(title = "Method",
                                            #nrow = 1,
-                                           title.position="left",
-                                           title.hjust = 0.5),
+                                           title.position="top"),
                       values = colorspace::lighten(pal_df$c, amount = 0.6),
                       labels = pal_df$l) +
   scale_linetype_manual("Sampling",
                         values=c("Biased" = 2,
                                  "Random" = 1),
                         guide = guide_legend(override.aes = list(colour = "black"))) +
-  geom_text(aes(
-    x = sample_size + 3,
-    y = ifelse(txt_points > 0.1,
-               txt_points - txt_points*0.1,
-               txt_points + txt_points*0.4),
-    label = glue::glue("{round(percentage*100, 0.1)}%")
-    #color = region,
-  ),
-  size = 3.3,
-  hjust = 0,
-  #nudge_x = 8,
-  #position = 'dodge',
-  colour = "grey69"
-  ) +
   scale_x_continuous(trans = 'sqrt', breaks = c(0,10,50,100,200,500),
                      limits = c(0, 500)) +
   facet_grid(rows = vars(moment),
@@ -608,11 +588,12 @@ ggplot(sim_moon_means %>%
              switch = 'y',
              scales = 'free') +
   labs(x = "Sample Size",
-       y = "Deviation from true mean") +
+       y = "Average deviation from true moment") +
+  #draw_key_moon(data.frame(x = 1:5, y = 0, ratio = 0:4 * 0.25))
   # Theme
   figure_theme +
   theme(
-    legend.position = "bottom",
+    legend.position = 'right',
     legend.title = element_text(size = 14),
     plot.background = element_rect(fill = "white",
                                    colour = NA),
@@ -624,6 +605,22 @@ ggplot(sim_moon_means %>%
     panel.grid.major.y = element_line(size = 0.05),
     legend.key = element_blank()
   )
+
+cowplot::ggdraw(moons) +
+  cowplot::draw_plot(ggplot(data.frame(y = c(1,1.5,2,2.5), 
+                                       x = 0, ratio = 1:4 * 0.25), 
+                            aes(x = x, y = y)) +
+                       geom_moon(aes(ratio = ratio), size = 5, fill = "grey69", colour = "grey69") +
+                       geom_text(aes(x = x + 0.6, 
+                                     label = paste0(ratio*100,"%")),
+                                 size = 2.5) +
+                       coord_fixed() +
+                       ggtitle("Uuum") +
+                       lims(y = c(0.5, 2.7), x = c(-1, 1.4)) +
+                       theme_void() +
+                       theme(plot.title = element_text(hjust = 0.5)),
+                     .79, .12, 
+                     0.2, .23)
 
 ggsave(here::here("figures/moons_biased_AllTraits.png"),
        height = 7, width = 12.5,
