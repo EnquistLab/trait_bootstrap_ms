@@ -541,12 +541,12 @@ moons <-
     alpha = 0.5,
     se = FALSE,
     size = 0.8) +
-  geom_linerange(aes(
-    x = sample_size,
-    ymax = deviation,
-    ymin = 0), 
-    color = "grey50", 
-    size = 0.3) +
+  #geom_linerange(aes(
+  #  x = sample_size,
+  #  ymax = deviation,
+  #  ymin = 0), 
+  #  color = "grey50", 
+  #  size = 0.3) +
   geom_point(aes(
     x = sample_size,
     y = deviation,

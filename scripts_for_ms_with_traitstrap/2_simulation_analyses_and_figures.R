@@ -269,16 +269,25 @@ ggplot(simmeans) +
                  y = method,
                  color = method), 
              size = 2) +
-  facet_wrap(~trait + moment,
-             #rows = vars(trait),
-             labeller = labeller(
-               .default = capitalize,
-               trait = traits_parsed,
-               .multi_line = FALSE
-             ),
-             ncol = 4,
-             scales = "free_x",
-             strip.position = 'top') +
+  #facet_wrap(~trait + moment,
+  #           #rows = vars(trait),
+  #           labeller = labeller(
+  #             .default = capitalize,
+  #             trait = traits_parsed,
+  #             .multi_line = FALSE
+  #           ),
+  #           ncol = 4,
+  #           scales = "free_x",
+  #           strip.position = 'top') +
+  facet_grid(rows = vars(trait),
+             cols = vars(moment),
+                        labeller = labeller(
+                          .default = capitalize,
+                          trait = traits_parsed,
+                          .multi_line = FALSE
+                        ),
+             scales = 'free',
+             switch = 'y') +
   scale_fill_manual(guide = guide_legend(title = "Method"),
                     values = pal_df$c,
                     labels = pal_df$l) +
