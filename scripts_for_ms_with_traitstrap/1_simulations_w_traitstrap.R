@@ -327,8 +327,175 @@ saveRDS(object = output_biased,file = "output_data/simulation_results_biased.RDS
 
 
 
+#############################################################################
+
+#Messier Data
+
+library(xlsx)
+panama <- read.xlsx(file = "data/Julies_Panama_data.xlsx",1)
+
+#Rename a few columns so the data plays well with the simulation code
+colnames(panama)[which(colnames(panama)=="Site")]<-"region"
+colnames(panama)[which(colnames(panama)=="Plot")]<-"site"
+colnames(panama)[which(colnames(panama)=="Species")]<-"taxon"
+colnames(panama)[which(colnames(panama)=="Id")]<-"ID"
 
 
+#Convert to trait vs community
+panama %>% group_by(region,site,taxon) %>% summarise(across(ID,~(length(unique(.x))),.names = "abundance"),.groups="drop") -> panama_community
+
+
+
+#Convert to tidy/skinny/long form
+panama_traits <- gather(data=panama,key = "trait","value",12:20)
+panama_traits$value <- as.numeric(panama_traits$value)
+
+#which traits have the most NAs?  Toss those and then any rows with NA values
+panama_traits %>% group_by(trait) %>%summarise(across(value,~length(which(is.na(.x)))))
+panama_traits <- panama_traits[which(panama_traits$trait!="SPAD.average"),]
+panama_traits <- panama_traits[which(!is.na(panama_traits$value)),]
+
+#check scales, log tf if necessary
+
+ggplot(data = panama_traits,aes(x=value))+geom_histogram()+facet_wrap(~trait,scales = "free")
+ggplot(data = panama_traits,aes(x=log(value)))+geom_histogram()+facet_wrap(~trait,scales = "free")
+
+#Log tfing improves everything except LDMC and LLC so I'll toss those rather than dealing with confusing axis options and captions
+panama_traits <- panama_traits[which(!panama_traits$trait %in% c("LCC","LDMC")),]
+panama_traits$value <- log10(panama_traits$value)
+
+
+#The previous sim sampled numbers of individuals per species.  this will be number of LEAVES per species
+
+#sample sizes
+n_to_sample_panama <-(1:16)^2
+
+
+max(panama_community$abundance)*6
+
+
+
+n_reps_trait <- 10 #controls the number of replicated draws for each  sample size
+n_reps_boot <- 200 #number of bootstrap replicates to use
+set.seed(2005) #set seed for reproducibility.  2005 = Year Transformers: The Movie (cartoon version) is set.
+output_panama <-NULL
+
+for( n in n_to_sample_panama){
+  for(t in 1:n_reps_trait){  
+    
+    
+    #First simulate a draw of the relevant sample size
+    traits_nt <- draw_traits_tidy(tidy_traits = panama_traits,sample_size =  n)
+    
+    #Get species mean traits
+    species_means_nt <- samples_to_means(tidy_traits = traits_nt,level = "taxon")
+    species_means_nt$site <- "ALL" #Note: adding a "dummy" site here so traitstrap will use global data but still return site-level moments
+    
+    #Get species x site mean traits
+    species_site_means_nt <- samples_to_means(tidy_traits = traits_nt,level = "taxon_by_site")
+    
+    #Trait imputation for distributions
+    imputed_full <- 
+      trait_impute(comm = panama_community,
+                   traits = traits_nt,
+                   scale_hierarchy = "site",
+                   global = T,
+                   taxon_col = "taxon",
+                   trait_col = "trait",
+                   value_col = "value",
+                   abundance_col = "abundance")
+    
+    #Trait imputation for species mean
+    imputed_species_mean <- 
+      trait_impute(comm = panama_community,
+                   traits = species_means_nt,
+                   scale_hierarchy = "site",
+                   global = T,
+                   taxon_col = "taxon",
+                   trait_col = "trait",
+                   value_col = "value",
+                   abundance_col = "abundance")
+    
+    #Trait imputation for species x site mean
+    imputed_species_x_site_mean <- 
+      trait_impute(comm = panama_community,
+                   traits = species_site_means_nt,
+                   scale_hierarchy = "site",
+                   global = T,
+                   taxon_col = "taxon",
+                   trait_col = "trait",
+                   value_col = "value",
+                   abundance_col = "abundance")
+    
+    #Get Non-parametric moments
+    np_results_nt <- 
+      trait_np_bootstrap(imputed_traits = imputed_full,
+                         nrep = n_reps_boot,
+                         sample_size = 200)
+    np_results_nt <-
+      trait_summarise_boot_moments(BootstrapMoments = np_results_nt)
+    
+    #Get CWM species
+    cwm_species_results_nt <- 
+      trait_np_bootstrap(imputed_traits = imputed_species_mean,
+                         nrep = n_reps_boot,
+                         sample_size = 200)
+    
+    cwm_species_results_nt <-
+      trait_summarise_boot_moments(BootstrapMoments = cwm_species_results_nt)
+    
+    #Get CWM species x site
+    cwm_species_x_site_results_nt <- 
+      trait_np_bootstrap(imputed_traits = imputed_species_x_site_mean,
+                         nrep = n_reps_boot,
+                         sample_size = 200)
+    
+    cwm_species_x_site_results_nt <-
+      trait_summarise_boot_moments(BootstrapMoments = cwm_species_x_site_results_nt)
+    
+    #Get parametric moments
+    pbs_results_nt <-
+      trait_parametric_bootstrap(imputed_traits = imputed_full,
+                                 distribution_type = "normal",
+                                 nrep = n_reps_boot,
+                                 samples_per_abundance = 10) #note that this sampling is a bit different
+    
+    
+    pbs_results_nt <-
+      trait_summarise_boot_moments(BootstrapMoments = pbs_results_nt)
+    
+    output_panama <- rbind(output_panama,rbind(cbind(method = "nonparametric bs", sample_size = n, np_results_nt),
+                                 cbind(method = "parametric bs", sample_size = n, pbs_results_nt),
+                                 cbind(method = "global cwm", sample_size = n, cwm_species_results_nt),
+                                 cbind(method = "site-specic CWM", sample_size = n, cwm_species_x_site_results_nt))
+    )
+    
+    
+  } #t trait rep  
+}# n sample size loop
+
+
+#cleanup
+rm(cwm_species_results_nt,cwm_species_x_site_results_nt,imputed_full,imputed_species_mean,imputed_species_x_site_mean,
+   np_results_nt,pbs_results_nt,species_means_nt,species_site_means_nt,traits_nt,n,t)
+
+#Append true moments to data
+
+#First, calculate true moments for each site x trait
+
+panama_traits %>% group_by(site,trait) %>% summarise(true_mean=mean(value),
+                                               true_variance=var(value),
+                                               true_skewness = skewness(value),
+                                               true_kurtosis = kurtosis(value)) -> panama_true_moments
+
+#Next, append true moments to output data for convenience
+output_panama <- merge(x = output_panama, y = panama_true_moments, by = c("site","trait"))
+
+#cleanup
+rm(panama_true_moments)
+
+#save output
+saveRDS(object = output_panama,file = "output_data/panama_simulation_results.RDS")
 
 
 
