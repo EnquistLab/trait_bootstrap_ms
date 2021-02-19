@@ -502,6 +502,7 @@ saveRDS(object = output_panama,file = "output_data/panama_simulation_results.RDS
 ###############################################################################
 
 #Portal rodents
+library(portalr)
 
 portal_data <- load_rodent_data("repo")
 portal_species <- portal_data$species_table
