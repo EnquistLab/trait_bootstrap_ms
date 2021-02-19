@@ -839,9 +839,9 @@ simdata_wins_trait =
   #This just makes sure we have zero values for methods that never win
   right_join(.,
              tibble(method = rep(rep(c("Cross-Site CWM","Site-Specific CWM","Parametric BS", "Non-Parametric BS"),
-                                 4),5),
+                                     4),5),
                     moment = rep(rep(c("mean", "variance", "skewness", "kurtosis"),
-                                 each = 4),5),
+                                     each = 4),5),
                     trait = rep(c("biomass_per_ind", "dry_mass_mg", "height", "leaf_area_mm2", "LMA_mg_mm2"),
                                 each = 16))) %>%
   mutate(percentage = ifelse(is.na(percentage),
@@ -889,10 +889,10 @@ sim_win_text =
 
 #re-order to match moment 'numbers'
 simdata_wins_trait$moment <- factor(simdata_wins_trait$moment,
-                              levels = c("mean",
-                                         "variance",
-                                         "skewness",
-                                         "kurtosis"))
+                                    levels = c("mean",
+                                               "variance",
+                                               "skewness",
+                                               "kurtosis"))
 
 sim_win_text$moment <- factor(sim_win_text$moment,
                               levels = c("mean",
@@ -1077,3 +1077,115 @@ ggsave(here::here("figures/Winnerballoons.png"),
        height = 10, width = 10,
        units = "in", dpi = 300)
 
+### Radar plots - winners ----
+
+library(ggtext)
+
+sim_radar = 
+  simdata %>%
+  mutate(diff = ifelse(estimate > true_value,
+                       estimate - true_value,
+                       true_value - estimate)) %>%
+  group_by(moment, sample_size, site, trait) %>%
+  filter(diff == min(diff)) %>%
+  group_by(method, moment, trait) %>%
+  count() %>%
+  group_by(moment, trait) %>%
+  mutate(percentage = n/sum(n)) %>%
+  select(-n) %>%
+  right_join(.,
+             tibble(method = rep(rep(c("Cross-Site CWM","Site-Specific CWM","Parametric BS", "Non-Parametric BS"),
+                                     4),5),
+                    moment = rep(rep(c("mean", "variance", "skewness", "kurtosis"),
+                                     each = 4),5),
+                    trait = rep(c("biomass_per_ind", "dry_mass_mg", "height", "leaf_area_mm2", "LMA_mg_mm2"),
+                                each = 16))) %>%
+  mutate(percentage = ifelse(is.na(percentage),
+                             0,
+                             percentage))
+
+sim_win_text =
+  sim_radar %>%
+  group_by(moment, trait) %>%
+  filter(percentage == max(percentage)) %>%
+  mutate(percentage = round(percentage*100))
+
+sim_radar$moment <- factor(sim_radar$moment,
+                           levels = c("mean",
+                                      "variance",
+                                      "skewness",
+                                      "kurtosis"))
+
+sim_radar$method <- factor(sim_radar$method,
+                           levels = c("Cross-Site CWM",
+                                      "Site-Specific CWM",
+                                      "Parametric BS", 
+                                      "Non-Parametric BS"))
+
+sim_win_text$moment <- factor(sim_win_text$moment,
+                           levels = c("mean",
+                                      "variance",
+                                      "skewness",
+                                      "kurtosis"))
+
+sim_win_text$method <- factor(sim_win_text$method,
+                           levels = c("Cross-Site CWM",
+                                      "Site-Specific CWM",
+                                      "Parametric BS", 
+                                      "Non-Parametric BS"))
+
+
+ggplot(sim_radar) +
+  geom_col(aes(
+    x = 2,
+    y = percentage,
+    fill = method
+  ),
+  colour = 'grey69') +
+  xlim(c(0, 3)) +
+  #annotation textboxes
+  geom_text(data = sim_win_text,
+            aes(x = 3,
+                y = 0.5,
+                label = glue::glue("{method} - {percentage}%")),
+            colour = 'grey90',
+            hjust = 0.5,
+            size = 3) +
+  coord_polar(theta = 'y') +
+  facet_grid(rows = vars(trait),
+             cols = vars(moment),
+             labeller = labeller(
+               trait = traits_parsed,
+               .default = capitalize
+             ),
+             switch = 'y')  + 
+  scale_fill_manual(guide = guide_legend(title = "Method",
+                                         #nrow = 1,
+                                         title.position="top",
+                                         title.hjust = 0.5),
+                    values = pal_df$c,
+                    labels = pal_df$l) +
+  # Theme
+  theme_void() +
+  theme(
+    legend.position = "right",
+    legend.title = element_text(size = 14,
+                                colour = "grey65"),
+    plot.background = element_rect(fill = "grey18",
+                                   colour = NA),
+    panel.background = element_rect(fill = "grey18",
+                                    colour = NA),
+    strip.text.x = element_text(margin = margin(0, 0, 10, 0),
+                                size = 16, face = "bold",
+                                colour = "grey70"),
+    strip.text.y.left = element_text(colour = "grey69",
+                                     margin = margin(0, 10, 10, 10),
+                                     angle = 0,
+                                     size = 16),
+    legend.text = element_text(colour = "grey65")
+  )
+
+
+ggsave(here::here("figures/WinnerDoughnuts.png"),
+       height = 10, width = 10.4,
+       units = "in", dpi = 300)
