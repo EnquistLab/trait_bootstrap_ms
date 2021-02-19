@@ -512,44 +512,51 @@ sim_biased_moon_means =
 sim_biased_moon_means$moment = 
   ordered(sim_biased_moon_means$moment,levels = c("mean","variance","skewness","kurtosis"))
 
-ggplot(sim_biased_moon_means %>%
-         filter(sample_size %in% c(1,9,49,100,196,441))) + 
+sim_moon_means$moment = 
+  ordered(sim_moon_means$moment,levels = c("mean",
+                                           "variance",
+                                           "skewness",
+                                           "kurtosis"))
+
+moons <-
+  ggplot(sim_moon_means %>%
+           filter(sample_size %in% c(1,9,49,100,196,441))) + 
   geom_hline(aes(yintercept = 0), 
              color = "grey50",
              size = 1.5) +
   geom_smooth(aes(
     x = sample_size,
-    y = sim_moon_means %>%
+    y = sim_biased_moon_means %>%
       filter(sample_size %in% c(1,9,49,100,196,441)) %>%
       pull(deviation),
-    color = method),
-    linetype = 2,
+    color = method,
+    linetype = "Biased"),
     se = FALSE,
     size = 0.4) +
   geom_smooth(aes(
     x = sample_size,
     y = deviation ,
-    color = method),
+    color = method,
+    linetype = "Random"),
     alpha = 0.5,
-    linetype = 1,
     se = FALSE,
     size = 0.8) +
-  geom_linerange(aes(
-    x = sample_size,
-    ymax = deviation + 0.2,
-    ymin = 0), 
-    color = "grey50", 
-    size = 0.3) +
+  #geom_linerange(aes(
+  #  x = sample_size,
+  #  ymax = deviation,
+  #  ymin = 0), 
+  #  color = "grey50", 
+  #  size = 0.3) +
   geom_point(aes(
     x = sample_size,
-    y = deviation + 0.2,
+    y = deviation,
     color = method
   ), 
   size = 5,
   alpha = 0.9) +
   geom_moon(aes(
     x = sample_size,
-    y = deviation + 0.2,
+    y = deviation,
     ratio = percentage, 
     #right = right, 
     fill = method
@@ -558,55 +565,63 @@ ggplot(sim_biased_moon_means %>%
   size = 5) + 
   scale_fill_manual(guide = guide_legend(title = "Method",
                                          #nrow = 1,
-                                         title.position="left",
-                                         title.hjust = 0.5),
+                                         title.position="top"),
                     values = pal_df$c,
                     labels = pal_df$l) +
   scale_colour_manual(guide = guide_legend(title = "Method",
                                            #nrow = 1,
-                                           title.position="left",
-                                           title.hjust = 0.5),
+                                           title.position="top"),
                       values = colorspace::lighten(pal_df$c, amount = 0.6),
                       labels = pal_df$l) +
-  geom_text(aes(
-    x = sample_size,
-    y = deviation + 0.8,
-    label = glue::glue("{round(percentage*100, 0.1)}%")
-    #color = region,
-  ),
-  size = 3.3,
-  hjust = 0,
-  #nudge_x = 8,
-  colour = "grey69"
-  ) +
+  scale_linetype_manual("Sampling",
+                        values=c("Biased" = 2,
+                                 "Random" = 1),
+                        guide = guide_legend(override.aes = list(colour = "black"))) +
   scale_x_continuous(trans = 'sqrt', breaks = c(0,10,50,100,200,500),
                      limits = c(0, 500)) +
-  scale_y_continuous(expand = c(0, 0.3)) +
-  facet_grid(cols = vars(moment),
-             rows = vars(method),
+  facet_grid(rows = vars(moment),
+             cols = vars(method),
              labeller = labeller(
                trait = traits_parsed,
                .default = capitalize
              ),
-             switch = 'y') +
+             switch = 'y',
+             scales = 'free') +
   labs(x = "Sample Size",
-       y = "Deviation from true mean") +
+       y = "Average deviation from true moment") +
+  #draw_key_moon(data.frame(x = 1:5, y = 0, ratio = 0:4 * 0.25))
   # Theme
   figure_theme +
   theme(
-    legend.position = "bottom",
+    legend.position = 'right',
     legend.title = element_text(size = 14),
     plot.background = element_rect(fill = "white",
                                    colour = NA),
     panel.background = element_rect(fill = "grey18",
                                     colour = NA),
-    strip.text.x = element_text(margin = margin(0, 0, 10, 0),
+    strip.text.y = element_text(margin = margin(0, 0, 10, 0),
                                 size = 14, face = "bold"),
-    strip.text.y.left = element_blank(),
+    strip.text.x.top = element_blank(),
     panel.grid.major.y = element_line(size = 0.05),
     legend.key = element_blank()
   )
 
+cowplot::ggdraw(moons) +
+  cowplot::draw_plot(ggplot(data.frame(y = c(1,1.5,2,2.5), 
+                                       x = 0, ratio = 1:4 * 0.25), 
+                            aes(x = x, y = y)) +
+                       geom_moon(aes(ratio = ratio), size = 5, fill = "grey69", colour = "grey69") +
+                       geom_text(aes(x = x + 0.6, 
+                                     label = paste0(ratio*100,"%")),
+                                 size = 2.5) +
+                       coord_fixed() +
+                       ggtitle("Uuum") +
+                       lims(y = c(0.5, 2.7), x = c(-1, 1.4)) +
+                       theme_void() +
+                       theme(plot.title = element_text(hjust = 0.5)),
+                     .79, .12, 
+                     0.2, .23)
+
 ggsave(here::here("figures/moons_biased_AllTraits.png"),
-       height = 6.5, width = 12.5,
+       height = 7, width = 12.5,
        units = "in", dpi = 300)

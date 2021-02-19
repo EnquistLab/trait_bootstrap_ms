@@ -227,10 +227,10 @@ simdata_lollipop =
 
 #re-order to match moment 'numbers'
 simmeans$moment <- factor(simmeans$moment,
-                             levels = c("mean",
-                                        "variance",
-                                        "skewness",
-                                        "kurtosis"))
+                          levels = c("mean",
+                                     "variance",
+                                     "skewness",
+                                     "kurtosis"))
 
 
 simdata_lollipop$moment <- factor(simdata_lollipop$moment,
@@ -279,6 +279,15 @@ ggplot(simmeans) +
              ncol = 4,
              scales = "free_x",
              strip.position = 'top') +
+  #facet_grid(rows = vars(trait),
+  #           cols = vars(moment),
+  #                      labeller = labeller(
+  #                        .default = capitalize,
+  #                        trait = traits_parsed,
+  #                        .multi_line = FALSE
+  #                      ),
+  #           scales = 'free',
+  #           switch = 'y') +
   scale_fill_manual(guide = guide_legend(title = "Method"),
                     values = pal_df$c,
                     labels = pal_df$l) +
@@ -298,10 +307,11 @@ ggplot(simmeans) +
         panel.background = element_rect(fill = "grey18",
                                         colour = NA),
         panel.grid.major.y = element_blank(),
-        axis.ticks.y = element_blank())
+        axis.ticks.y = element_blank(),
+        legend.position = 'bottom')
 
 ggsave(here::here("figures/Lollipops_All.png"),
-       height = 8, width = 9,
+       height = 8, width = 10,
        units = "in", dpi = 300)
 
 
@@ -699,8 +709,8 @@ sim_moon_means =
   #calcualte proportion of 'hits' per trait, methods, moment
   summarise(percentage = sum(hit - 1)/sum(hit),
             deviation = mean(ifelse(estimate > true_value,
-                               estimate - true_value,
-                               true_value - estimate))) 
+                                    estimate - true_value,
+                                    true_value - estimate))) 
 
 sim_moon_means$moment = 
   ordered(sim_moon_means$moment,levels = c("mean","variance","skewness","kurtosis"))
@@ -795,4 +805,387 @@ ggplot(sim_moon_means %>%
 
 ggsave(here::here("figures/moons_AllTraits.png"),
        height = 6.5, width = 12.5,
+       units = "in", dpi = 300)
+
+
+### Balloon plots - winners ----
+
+f = 0.7 #shape of baloons
+
+
+
+
+
+#create balloons
+simdata_wins_trait =
+  simdata %>%
+  filter(sample_size < 25) %>%
+  #get the absolute difference
+  mutate(diff = ifelse(estimate > true_value,
+                       estimate - true_value,
+                       true_value - estimate)) %>%
+  #group by these levels - basically as small 
+  #a group as possible but keeping methods together
+  group_by(moment, sample_size, site, trait) %>%
+  #only keep the smallest value for each group (i.e. the closest)
+  filter(diff == min(diff)) %>%
+  group_by(trait, method, moment) %>%
+  #count the number of times a mthod wins per trait and moment
+  count() %>%
+  group_by(trait, moment) %>%
+  #convert to a percent
+  mutate(percentage = n/sum(n)*100) %>%
+  select(-n) %>%
+  #This just makes sure we have zero values for methods that never win
+  right_join(.,
+             tibble(method = rep(rep(c("Cross-Site CWM","Site-Specific CWM","Parametric BS", "Non-Parametric BS"),
+                                     4),5),
+                    moment = rep(rep(c("mean", "variance", "skewness", "kurtosis"),
+                                     each = 4),5),
+                    trait = rep(c("biomass_per_ind", "dry_mass_mg", "height", "leaf_area_mm2", "LMA_mg_mm2"),
+                                each = 16))) %>%
+  mutate(percentage = ifelse(is.na(percentage),
+                             0,
+                             percentage)) %>%
+  #manually set the categories becuase grr
+  mutate(category_nr = case_when(method == "Cross-Site CWM" ~1,
+                                 method == "Site-Specific CWM" ~2,
+                                 method == "Parametric BS" ~3,
+                                 method == "Non-Parametric BS" ~4)) %>%
+  ungroup()%>%
+  rowwise() %>%
+  mutate(
+    # Calculate points on circle for the "balloons", we need 4 x-y pairs for geom_bspline_closed
+    # pi / length(pal_df$l) - creates the flower design by subdividing cricle
+    x = list(c(0,
+               f * percentage * sin(category_nr * 2 * pi / length(pal_df$l) - pi/4),
+               percentage * sin(category_nr * 2 * pi / length(pal_df$l)), # real percentage for main "radius"
+               f * percentage * sin(category_nr * 2 * pi / length(pal_df$l) + pi/5),
+               0
+    )),
+    y = list(c(0,
+               f * percentage * cos(category_nr * 2 * pi / length(pal_df$l) - pi/5),
+               percentage * cos(category_nr * 2 * pi / length(pal_df$l)), # real percentage for main "radius"
+               f * percentage * cos(category_nr * 2 * pi / 4 + pi/length(pal_df$l)),
+               0
+    ))
+  ) %>%
+  ungroup() %>%
+  pivot_wider(id_cols = c(moment,trait), names_from = category_nr, values_from = c(x, y)) %>%
+  unnest(x_1:y_4)
+
+sim_win_text =
+  simdata %>%
+  mutate(diff = ifelse(estimate > true_value,
+                       estimate - true_value,
+                       true_value - estimate)) %>%
+  group_by(moment, sample_size, site) %>%
+  filter(diff == min(diff)) %>%
+  group_by(method, moment) %>%
+  count() %>%
+  group_by(moment) %>%
+  mutate(percentage = n/sum(n)*100) %>%
+  filter(percentage == max(percentage))
+
+#re-order to match moment 'numbers'
+simdata_wins_trait$moment <- factor(simdata_wins_trait$moment,
+                                    levels = c("mean",
+                                               "variance",
+                                               "skewness",
+                                               "kurtosis"))
+
+sim_win_text$moment <- factor(sim_win_text$moment,
+                              levels = c("mean",
+                                         "variance",
+                                         "skewness",
+                                         "kurtosis"))
+
+
+# Plot
+ggplot(simdata_wins_trait %>%
+         mutate(combo = paste(moment, trait)))  +
+  geom_point(aes(0, 0), size = 0.01, colour = "grey30")  +  # Make a "center"
+  # Plot a "balloon" for every category
+  geom_bspline_closed(aes(x_1, y_1, group = combo, fill = pal_df$c[1]), alpha = 0.7, colour = 'grey69', size = 0.5) +
+  geom_bspline_closed(aes(x_2, y_2, group = combo, fill = pal_df$c[2]), alpha = 0.7, colour = 'grey69', size = 0.5) +
+  geom_bspline_closed(aes(x_3, y_3, group = combo, fill = pal_df$c[3]), alpha = 0.7, colour = 'grey69', size = 0.5) +
+  geom_bspline_closed(aes(x_4, y_4, group = combo, fill = pal_df$c[4]), alpha = 0.7, colour = 'grey69', size = 0.5) +
+  scale_fill_identity(guide = guide_legend(title = "Method",
+                                           #nrow = 1,
+                                           override.aes = list(alpha = 0.7, shape = 2, size = 8),
+                                           title.position="top",
+                                           title.hjust = 0.5),
+                      breaks = pal_df$c,
+                      labels = pal_df$l) +
+  coord_fixed(ratio = 1) +
+  #geom_text(data = sim_win_text,
+  #          aes(x = -75,
+  #              y = 50,
+  #              label = glue::glue("{method} - {round(percentage, 0.1)}%")),
+  #          colour = 'grey69',
+  #          hjust = 0) +
+  facet_grid(col = vars(moment),
+             row = vars(trait),
+             labeller = labeller(
+               trait = traits_parsed,
+               .default = capitalize
+             ),
+             switch = 'y') +
+  guides(colour = 'none') +
+  # Theme
+  theme_void() +
+  theme(
+    legend.position = "bottom",
+    legend.title = element_text(size = 14),
+    plot.background = element_rect(fill = "white",
+                                   colour = NA),
+    panel.background = element_rect(fill = "#362e38",
+                                    colour = NA),
+    strip.text.x = element_text(margin = margin(0, 0, 10, 0),
+                                size = 16, face = "bold"),
+    strip.text.y.left = element_text(colour = "grey65",
+                                     margin = margin(0, 10, 10, 10),
+                                     angle = 0,
+                                     size = 16)
+  )
+
+ggsave(here::here("figures/Winnerballoons_All.png"),
+       height = 10, width = 10.6,
+       units = "in", dpi = 300)
+
+
+#create balloons
+simdata_wins =
+  simdata %>%
+  mutate(diff = ifelse(estimate > true_value,
+                       estimate - true_value,
+                       true_value - estimate)) %>%
+  group_by(moment, sample_size, site) %>%
+  filter(diff == min(diff)) %>%
+  group_by(method, moment) %>%
+  count() %>%
+  group_by(moment) %>%
+  mutate(percentage = n/sum(n)*100) %>%
+  select(-n) %>%
+  right_join(.,
+             tibble(method = rep(c("Cross-Site CWM","Site-Specific CWM","Parametric BS", "Non-Parametric BS"),
+                                 4),
+                    moment = rep(c("mean", "variance", "skewness", "kurtosis"),
+                                 each = 4))) %>%
+  mutate(percentage = ifelse(is.na(percentage),
+                             0,
+                             percentage)) %>%
+  group_by(moment) %>%
+  mutate(category_nr = row_number()) %>%
+  arrange(moment) %>%
+  ungroup()%>%
+  rowwise() %>%
+  mutate(
+    # Calculate points on circle for the "balloons", we need 4 x-y pairs for geom_bspline_closed
+    # pi / length(pal_df$l) - creates the flower design by subdividing cricle
+    x = list(c(0,
+               f * percentage * sin(category_nr * 2 * pi / length(pal_df$l) - pi/4),
+               percentage * sin(category_nr * 2 * pi / length(pal_df$l)), # real percentage for main "radius"
+               f * percentage * sin(category_nr * 2 * pi / length(pal_df$l) + pi/5),
+               0
+    )),
+    y = list(c(0,
+               f * percentage * cos(category_nr * 2 * pi / length(pal_df$l) - pi/5),
+               percentage * cos(category_nr * 2 * pi / length(pal_df$l)), # real percentage for main "radius"
+               f * percentage * cos(category_nr * 2 * pi / 4 + pi/length(pal_df$l)),
+               0
+    ))
+  ) %>%
+  ungroup() %>%
+  pivot_wider(id_cols = c(moment), names_from = category_nr, values_from = c(x, y)) %>%
+  unnest(x_1:y_4)
+
+sim_win_text =
+  simdata %>%
+  mutate(diff = ifelse(estimate > true_value,
+                       estimate - true_value,
+                       true_value - estimate)) %>%
+  group_by(moment, sample_size, site) %>%
+  filter(diff == min(diff)) %>%
+  group_by(method, moment) %>%
+  count() %>%
+  group_by(moment) %>%
+  mutate(percentage = n/sum(n)*100) %>%
+  filter(percentage == max(percentage))
+
+#re-order to match moment 'numbers'
+simdata_wins$moment <- factor(simdata_wins$moment,
+                              levels = c("mean",
+                                         "variance",
+                                         "skewness",
+                                         "kurtosis"))
+
+sim_win_text$moment <- factor(sim_win_text$moment,
+                              levels = c("mean",
+                                         "variance",
+                                         "skewness",
+                                         "kurtosis"))
+
+
+# Plot
+ggplot(simdata_wins)  +
+  geom_point(aes(0, 0), size = 0.01, colour = "grey30")  +  # Make a "center"
+  # Plot a "balloon" for every category
+  geom_bspline_closed(aes(x_1, y_1, group = moment, fill = pal_df$c[1]), alpha = 0.7, colour = 'grey69', size = 0.5) +
+  geom_bspline_closed(aes(x_2, y_2, group = moment, fill = pal_df$c[2]), alpha = 0.7, colour = 'grey69', size = 0.5) +
+  geom_bspline_closed(aes(x_3, y_3, group = moment, fill = pal_df$c[3]), alpha = 0.7, colour = 'grey69', size = 0.5) +
+  geom_bspline_closed(aes(x_4, y_4, group = moment, fill = pal_df$c[4]), alpha = 0.7, colour = 'grey69', size = 0.5) +
+  scale_fill_identity(guide = guide_legend(title = "Method",
+                                           #nrow = 1,
+                                           override.aes = list(alpha = 0.7, shape = 2, size = 8),
+                                           title.position="top",
+                                           title.hjust = 0.5),
+                      breaks = pal_df$c,
+                      labels = pal_df$l) +
+  coord_fixed(ratio = 1) +
+  geom_text(data = sim_win_text,
+            aes(x = -75,
+                y = 50,
+                label = glue::glue("{method} - {round(percentage, 0.1)}%")),
+            colour = 'grey69',
+            hjust = 0) +
+  facet_wrap(vars(moment),
+             #row = vars(trait),
+             ncol = 2,
+             labeller = labeller(
+               trait = traits_parsed,
+               .default = capitalize
+             ),
+             strip.position = 'top') +
+  guides(colour = 'none') +
+  # Theme
+  theme_void() +
+  theme(
+    legend.position = "bottom",
+    legend.title = element_text(size = 14),
+    plot.background = element_rect(fill = "white",
+                                   colour = NA),
+    panel.background = element_rect(fill = "grey18",
+                                    colour = NA),
+    strip.text.x = element_text(margin = margin(0, 0, 10, 0),
+                                size = 16, face = "bold"),
+    strip.background = element_rect(colour = 'black',
+                                    size = 1)
+  )
+
+ggsave(here::here("figures/Winnerballoons.png"),
+       height = 10, width = 10,
+       units = "in", dpi = 300)
+
+### Radar plots - winners ----
+
+library(ggtext)
+
+sim_radar = 
+  simdata %>%
+  mutate(diff = ifelse(estimate > true_value,
+                       estimate - true_value,
+                       true_value - estimate)) %>%
+  group_by(moment, sample_size, site, trait) %>%
+  filter(diff == min(diff)) %>%
+  group_by(method, moment, trait) %>%
+  count() %>%
+  group_by(moment, trait) %>%
+  mutate(percentage = n/sum(n)) %>%
+  select(-n) %>%
+  right_join(.,
+             tibble(method = rep(rep(c("Cross-Site CWM","Site-Specific CWM","Parametric BS", "Non-Parametric BS"),
+                                     4),5),
+                    moment = rep(rep(c("mean", "variance", "skewness", "kurtosis"),
+                                     each = 4),5),
+                    trait = rep(c("biomass_per_ind", "dry_mass_mg", "height", "leaf_area_mm2", "LMA_mg_mm2"),
+                                each = 16))) %>%
+  mutate(percentage = ifelse(is.na(percentage),
+                             0,
+                             percentage))
+
+sim_win_text =
+  sim_radar %>%
+  group_by(moment, trait) %>%
+  filter(percentage == max(percentage)) %>%
+  mutate(percentage = round(percentage*100))
+
+sim_radar$moment <- factor(sim_radar$moment,
+                           levels = c("mean",
+                                      "variance",
+                                      "skewness",
+                                      "kurtosis"))
+
+sim_radar$method <- factor(sim_radar$method,
+                           levels = c("Cross-Site CWM",
+                                      "Site-Specific CWM",
+                                      "Parametric BS", 
+                                      "Non-Parametric BS"))
+
+sim_win_text$moment <- factor(sim_win_text$moment,
+                           levels = c("mean",
+                                      "variance",
+                                      "skewness",
+                                      "kurtosis"))
+
+sim_win_text$method <- factor(sim_win_text$method,
+                           levels = c("Cross-Site CWM",
+                                      "Site-Specific CWM",
+                                      "Parametric BS", 
+                                      "Non-Parametric BS"))
+
+
+ggplot(sim_radar) +
+  geom_col(aes(
+    x = 2,
+    y = percentage,
+    fill = method
+  ),
+  colour = 'grey69') +
+  xlim(c(0, 3)) +
+  #annotation textboxes
+  geom_text(data = sim_win_text,
+            aes(x = 3,
+                y = 0.5,
+                label = glue::glue("{method} - {percentage}%")),
+            colour = 'grey90',
+            hjust = 0.5,
+            size = 3) +
+  coord_polar(theta = 'y') +
+  facet_grid(rows = vars(trait),
+             cols = vars(moment),
+             labeller = labeller(
+               trait = traits_parsed,
+               .default = capitalize
+             ),
+             switch = 'y')  + 
+  scale_fill_manual(guide = guide_legend(title = "Method",
+                                         #nrow = 1,
+                                         title.position="top",
+                                         title.hjust = 0.5),
+                    values = pal_df$c,
+                    labels = pal_df$l) +
+  # Theme
+  theme_void() +
+  theme(
+    legend.position = "right",
+    legend.title = element_text(size = 14,
+                                colour = "grey65"),
+    plot.background = element_rect(fill = "grey18",
+                                   colour = NA),
+    panel.background = element_rect(fill = "grey18",
+                                    colour = NA),
+    strip.text.x = element_text(margin = margin(0, 0, 10, 0),
+                                size = 16, face = "bold",
+                                colour = "grey70"),
+    strip.text.y.left = element_text(colour = "grey69",
+                                     margin = margin(0, 10, 10, 10),
+                                     angle = 0,
+                                     size = 16),
+    legend.text = element_text(colour = "grey65")
+  )
+
+
+ggsave(here::here("figures/WinnerDoughnuts.png"),
+       height = 10, width = 10.4,
        units = "in", dpi = 300)
