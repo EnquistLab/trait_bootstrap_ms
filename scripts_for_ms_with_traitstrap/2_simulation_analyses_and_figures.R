@@ -312,12 +312,26 @@ ggplot(simmeans) +
                                          colour = NA),
         panel.background = element_rect(fill = "#141438",
                                         colour = NA),
-        panel.grid.major.y = element_blank(),
+        strip.text.y = element_text(margin = margin(0, 0, 10, 0),
+                                    size = 14, face = "bold",
+                                    colour = "grey65"),
+        strip.text.x.top = element_text(margin = margin(0, 0, 10, 0),
+                                        size = 12, face = "bold",
+                                        colour = "grey65"),
+        panel.grid.major.y = element_line(size = 0.05,
+                                          colour = "grey65"),
+        legend.key = element_blank(),
+        legend.text = element_text(colour = "grey65"),
+        axis.title = element_text(colour = "grey65"),
+        strip.background = element_blank(),
+        axis.line = element_blank(),
+        strip.placement = 'outside',
         axis.ticks.y = element_blank(),
+        legend.title = element_text(colour = "grey65"),
         legend.position = 'bottom')
 
 ggsave(here::here("figures/Lollipops_All.png"),
-       height = 8, width = 10,
+       height = 8, width = 11,
        units = "in", dpi = 300)
 
 
