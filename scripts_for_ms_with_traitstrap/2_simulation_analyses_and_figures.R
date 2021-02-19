@@ -191,9 +191,11 @@ ggplot(simmeans) +
   theme(
     legend.position = "bottom",
     legend.title = element_text(size = 14),
-    plot.background = element_rect(fill = "white",
+    plot.background = element_rect(fill = "#141438",
                                    colour = NA),
-    panel.background = element_rect(fill = "white",
+    legend.background = element_rect(fill = "#141438",
+                                     colour = NA),
+    panel.background = element_rect(fill = "#141438",
                                     colour = NA),
     strip.text.x = element_text(margin = margin(0, 0, 10, 0),
                                 size = 16, face = "bold"),
@@ -304,7 +306,11 @@ ggplot(simmeans) +
   figure_theme +
   theme(axis.text.y = element_blank(),
         axis.text.x = element_text(size = 8),
-        panel.background = element_rect(fill = "grey18",
+        plot.background = element_rect(fill = "#141438",
+                                       colour = NA),
+        legend.background = element_rect(fill = "#141438",
+                                         colour = NA),
+        panel.background = element_rect(fill = "#141438",
                                         colour = NA),
         panel.grid.major.y = element_blank(),
         axis.ticks.y = element_blank(),
@@ -1123,16 +1129,16 @@ sim_radar$method <- factor(sim_radar$method,
                                       "Non-Parametric BS"))
 
 sim_win_text$moment <- factor(sim_win_text$moment,
-                           levels = c("mean",
-                                      "variance",
-                                      "skewness",
-                                      "kurtosis"))
+                              levels = c("mean",
+                                         "variance",
+                                         "skewness",
+                                         "kurtosis"))
 
 sim_win_text$method <- factor(sim_win_text$method,
-                           levels = c("Cross-Site CWM",
-                                      "Site-Specific CWM",
-                                      "Parametric BS", 
-                                      "Non-Parametric BS"))
+                              levels = c("Cross-Site CWM",
+                                         "Site-Specific CWM",
+                                         "Parametric BS", 
+                                         "Non-Parametric BS"))
 
 
 ggplot(sim_radar) +
