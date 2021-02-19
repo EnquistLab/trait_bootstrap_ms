@@ -1141,7 +1141,7 @@ ggplot(sim_radar) +
     y = percentage,
     fill = method
   ),
-  colour = 'grey69') +
+  colour = 'white') +
   xlim(c(0, 3)) +
   #annotation textboxes
   geom_text(data = sim_win_text,
@@ -1171,9 +1171,9 @@ ggplot(sim_radar) +
     legend.position = "right",
     legend.title = element_text(size = 14,
                                 colour = "grey65"),
-    plot.background = element_rect(fill = "grey18",
+    plot.background = element_rect(fill = "#141438",
                                    colour = NA),
-    panel.background = element_rect(fill = "grey18",
+    panel.background = element_rect(fill = "#141438",
                                     colour = NA),
     strip.text.x = element_text(margin = margin(0, 0, 10, 0),
                                 size = 16, face = "bold",
