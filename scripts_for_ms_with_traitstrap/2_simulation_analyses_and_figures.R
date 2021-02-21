@@ -915,22 +915,22 @@ sim_win_text =
   mutate(percentage = round(percentage*100))
 
 sim_doughnuts_all$moment <- factor(sim_doughnuts_all$moment,
-                           levels = c("mean",
-                                      "variance",
-                                      "skewness",
-                                      "kurtosis"))
+                                   levels = c("mean",
+                                              "variance",
+                                              "skewness",
+                                              "kurtosis"))
 
 sim_doughnuts_all$method <- factor(sim_doughnuts_all$method,
-                           levels = c("Cross-Site CWM",
-                                      "Site-Specific CWM",
-                                      "Parametric BS", 
-                                      "Non-Parametric BS"))
+                                   levels = c("Cross-Site CWM",
+                                              "Site-Specific CWM",
+                                              "Parametric BS", 
+                                              "Non-Parametric BS"))
 
 sim_doughnuts_all$dataset <- factor(sim_doughnuts_all$dataset,
-                                   levels = c("Colorado",
-                                              "Biased",
-                                              "Panama", 
-                                              "Rodents"))
+                                    levels = c("Colorado",
+                                               "Biased",
+                                               "Panama", 
+                                               "Rodents"))
 
 sim_win_text$moment <- factor(sim_win_text$moment,
                               levels = c("mean",
@@ -945,12 +945,12 @@ sim_win_text$method <- factor(sim_win_text$method,
                                          "Non-Parametric BS"))
 
 sim_win_text$dataset <- factor(sim_win_text$dataset,
-                                    levels = c("Colorado",
-                                               "Biased",
-                                               "Panama", 
-                                               "Rodents"))
+                               levels = c("Colorado",
+                                          "Biased",
+                                          "Panama", 
+                                          "Rodents"))
 
-
+doughnut = 
 ggplot(sim_doughnuts_all) +
   geom_col(aes(
     x = 2,
@@ -987,9 +987,9 @@ ggplot(sim_doughnuts_all) +
     legend.position = "right",
     legend.title = element_text(size = 14,
                                 colour = "grey65"),
-    plot.background = element_rect(fill = "grey18",
+    plot.background = element_rect(fill = "#141438",
                                    colour = NA),
-    panel.background = element_rect(fill = "grey18",
+    panel.background = element_rect(fill = "#141438",
                                     colour = NA),
     strip.text.x = element_text(margin = margin(0, 0, 10, 0),
                                 size = 16, face = "bold",
@@ -997,11 +997,40 @@ ggplot(sim_doughnuts_all) +
     strip.text.y.left = element_text(colour = "grey69",
                                      margin = margin(0, 10, 10, 10),
                                      angle = 0,
-                                     size = 16),
+                                     size = 12,
+                                     vjust = 0),
     legend.text = element_text(colour = "grey65")
   )
 
 
 ggsave(here::here("figures/WinnerDoughnuts_datasets.png"),
        height = 10, width = 10.4,
+       units = "in", dpi = 300)
+
+
+img1 = png::readPNG("images/Colorado.png")
+img2 = png::readPNG("images/Coral.png")
+img3 = png::readPNG("images/Panama.png")
+img4 = png::readPNG("images/AZ.png")
+
+cowplot::ggdraw(doughnut) +
+  cowplot::draw_image(
+    img1, x = 0.08, y = 0.89, hjust = 1, vjust = 1, halign = 1, valign = 1,
+    width = 0.06
+  ) +
+  cowplot::draw_image(
+    img2, x = 0.08, y = 0.64, hjust = 1, vjust = 1, halign = 1, valign = 1,
+    width = 0.07
+  ) +
+  cowplot::draw_image(
+    img3, x = 0.08, y = 0.41, hjust = 1, vjust = 1, halign = 1, valign = 1,
+    width = 0.06
+  ) +
+  cowplot::draw_image(
+    img4, x = 0.08, y = 0.145, hjust = 1, vjust = 1, halign = 1, valign = 1,
+    width = 0.07
+  )
+
+ggsave(here::here("figures/WinnerDoughnuts_datasets_test.png"),
+       height = 8.3, width = 10.4,
        units = "in", dpi = 300)
