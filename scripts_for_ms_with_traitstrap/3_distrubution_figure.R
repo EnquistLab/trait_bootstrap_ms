@@ -245,26 +245,32 @@ ggplot() +
                                          title.hjust = 0.5),
                     values = pal_df$c,
                     labels = pal_df$l) +
+  scale_colour_manual(guide = guide_legend(title = "Method",
+                                           title.position="top",
+                                           title.hjust = 0.5),
+                      values = pal_df$c,
+                      labels = pal_df$l) +
   stat_density_ridges(data = all_dists %>%
                         filter(trait == "leaf_area_mm2" &
                                  method == "True"),
                       aes(x = value,
                           y = factor(paste(mean_elev,"m"))),
                       rel_min_height = 0.003,
-                      colour = NA,
+                      colour = unname(colors)[5],
                       scale = 1,
-                      fill = unname(colors)[5],
+                      fill = NA,
+                      linetype = 3,
                       alpha = 0.3) +
   stat_density_ridges(data = all_dists %>%
                         filter(trait == "leaf_area_mm2" &
                                  method != "True"),
                       aes(x = value,
                           y = factor(paste(mean_elev,"m")),
-                          fill = method),
+                          fill = method,
+                          colour = method),
                       rel_min_height = 0.003,
-                      colour = NA,
                       scale = 1,
-                      alpha = 0.65) +
+                      alpha = 0.4) +
   scale_y_discrete(expand = c(0.01, 0)) +
   scale_x_continuous(expand = c(0.1, 0)) +
   theme_classic() +
