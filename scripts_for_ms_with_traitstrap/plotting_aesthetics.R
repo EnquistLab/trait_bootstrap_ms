@@ -9,8 +9,9 @@ figure_theme =
       panel.grid.major.y = element_line(size = 0.1),
       axis.text.x = element_text(size = 11, face = "bold"),
       axis.text.y = element_text(size = 9, color = "grey65"),
-      plot.background = element_rect(fill = "#391959"),
-      panel.background = element_rect(fill = "#391959"),
+      plot.background = element_rect(fill = "#141438"),
+      panel.background = element_rect(fill = "#141438"),
+      legend.background = element_rect(fill = "#141438"),
       legend.position = 'bottom',
       legend.key = element_blank())
 
