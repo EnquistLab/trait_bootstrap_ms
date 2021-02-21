@@ -280,8 +280,8 @@ ggplot() +
   figure_theme
 
 ggsave(here::here("figures/densityestimate_joy.png"),
-       height = 8.3, width = 15,
-       units = "in", dpi = 600)
+       height = 6.3, width = 13,
+       units = "in", dpi = 300)
 
 
 ### Halfeye plots ----
