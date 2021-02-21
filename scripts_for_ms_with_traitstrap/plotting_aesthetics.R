@@ -7,13 +7,17 @@ figure_theme =
   theme(panel.grid.minor = element_blank(),
       panel.grid.major.x = element_blank(),
       panel.grid.major.y = element_line(size = 0.1),
-      axis.text.x = element_text(size = 11, face = "bold"),
+      axis.text.x = element_text(size = 11, face = "bold", color = "grey65"),
+      axis.title.x = element_text(color = "grey65"),
       axis.text.y = element_text(size = 9, color = "grey65"),
+      axis.line = element_blank(),
       plot.background = element_rect(fill = "#141438"),
       panel.background = element_rect(fill = "#141438"),
       legend.background = element_rect(fill = "#141438"),
       legend.position = 'bottom',
-      legend.key = element_blank())
+      legend.key = element_blank(),
+      legend.text = element_text(color = "grey65"),
+      legend.title = element_text(color = "grey65"))
 
 ##Colour palete
 colors <- c("Cross-Site CWM" = "#F235B0",
