@@ -291,16 +291,21 @@ moons <-
   figure_theme +
   theme(
     legend.position = 'right',
-    legend.title = element_text(size = 14),
-    plot.background = element_rect(fill = "white",
-                                   colour = NA),
-    panel.background = element_rect(fill = "grey18",
-                                    colour = NA),
+    legend.title = element_text(size = 14, colour = "grey65"),
     strip.text.y = element_text(margin = margin(0, 0, 10, 0),
-                                size = 14, face = "bold"),
-    strip.text.x.top = element_blank(),
-    panel.grid.major.y = element_line(size = 0.05),
-    legend.key = element_blank()
+                                size = 14, face = "bold",
+                                colour = "grey65"),
+    strip.text.x.top = element_text(margin = margin(0, 0, 10, 0),
+                                    size = 14, face = "bold",
+                                    colour = "grey65"),
+    panel.grid.major.y = element_line(size = 0.05,
+                                      colour = "grey65"),
+    legend.key = element_blank(),
+    legend.text = element_text(colour = "grey65"),
+    axis.title = element_text(colour = "grey65"),
+    strip.background = element_blank(),
+    axis.line = element_blank(),
+    strip.placement = 'outside'
   )
 
 cowplot::ggdraw(moons) +
@@ -373,7 +378,7 @@ sim_moon_rats$moment =
 
 unique(sim_moon_panama$sample_size)
 
-#moons <-
+moons <-
 ggplot(sim_moon_means %>%
          filter(sample_size %in% c(1,9,49,100,196,441))) +
   geom_hline(aes(yintercept = 0),
@@ -413,12 +418,6 @@ ggplot(sim_moon_means %>%
     alpha = 0.5,
     se = FALSE,
     size = 0.8) +
-  #geom_linerange(aes(
-  #  x = sample_size,
-  #  ymax = deviation,
-  #  ymin = 0),
-  #  color = "grey50",
-  #  size = 0.3) +
   ggblur::geom_point_blur(
     aes(
     x = sample_size,
@@ -468,7 +467,7 @@ ggplot(sim_moon_means %>%
                                  "Random" = 1,
                                  "Panama" = 3,
                                  "Rodents" = 4),
-                        guide = guide_legend(override.aes = list(colour = "black"))) +
+                        guide = guide_legend(override.aes = list(colour = "grey69"))) +
   scale_x_continuous(trans = 'sqrt', breaks = c(0,10,50,100,200,500),
                      limits = c(0, 500)) +
   facet_grid(rows = vars(moment),
@@ -487,12 +486,6 @@ ggplot(sim_moon_means %>%
   theme(
     legend.position = 'right',
     legend.title = element_text(size = 14, colour = "grey65"),
-    plot.background = element_rect(fill = "#141438",
-                                   colour = NA),
-    legend.background = element_rect(fill = "#141438",
-                                     colour = NA),
-    panel.background = element_rect(fill = "#141438",
-                                    colour = NA),
     strip.text.y = element_text(margin = margin(0, 0, 10, 0),
                                 size = 14, face = "bold",
                                 colour = "grey65"),
@@ -516,17 +509,17 @@ cowplot::ggdraw(moons) +
                        geom_moon(aes(ratio = ratio), size = 5, fill = "grey69", colour = "grey69") +
                        geom_text(aes(x = x + 0.6,
                                      label = paste0(ratio*100,"%")),
-                                 size = 2.5,
+                                 size = 2.7,
                                  colour = "grey65") +
                        coord_fixed() +
                        ggtitle("Uuum") +
                        lims(y = c(0.5, 2.7), x = c(-1, 1.4)) +
                        theme_void() +
                        theme(plot.title = element_text(hjust = 0.5, colour = "grey65")),
-                     .805, .12,
+                     .80, .075,
                      0.2, .23)
 
 
-#ggsave(here::here("figures/moons_biased_AllTraits.png"),
-#       height = 7, width = 12.5,
-#       units = "in", dpi = 300)
+ggsave(here::here("figures/moons_biased_AllTraits.png"),
+       height = 7, width = 12.5,
+       units = "in", dpi = 300)
