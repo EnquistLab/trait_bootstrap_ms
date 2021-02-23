@@ -3,7 +3,9 @@
 ###############################################################
 #'@param nreps Number of replicated draws of traits.
 #'@param nsamples Number of trait samples per species per plot.
-sim_percent_sampling <- function(traits, community, nreps=10, nsamples = 10){
+#'@param n_reps_boot is the number of bootstrap replicates to use
+#'@note This simple little function isn't very general and currently assumes normal distributions.
+sim_percent_sampling <- function(traits, community, nreps=10, nsamples = 10,n_reps_boot=200){
   
   output <- NULL
   
@@ -18,7 +20,7 @@ sim_percent_sampling <- function(traits, community, nreps=10, nsamples = 10){
     
     
   if(nrow(community_nt) < 1){next}
-  
+    
   # calculate values and record
   #Get species mean traits
   species_means_nt <- samples_to_means(tidy_traits = traits_nt,level = "taxon")
@@ -66,7 +68,7 @@ sim_percent_sampling <- function(traits, community, nreps=10, nsamples = 10){
                        nrep = n_reps_boot,
                        sample_size = 200)
   np_results_nt <-
-    trait_summarise_boot_moments(BootstrapMoments = np_results_nt)
+    trait_summarise_boot_moments(bootstrap_moments =  np_results_nt)
   
   #Get CWM species
   cwm_species_results_nt <- 
@@ -75,7 +77,7 @@ sim_percent_sampling <- function(traits, community, nreps=10, nsamples = 10){
                        sample_size = 200)
   
   cwm_species_results_nt <-
-    trait_summarise_boot_moments(BootstrapMoments = cwm_species_results_nt)
+    trait_summarise_boot_moments(bootstrap_moments =  cwm_species_results_nt)
   
   #Get CWM species x site
   cwm_species_x_site_results_nt <- 
@@ -84,18 +86,18 @@ sim_percent_sampling <- function(traits, community, nreps=10, nsamples = 10){
                        sample_size = 200)
   
   cwm_species_x_site_results_nt <-
-    trait_summarise_boot_moments(BootstrapMoments = cwm_species_x_site_results_nt)
+    trait_summarise_boot_moments(bootstrap_moments = cwm_species_x_site_results_nt)
   
   #Get parametric moments
   pbs_results_nt <-
-    trait_parametric_bootstrap(imputed_traits = imputed_full,
+    traitstrap:::trait_parametric_bootstrap(imputed_traits = imputed_full,
                                distribution_type = "normal",
                                nrep = n_reps_boot,
-                               samples_per_abundance = 10) #note that this sampling is a bit different
+                               sample_size = 200)
   
   
   pbs_results_nt <-
-    trait_summarise_boot_moments(BootstrapMoments = pbs_results_nt)
+    trait_summarise_boot_moments(bootstrap_moments = pbs_results_nt)
   
   
   community_nt %>% group_by(site) %>% summarise(sum_abd = sum(abundance), ntaxa= length(abundance)) -> sample_sizes_t
@@ -109,7 +111,20 @@ sim_percent_sampling <- function(traits, community, nreps=10, nsamples = 10){
                     cbind(method = "site-specic CWM", sample_size = nsamples, cwm_species_x_site_results_nt))
   output_t <- merge(output_t,sample_sizes_t)
   output_t$replicate <- i
+  
+  
+  #########################
+  
+  #NA checks
+    if(any(is.na(output_t$mean) | is.na(output_t$var) ) ){stop("NAs found in mean or variance")}
     
+    #should only see NAs for skew and kurt where nspecies = 1
+    if(any(output_t$ntaxa[which(is.na(output_t$skew))]!=1)){stop("NAs in skewness with multiple taxa")}
+    if(any(output_t$ntaxa[which(is.na(output_t$kurt))]!=1)){stop("NAs in kurtosis with multiple taxa")}
+    
+  
+  ###############################  
+  
   output <- rbind(output,output_t)
   
   

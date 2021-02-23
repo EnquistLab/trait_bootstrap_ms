@@ -10,7 +10,7 @@ library(tidyr)
 library(dplyr)
 library(ggplot2)
 
-source("r_functions/parametric_bs.R")
+#source("r_functions/parametric_bs.R")
 source("r_functions/draw_traits_tidy.R")
 source("r_functions/sim_percent_sampling.R")
 
@@ -374,7 +374,7 @@ panama_traits$value <- log10(panama_traits$value)
 #######################################
 
 #Run pct cover sims
-panama_pct_sims <- sim_percent_sampling(traits = panama_traits, community = panama_community, nreps = 10, nsamples = 10)
+panama_pct_sims <- sim_percent_sampling(traits = panama_traits, community = panama_community, nreps = 10, nsamples = 10,n_reps_boot = 200)
 saveRDS(object = panama_pct_sims,file = "output_data/Panama_percent_community_sims.RDS")  
 
 ########################################################
