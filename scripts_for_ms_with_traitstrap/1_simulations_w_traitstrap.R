@@ -12,7 +12,7 @@ library(ggplot2)
 
 source("r_functions/parametric_bs.R")
 source("r_functions/draw_traits_tidy.R")
-
+source("r_functions/sim_percent_sampling.R")
 
 #Code commented out to keep track of origin of trait data
 #traits<-read.csv("C:/Users/Brian/Desktop/current_projects/RMBL_traits/Trait_Data/rmbl_trait_data_master.csv")
@@ -60,8 +60,15 @@ atraits <- readRDS(file = "data/all_traits_unscaled_RMBL.rds")
 
 
 
+  
+##########################################################################  
 
+#Run pct cover sims
+co_pct_sims <- sim_percent_sampling(traits = atraits, community = community, nreps = 10, nsamples = 10)
+saveRDS(object = co_pct_sims,file = "output_data/Colorado_percent_community_sims.RDS")  
 
+rm(co_pct_sims)
+  
 
 ###########################################################################
 
@@ -364,16 +371,17 @@ ggplot(data = panama_traits,aes(x=log(value)))+geom_histogram()+facet_wrap(~trai
 panama_traits <- panama_traits[which(!panama_traits$trait %in% c("LCC","LDMC")),]
 panama_traits$value <- log10(panama_traits$value)
 
+#######################################
+
+#Run pct cover sims
+panama_pct_sims <- sim_percent_sampling(traits = panama_traits, community = panama_community, nreps = 10, nsamples = 10)
+saveRDS(object = panama_pct_sims,file = "output_data/Panama_percent_community_sims.RDS")  
+
+########################################################
 
 #The previous sim sampled numbers of individuals per species.  this will be number of LEAVES per species
-
 #sample sizes
 n_to_sample_panama <-(1:16)^2
-
-
-max(panama_community$abundance)*6
-
-
 
 n_reps_trait <- 10 #controls the number of replicated draws for each  sample size
 n_reps_boot <- 200 #number of bootstrap replicates to use
@@ -502,8 +510,10 @@ saveRDS(object = output_panama,file = "output_data/panama_simulation_results.RDS
 ###############################################################################
 
 #Portal rodents
+library(portalr)
 
 portal_data <- load_rodent_data("repo")
+
 portal_species <- portal_data$species_table
 portal_traits <- portal_data$rodent_data
 
