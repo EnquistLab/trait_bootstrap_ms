@@ -1,4 +1,20 @@
 library(ggplot2)
+library(extrafont)
+library(sysfonts)
+library(showtext)
+
+##Fonts
+
+font_add_google("Noto Sans",
+                "Noto")
+
+font_paths()  
+font_files()
+font_families()
+
+trace(grDevices::png, exit = quote({
+  showtext::showtext_begin()
+}), print = FALSE)
 
 ##Theme for plotting
 
@@ -17,7 +33,9 @@ figure_theme =
       legend.position = 'bottom',
       legend.key = element_blank(),
       legend.text = element_text(color = "grey65"),
-      legend.title = element_text(color = "grey65"))
+      legend.title = element_text(color = "grey65"),
+      text = element_text(family = "Noto") #font change
+      )
 
 ##Colour palete
 colors <- c("Cross-Site CWM" = "#F235B0",
