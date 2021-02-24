@@ -188,7 +188,7 @@ sim_moon_means =
                       1)) %>%
   group_by(method, moment, sample_size) %>%
   #calcualte proportion of 'hits' per trait, methods, moment
-  summarise(percentage = sum(hit - 1)/sum(hit),
+  summarise(percentage = sum(hit - 1)/n(),
             deviation = mean(ifelse(estimate > true_value,
                                     estimate - true_value,
                                     true_value - estimate)))
@@ -201,7 +201,7 @@ sim_biased_moon_means =
                       1)) %>%
   group_by(method, moment, sample_size) %>%
   #calcualte proportion of 'hits' per trait, methods, moment
-  summarise(percentage = sum(hit - 1)/sum(hit),
+  summarise(percentage = sum(hit - 1)/n(),
             deviation = mean(ifelse(estimate > true_value,
                                     estimate - true_value,
                                     true_value - estimate)))
@@ -309,24 +309,10 @@ moons <-
   )
 
 cowplot::ggdraw(moons) +
-  cowplot::draw_plot(ggplot(data.frame(y = c(1,1.5,2,2.5),
-                                       x = 0, ratio = 1:4 * 0.25),
-                            aes(x = x, y = y)) +
-                       geom_moon(aes(ratio = ratio), size = 5, fill = "grey69", colour = "grey69") +
-                       geom_text(aes(x = x + 0.6,
-                                     label = paste0(ratio*100,"%")),
-                                 size = 2.5) +
-                       coord_fixed() +
-                       ggtitle("Uuum") +
-                       lims(y = c(0.5, 2.7), x = c(-1, 1.4)) +
-                       theme_void() +
-                       theme(plot.title = element_text(hjust = 0.5)),
+  cowplot::draw_plot(moon_legend,
                      .79, .12,
                      0.2, .23)
 
-ggsave(here::here("figures/moons_biased_AllTraits.png"),
-       height = 7, width = 12.5,
-       units = "in", dpi = 300)
 
 ### Bonus Plots----
 
@@ -340,7 +326,7 @@ sim_moon_panama =
                       1)) %>%
   group_by(method, moment, sample_size) %>%
   #calcualte proportion of 'hits' per trait, methods, moment
-  summarise(percentage = sum(hit - 1)/sum(hit),
+  summarise(percentage = sum(hit - 1)/n(),
             deviation = mean(ifelse(estimate > true_value,
                                     estimate - true_value,
                                     true_value - estimate)))
@@ -353,7 +339,7 @@ sim_moon_rats =
                       1)) %>%
   group_by(method, moment, sample_size) %>%
   #calcualte proportion of 'hits' per trait, methods, moment
-  summarise(percentage = sum(hit - 1)/sum(hit),
+  summarise(percentage = sum(hit - 1)/n(),
             deviation = mean(ifelse(estimate > true_value,
                                     estimate - true_value,
                                     true_value - estimate)))
@@ -519,7 +505,3 @@ cowplot::ggdraw(moons) +
                      .80, .075,
                      0.2, .23)
 
-
-ggsave(here::here("figures/moons_biased_AllTraits.png"),
-       height = 7, width = 12.5,
-       units = "in", dpi = 300)

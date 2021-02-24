@@ -63,3 +63,22 @@ traits_parsed <- c(
   leaf_area_mm2 = "Leaf area",
   LMA_mg_mm2 = "LMA"
 )
+
+##Manual Legend for moon plots
+moon_legend = 
+ggplot(data.frame(y = c(1,1.5,2,2.5), 
+                  x = 0, ratio = 1:4 * 0.25),
+       aes(x = x, y = y)) +
+  geom_moon(aes(ratio = ratio), size = 5, fill = "grey69", colour = "grey69") +
+  geom_text(aes(x = x + 0.6,
+                label = paste0(ratio*100,"%")),
+            size = 3,
+            colour = "grey65",
+            family = "Noto") +
+  coord_fixed() +
+  ggtitle("Uuum") +
+  lims(y = c(0.5, 2.7), x = c(-1, 1.4)) +
+  theme_void() +
+  theme(plot.title = element_text(hjust = 0.5),
+        text = element_text(colour = "grey65",
+                            family = "Noto"))
