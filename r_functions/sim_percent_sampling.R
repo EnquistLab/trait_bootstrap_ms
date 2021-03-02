@@ -89,22 +89,21 @@ sim_percent_sampling <- function(traits, community, nreps=10, nsamples = 10,n_re
     trait_summarise_boot_moments(bootstrap_moments = cwm_species_x_site_results_nt)
   
   #Get parametric moments
+  fitted_nt <- trait_fit_distributions(imputed_traits = imputed_full,
+                          distribution_type = "normal")
+  
   pbs_results_nt <-
-    traitstrap:::trait_parametric_bootstrap(imputed_traits = imputed_full,
-                               distribution_type = "normal",
-                               nrep = n_reps_boot,
-                               sample_size = 200)
-  
-  
+    trait_parametric_bootstrap(fitted_distributions = fitted_nt,
+                               nrep = n_reps_boot, sample_size = 200)
+
+
   pbs_results_nt <-
     trait_summarise_boot_moments(bootstrap_moments = pbs_results_nt)
-  
-  
-  community_nt %>% group_by(site) %>% summarise(sum_abd = sum(abundance), ntaxa= length(abundance)) -> sample_sizes_t
-  
-  
-  
-  
+
+
+  sample_sizes_t <- community_nt %>% group_by(site) %>% summarise(sum_abd = sum(abundance), ntaxa= length(abundance))
+
+
   output_t <- rbind(cbind(method = "nonparametric bs", sample_size = nsamples, np_results_nt),
                     cbind(method = "parametric bs", sample_size = nsamples, pbs_results_nt),
                     cbind(method = "global cwm", sample_size = nsamples, cwm_species_results_nt),
