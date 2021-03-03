@@ -210,11 +210,9 @@ sim_percent_sampling <- function(traits, community, nreps=10, nsamples = 10,n_re
   colnames(sim_skew)[grep(pattern = "true",x = colnames(sim_skew))]<-"true_value"
   colnames(sim_skew)[grep(pattern = "skew",x = colnames(sim_skew))]<-"estimate"
   
-  
-  
   sim_kurt <- output[c("site","trait","method","sample_size","n",
                         "sum_abd","ntaxa","replicate","pct_abd_sampled",
-                        "kurt","ci_low_kurt","ci_high_Kurt","true_kurtosis")]
+                        "kurt","ci_low_kurt","ci_high_kurt","true_kurtosis")]
   sim_kurt$moment <- "kurtosis"
   colnames(sim_kurt)[grep(pattern = "ci_low",x = colnames(sim_kurt))]<-"ci_low"
   colnames(sim_kurt)[grep(pattern = "ci_high",x = colnames(sim_kurt))]<-"ci_high"
@@ -225,7 +223,7 @@ sim_percent_sampling <- function(traits, community, nreps=10, nsamples = 10,n_re
   rm(sim_mean,sim_var,sim_skew,sim_kurt)
   
   #Rename methods for plotting
-  unique(output$method)
+  #unique(output$method)
   output$method[which(output$method=="global cwm")] <- "Cross-Site CWM"
   output$method[which(output$method=="site-specic CWM")] <- "Site-Specific CWM"
   output$method[which(output$method=="nonparametric bs")] <- "Non-Parametric BS"

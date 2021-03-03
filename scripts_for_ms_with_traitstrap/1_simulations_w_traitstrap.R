@@ -69,7 +69,11 @@ atraits <- readRDS(file = "data/all_traits_unscaled_RMBL.rds")
 
   
 #Run pct cover sims
-  co_pct_sims <- sim_percent_sampling(traits = atraits, community = community, nreps = 10, nsamples = 10, n_reps_boot = 200)
+  co_pct_sims <- sim_percent_sampling(traits = atraits,
+                                      community = community,
+                                      nreps = 10,
+                                      nsamples = 10,
+                                      n_reps_boot = 200)
 
 #save output
   saveRDS(object = co_pct_sims,file = "output_data/Colorado_percent_community_sims.RDS")  
