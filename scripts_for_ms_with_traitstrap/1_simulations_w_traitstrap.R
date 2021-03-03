@@ -13,6 +13,14 @@ library(ggplot2)
 #source("r_functions/parametric_bs.R")
 source("r_functions/draw_traits_tidy.R")
 source("r_functions/sim_percent_sampling.R")
+source("r_functions/sim_sample_size.R")
+
+
+#####################################################################################################################
+
+# Colorado data
+
+
 
 #Code commented out to keep track of origin of trait data
 #traits<-read.csv("C:/Users/Brian/Desktop/current_projects/RMBL_traits/Trait_Data/rmbl_trait_data_master.csv")
@@ -59,284 +67,30 @@ atraits <- readRDS(file = "data/all_traits_unscaled_RMBL.rds")
     #ggplot(data = atraits,mapping = aes(x=value))+geom_histogram()+facet_wrap(trait~site,scales = "free")
 
 
-
   
-##########################################################################  
-
 #Run pct cover sims
-co_pct_sims <- sim_percent_sampling(traits = atraits, community = community, nreps = 10, nsamples = 10)
-saveRDS(object = co_pct_sims,file = "output_data/Colorado_percent_community_sims.RDS")  
+  co_pct_sims <- sim_percent_sampling(traits = atraits, community = community, nreps = 10, nsamples = 10, n_reps_boot = 200)
 
-rm(co_pct_sims)
+#save output
+  saveRDS(object = co_pct_sims,file = "output_data/Colorado_percent_community_sims.RDS")  
+  rm(co_pct_sims)
   
 
-###########################################################################
+#Run sample size sims
+  output_co <- sim_sample_size(tidy_traits = atraits)
+  #save output
+    saveRDS(object = output_co,file = "output_data/simulation_results.RDS")
 
-# Set simulation parameters
-
-
-n_to_sample <- (1:22)^2 #sample sizes
-n_reps_trait <- 10 #controls the number of replicated draws for each  sample size
-n_reps_boot <- 200 #number of bootstrap replicates to use
-set.seed(2005) #set seed for reproducibility.  2005 = Year Transformers: The Movie (cartoon version) is set.
-output<-NULL
-
-  for( n in n_to_sample){
-    for(t in 1:n_reps_trait){  
-      
-      
-      #First simulate a draw of the relevant sample size
-      traits_nt <- draw_traits_tidy(tidy_traits = atraits,sample_size =  n)
-      
-      #Get species mean traits
-      species_means_nt <- samples_to_means(tidy_traits = traits_nt,level = "taxon")
-      species_means_nt$site <- "ALL" #Note: adding a "dummy" site here so traitstrap will use global data but still return site-level moments
-      
-      #Get species x site mean traits
-      species_site_means_nt <- samples_to_means(tidy_traits = traits_nt,level = "taxon_by_site")
-      
-      #Trait imputation for distributions
-      imputed_full <- 
-       trait_impute(comm = community,
-                   traits = traits_nt,
-                   scale_hierarchy = "site",
-                   global = T,
-                   taxon_col = "taxon",
-                   trait_col = "trait",
-                   value_col = "value",
-                   abundance_col = "abundance")
-      
-      #Trait imputation for species mean
-      imputed_species_mean <- 
-        trait_impute(comm = community,
-                     traits = species_means_nt,
-                     scale_hierarchy = "site",
-                     global = T,
-                     taxon_col = "taxon",
-                     trait_col = "trait",
-                     value_col = "value",
-                     abundance_col = "abundance")
-      
-      #Trait imputation for species x site mean
-      imputed_species_x_site_mean <- 
-        trait_impute(comm = community,
-                     traits = species_site_means_nt,
-                     scale_hierarchy = "site",
-                     global = T,
-                     taxon_col = "taxon",
-                     trait_col = "trait",
-                     value_col = "value",
-                     abundance_col = "abundance")
-      
-      #Get Non-parametric moments
-      np_results_nt <- 
-      trait_np_bootstrap(imputed_traits = imputed_full,
-                         nrep = n_reps_boot,
-                         sample_size = 200)
-      np_results_nt <-
-        trait_summarise_boot_moments(bootstrap_moments = np_results_nt)
-      
-      #Get CWM species
-      cwm_species_results_nt <- 
-        trait_np_bootstrap(imputed_traits = imputed_species_mean,
-                           nrep = n_reps_boot,
-                           sample_size = 200)
-      
-      cwm_species_results_nt <-
-        trait_summarise_boot_moments(bootstrap_moments = cwm_species_results_nt)
-      
-      #Get CWM species x site
-      cwm_species_x_site_results_nt <- 
-        trait_np_bootstrap(imputed_traits = imputed_species_x_site_mean,
-                           nrep = n_reps_boot,
-                           sample_size = 200)
-      
-      cwm_species_x_site_results_nt <-
-        trait_summarise_boot_moments(bootstrap_moments = cwm_species_x_site_results_nt)
-      
-      #Get parametric moments
-      pbs_results_nt <-
-        trait_parametric_bootstrap(imputed_traits = imputed_full,
-                                   distribution_type = "normal",
-                                   nrep = n_reps_boot,
-                                   samples_per_abundance = 10) #note that this sampling is a bit different
-        
-      
-      pbs_results_nt <-
-        trait_summarise_boot_moments(bootstrap_moments = pbs_results_nt)
-      
-      output <- rbind(output,rbind(cbind(method = "nonparametric bs", sample_size = n, np_results_nt),
-            cbind(method = "parametric bs", sample_size = n, pbs_results_nt),
-            cbind(method = "global cwm", sample_size = n, cwm_species_results_nt),
-            cbind(method = "site-specic CWM", sample_size = n, cwm_species_x_site_results_nt))
-            )
-      
-    
-    } #t trait rep  
-  }# n sample size loop
-
-
-#cleanup
-rm(cwm_species_results_nt,cwm_species_x_site_results_nt,imputed_full,imputed_species_mean,imputed_species_x_site_mean,
-   np_results_nt,pbs_results_nt,species_means_nt,species_site_means_nt,traits_nt,n,t)
-
-#Append true moments to data
-
-#First, calculate true moments for each site x trait
-
-atraits %>% group_by(site,trait) %>% summarise(true_mean=mean(value),
-                                               true_variance=var(value),
-                                               true_skewness = skewness(value),
-                                               true_kurtosis = kurtosis(value)) -> true_moments
-
-#Next, append true moments to output data for convenience
-output <- merge(x = output,y = true_moments,by = c("site","trait"))
-
-#cleanup
-rm(true_moments)
-
-#save output
-saveRDS(object = output,file = "output_data/simulation_results.RDS")
-
-
-
-###############################################################################
-
-#Bias towards large individuals
-
-
-
-n_to_sample <- (1:22)^2 #sample sizes
-n_reps_trait <- 10 #controls the number of replicated draws for each  sample size
-n_reps_boot <- 200 #number of bootstrap replicates to use
-set.seed(2005) #set seed for reproducibility.  2005 = Year Transformers: The Movie (cartoon version) is set.
-output_biased <-NULL
-prob = 0.75
-
-for( n in n_to_sample){
-  for(t in 1:n_reps_trait){  
-    
-    
-    #First simulate a draw of the relevant sample size
-    traits_nt <- draw_traits_tidy_large(tidy_traits = atraits,sample_size =  n,focal_trait = "leaf_area_mm2",prob = prob)
-    
-    #Get species mean traits
-    species_means_nt <- samples_to_means(tidy_traits = traits_nt,level = "taxon")
-    species_means_nt$site <- "ALL" #Note: adding a "dummy" site here so traitstrap will use global data but still return site-level moments
-    
-    #Get species x site mean traits
-    species_site_means_nt <- samples_to_means(tidy_traits = traits_nt,level = "taxon_by_site")
-    
-    #Trait imputation for distributions
-    imputed_full <- 
-      trait_impute(comm = community,
-                   traits = traits_nt,
-                   scale_hierarchy = "site",
-                   global = T,
-                   taxon_col = "taxon",
-                   trait_col = "trait",
-                   value_col = "value",
-                   abundance_col = "abundance")
-    
-    #Trait imputation for species mean
-    imputed_species_mean <- 
-      trait_impute(comm = community,
-                   traits = species_means_nt,
-                   scale_hierarchy = "site",
-                   global = T,
-                   taxon_col = "taxon",
-                   trait_col = "trait",
-                   value_col = "value",
-                   abundance_col = "abundance")
-    
-    #Trait imputation for species x site mean
-    imputed_species_x_site_mean <- 
-      trait_impute(comm = community,
-                   traits = species_site_means_nt,
-                   scale_hierarchy = "site",
-                   global = T,
-                   taxon_col = "taxon",
-                   trait_col = "trait",
-                   value_col = "value",
-                   abundance_col = "abundance")
-    
-    #Get Non-parametric moments
-    np_results_nt <- 
-      trait_np_bootstrap(imputed_traits = imputed_full,
-                         nrep = n_reps_boot,
-                         sample_size = 200)
-    np_results_nt <-
-      trait_summarise_boot_moments(BootstrapMoments = np_results_nt)
-    
-    #Get CWM species
-    cwm_species_results_nt <- 
-      trait_np_bootstrap(imputed_traits = imputed_species_mean,
-                         nrep = n_reps_boot,
-                         sample_size = 200)
-    
-    cwm_species_results_nt <-
-      trait_summarise_boot_moments(BootstrapMoments = cwm_species_results_nt)
-    
-    #Get CWM species x site
-    cwm_species_x_site_results_nt <- 
-      trait_np_bootstrap(imputed_traits = imputed_species_x_site_mean,
-                         nrep = n_reps_boot,
-                         sample_size = 200)
-    
-    cwm_species_x_site_results_nt <-
-      trait_summarise_boot_moments(BootstrapMoments = cwm_species_x_site_results_nt)
-    
-    #Get parametric moments
-    pbs_results_nt <-
-      trait_parametric_bootstrap(imputed_traits = imputed_full,
-                                 distribution_type = "normal",
-                                 nrep = n_reps_boot,
-                                 samples_per_abundance = 10) #note that this sampling is a bit different
-    
-    
-    pbs_results_nt <-
-      trait_summarise_boot_moments(BootstrapMoments = pbs_results_nt)
-    
-    output_biased <- rbind(output_biased,rbind(cbind(method = "nonparametric bs", sample_size = n, np_results_nt),
-                                 cbind(method = "parametric bs", sample_size = n, pbs_results_nt),
-                                 cbind(method = "global cwm", sample_size = n, cwm_species_results_nt),
-                                 cbind(method = "site-specic CWM", sample_size = n, cwm_species_x_site_results_nt))
-    )
-    
-    
-  } #t trait rep  
-}# n sample size loop
-
-
-#cleanup
-rm(cwm_species_results_nt,cwm_species_x_site_results_nt,imputed_full,imputed_species_mean,imputed_species_x_site_mean,
-   np_results_nt,pbs_results_nt,species_means_nt,species_site_means_nt,traits_nt,n,t)
-
-#Append true moments to data
-
-#First, calculate true moments for each site x trait
-
-atraits %>% group_by(site,trait) %>% summarise(true_mean=mean(value),
-                                               true_variance=var(value),
-                                               true_skewness = skewness(value),
-                                               true_kurtosis = kurtosis(value)) -> true_moments
-
-#Next, append true moments to output data for convenience
-output_biased <- merge(x = output_biased, y = true_moments, by = c("site","trait"))
-
-#cleanup
-rm(true_moments)
-
-#save output
-saveRDS(object = output_biased,file = "output_data/simulation_results_biased.RDS")
-
-
-
-
+#Run sample size sims with bias
+  output_co_biased <- sim_sample_size(tidy_traits = atraits,
+                                      prob = 0.75)
+  #save output
+  saveRDS(object = output_co_biased,file = "output_data/simulation_results_biased.RDS")
+  
 
 #############################################################################
 
-#Messier Data
+# Messier Panama Data
 
 library(xlsx)
 panama <- read.xlsx(file = "data/Julies_Panama_data.xlsx",1)
@@ -352,18 +106,16 @@ colnames(panama)[which(colnames(panama)=="Id")]<-"ID"
 panama %>% group_by(region,site,taxon) %>% summarise(across(ID,~(length(unique(.x))),.names = "abundance"),.groups="drop") -> panama_community
 
 
-
 #Convert to tidy/skinny/long form
 panama_traits <- gather(data=panama,key = "trait","value",12:20)
 panama_traits$value <- as.numeric(panama_traits$value)
 
 #which traits have the most NAs?  Toss those and then any rows with NA values
-panama_traits %>% group_by(trait) %>%summarise(across(value,~length(which(is.na(.x)))))
+panama_traits %>% group_by(trait) %>% summarise(across(value,~length(which(is.na(.x)))))
 panama_traits <- panama_traits[which(panama_traits$trait!="SPAD.average"),]
 panama_traits <- panama_traits[which(!is.na(panama_traits$value)),]
 
 #check scales, log tf if necessary
-
 ggplot(data = panama_traits,aes(x=value))+geom_histogram()+facet_wrap(~trait,scales = "free")
 ggplot(data = panama_traits,aes(x=log(value)))+geom_histogram()+facet_wrap(~trait,scales = "free")
 
@@ -371,145 +123,18 @@ ggplot(data = panama_traits,aes(x=log(value)))+geom_histogram()+facet_wrap(~trai
 panama_traits <- panama_traits[which(!panama_traits$trait %in% c("LCC","LDMC")),]
 panama_traits$value <- log10(panama_traits$value)
 
-#######################################
 
 #Run pct cover sims
-panama_pct_sims <- sim_percent_sampling(traits = panama_traits, community = panama_community, nreps = 10, nsamples = 10,n_reps_boot = 200)
-saveRDS(object = panama_pct_sims,file = "output_data/Panama_percent_community_sims.RDS")  
+  panama_pct_sims <- sim_percent_sampling(traits = panama_traits, community = panama_community, nreps = 10, nsamples = 10,n_reps_boot = 200)
+  saveRDS(object = panama_pct_sims,file = "output_data/Panama_percent_community_sims.RDS")  
 
-########################################################
-
-#The previous sim sampled numbers of individuals per species.  this will be number of LEAVES per species
-#sample sizes
-n_to_sample_panama <-(1:16)^2
-
-n_reps_trait <- 10 #controls the number of replicated draws for each  sample size
-n_reps_boot <- 200 #number of bootstrap replicates to use
-set.seed(2005) #set seed for reproducibility.  2005 = Year Transformers: The Movie (cartoon version) is set.
-output_panama <-NULL
-
-for( n in n_to_sample_panama){
-  for(t in 1:n_reps_trait){  
-    
-    
-    #First simulate a draw of the relevant sample size
-    traits_nt <- draw_traits_tidy(tidy_traits = panama_traits,sample_size =  n)
-    
-    #Get species mean traits
-    species_means_nt <- samples_to_means(tidy_traits = traits_nt,level = "taxon")
-    species_means_nt$site <- "ALL" #Note: adding a "dummy" site here so traitstrap will use global data but still return site-level moments
-    
-    #Get species x site mean traits
-    species_site_means_nt <- samples_to_means(tidy_traits = traits_nt,level = "taxon_by_site")
-    
-    #Trait imputation for distributions
-    imputed_full <- 
-      trait_impute(comm = panama_community,
-                   traits = traits_nt,
-                   scale_hierarchy = "site",
-                   global = T,
-                   taxon_col = "taxon",
-                   trait_col = "trait",
-                   value_col = "value",
-                   abundance_col = "abundance")
-    
-    #Trait imputation for species mean
-    imputed_species_mean <- 
-      trait_impute(comm = panama_community,
-                   traits = species_means_nt,
-                   scale_hierarchy = "site",
-                   global = T,
-                   taxon_col = "taxon",
-                   trait_col = "trait",
-                   value_col = "value",
-                   abundance_col = "abundance")
-    
-    #Trait imputation for species x site mean
-    imputed_species_x_site_mean <- 
-      trait_impute(comm = panama_community,
-                   traits = species_site_means_nt,
-                   scale_hierarchy = "site",
-                   global = T,
-                   taxon_col = "taxon",
-                   trait_col = "trait",
-                   value_col = "value",
-                   abundance_col = "abundance")
-    
-    #Get Non-parametric moments
-    np_results_nt <- 
-      trait_np_bootstrap(imputed_traits = imputed_full,
-                         nrep = n_reps_boot,
-                         sample_size = 200)
-    np_results_nt <-
-      trait_summarise_boot_moments(BootstrapMoments = np_results_nt)
-    
-    #Get CWM species
-    cwm_species_results_nt <- 
-      trait_np_bootstrap(imputed_traits = imputed_species_mean,
-                         nrep = n_reps_boot,
-                         sample_size = 200)
-    
-    cwm_species_results_nt <-
-      trait_summarise_boot_moments(BootstrapMoments = cwm_species_results_nt)
-    
-    #Get CWM species x site
-    cwm_species_x_site_results_nt <- 
-      trait_np_bootstrap(imputed_traits = imputed_species_x_site_mean,
-                         nrep = n_reps_boot,
-                         sample_size = 200)
-    
-    cwm_species_x_site_results_nt <-
-      trait_summarise_boot_moments(BootstrapMoments = cwm_species_x_site_results_nt)
-    
-    #Get parametric moments
-    pbs_results_nt <-
-      trait_parametric_bootstrap(imputed_traits = imputed_full,
-                                 distribution_type = "normal",
-                                 nrep = n_reps_boot,
-                                 samples_per_abundance = 10) #note that this sampling is a bit different
-    
-    
-    pbs_results_nt <-
-      trait_summarise_boot_moments(BootstrapMoments = pbs_results_nt)
-    
-    output_panama <- rbind(output_panama,rbind(cbind(method = "nonparametric bs", sample_size = n, np_results_nt),
-                                 cbind(method = "parametric bs", sample_size = n, pbs_results_nt),
-                                 cbind(method = "global cwm", sample_size = n, cwm_species_results_nt),
-                                 cbind(method = "site-specic CWM", sample_size = n, cwm_species_x_site_results_nt))
-    )
-    
-    
-  } #t trait rep  
-}# n sample size loop
-
-
-#cleanup
-rm(cwm_species_results_nt,cwm_species_x_site_results_nt,imputed_full,imputed_species_mean,imputed_species_x_site_mean,
-   np_results_nt,pbs_results_nt,species_means_nt,species_site_means_nt,traits_nt,n,t)
-
-#Append true moments to data
-
-#First, calculate true moments for each site x trait
-
-panama_traits %>% group_by(site,trait) %>% summarise(true_mean=mean(value),
-                                               true_variance=var(value),
-                                               true_skewness = skewness(value),
-                                               true_kurtosis = kurtosis(value)) -> panama_true_moments
-
-#Next, append true moments to output data for convenience
-output_panama <- merge(x = output_panama, y = panama_true_moments, by = c("site","trait"))
-
-#cleanup
-rm(panama_true_moments)
-
-#save output
-saveRDS(object = output_panama,file = "output_data/panama_simulation_results.RDS")
-
-
-
+#Run sample size sims
+  output_pa <- sim_sample_size(tidy_traits = panama_traits,n_to_sample = (1:16)^2)
+  saveRDS(object = output_pa,file = "output_data/panama_simulation_results.RDS")
 ###############################################################################
 
-#Portal rodents
+#Portal rodents data
+  
 library(portalr)
 
 portal_data <- load_rodent_data("repo")
@@ -546,134 +171,10 @@ portal_traits %>% group_by(taxon,site) %>% summarise(across(ID,~(length(unique(.
 portal_traits$site <- as.character(portal_traits$site)
 portal_community$site <- as.character(portal_community$site)
 
-#Run sims
-
-# Set simulation parameters
-
-
-n_to_sample <- (1:13)^2 #sample sizes
-n_reps_trait <- 10 #controls the number of replicated draws for each  sample size
-n_reps_boot <- 200 #number of bootstrap replicates to use
-set.seed(2005) #set seed for reproducibility.  2005 = Year Transformers: The Movie (cartoon version) is set.
-output<-NULL
-
-for( n in n_to_sample){
-  for(t in 1:n_reps_trait){  
-    
-    
-    #First simulate a draw of the relevant sample size
-    traits_nt <- draw_traits_tidy(tidy_traits = portal_traits,sample_size =  n)
-    
-    #Get species mean traits
-    species_means_nt <- samples_to_means(tidy_traits = traits_nt,level = "taxon")
-    species_means_nt$site <- "ALL" #Note: adding a "dummy" site here so traitstrap will use global data but still return site-level moments
-    
-    #Get species x site mean traits
-    species_site_means_nt <- samples_to_means(tidy_traits = traits_nt,level = "taxon_by_site")
-    
-    #Trait imputation for distributions
-    imputed_full <- 
-      trait_impute(comm = portal_community,
-                   traits = traits_nt,
-                   scale_hierarchy = "site",
-                   global = T,
-                   taxon_col = "taxon",
-                   trait_col = "trait",
-                   value_col = "value",
-                   abundance_col = "abundance")
-    
-    #Trait imputation for species mean
-    imputed_species_mean <- 
-      trait_impute(comm = portal_community,
-                   traits = species_means_nt,
-                   scale_hierarchy = "site",
-                   global = T,
-                   taxon_col = "taxon",
-                   trait_col = "trait",
-                   value_col = "value",
-                   abundance_col = "abundance")
-    
-    #Trait imputation for species x site mean
-    imputed_species_x_site_mean <- 
-      trait_impute(comm = portal_community,
-                   traits = species_site_means_nt,
-                   scale_hierarchy = "site",
-                   global = T,
-                   taxon_col = "taxon",
-                   trait_col = "trait",
-                   value_col = "value",
-                   abundance_col = "abundance")
-    
-    #Get Non-parametric moments
-    np_results_nt <- 
-      trait_np_bootstrap(imputed_traits = imputed_full,
-                         nrep = n_reps_boot,
-                         sample_size = 200)
-    np_results_nt <-
-      trait_summarise_boot_moments(BootstrapMoments = np_results_nt)
-    
-    #Get CWM species
-    cwm_species_results_nt <- 
-      trait_np_bootstrap(imputed_traits = imputed_species_mean,
-                         nrep = n_reps_boot,
-                         sample_size = 200)
-    
-    cwm_species_results_nt <-
-      trait_summarise_boot_moments(BootstrapMoments = cwm_species_results_nt)
-    
-    #Get CWM species x site
-    cwm_species_x_site_results_nt <- 
-      trait_np_bootstrap(imputed_traits = imputed_species_x_site_mean,
-                         nrep = n_reps_boot,
-                         sample_size = 200)
-    
-    cwm_species_x_site_results_nt <-
-      trait_summarise_boot_moments(BootstrapMoments = cwm_species_x_site_results_nt)
-    
-    #Get parametric moments
-    pbs_results_nt <-
-      trait_parametric_bootstrap(imputed_traits = imputed_full,
-                                 distribution_type = "normal",
-                                 nrep = n_reps_boot,
-                                 samples_per_abundance = 10) #note that this sampling is a bit different
-    
-    
-    pbs_results_nt <-
-      trait_summarise_boot_moments(BootstrapMoments = pbs_results_nt)
-    
-    output <- rbind(output,rbind(cbind(method = "nonparametric bs", sample_size = n, np_results_nt),
-                                 cbind(method = "parametric bs", sample_size = n, pbs_results_nt),
-                                 cbind(method = "global cwm", sample_size = n, cwm_species_results_nt),
-                                 cbind(method = "site-specic CWM", sample_size = n, cwm_species_x_site_results_nt))
-    )
-    
-    
-  } #t trait rep  
-}# n sample size loop
-
-
-#cleanup
-rm(cwm_species_results_nt,cwm_species_x_site_results_nt,imputed_full,imputed_species_mean,imputed_species_x_site_mean,
-   np_results_nt,pbs_results_nt,species_means_nt,species_site_means_nt,traits_nt,n,t,portal_community,portal_data,portal_species,portal_traits)
-
-#Append true moments to data
-
-#First, calculate true moments for each site x trait
-
-portal_traits %>% group_by(site,trait) %>% summarise(true_mean=mean(value),
-                                                     true_variance=var(value),
-                                                     true_skewness = skewness(value),
-                                                     true_kurtosis = kurtosis(value)) -> true_moments
-
-#Next, append true moments to output data for convenience
-output <- merge(x = output,y = true_moments,by = c("site","trait"))
-
-#cleanup
-rm(true_moments)
-
-#save output
-saveRDS(object = output,file = "output_data/simulation_results_rodents.RDS")
-
+#Run sample size sims
+output_rodents <- sim_sample_size(tidy_traits = panama_traits,
+                                  n_to_sample = (1:13)^2)
+saveRDS(object = output_rodents,file = "output_data/simulation_results_rodents.RDS")
 
 
 
