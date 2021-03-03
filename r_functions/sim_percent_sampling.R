@@ -5,7 +5,7 @@
 #'@param nsamples Number of trait samples per species per plot.
 #'@param n_reps_boot is the number of bootstrap replicates to use
 #'@note This simple little function isn't very general and currently assumes normal distributions.
-sim_percent_sampling <- function(traits, community, nreps=10, nsamples = 10,n_reps_boot=200){
+sim_percent_sampling <- function(traits, community, nreps=10, nsamples = 10, n_reps_boot=200){
   
   output <- NULL
   
@@ -63,7 +63,7 @@ sim_percent_sampling <- function(traits, community, nreps=10, nsamples = 10,n_re
                  abundance_col = "abundance")
   
   #Get Non-parametric moments
-  np_results_nt <- 
+  np_results_nt <-
     trait_np_bootstrap(imputed_traits = imputed_full,
                        nrep = n_reps_boot,
                        sample_size = 200)
@@ -71,7 +71,7 @@ sim_percent_sampling <- function(traits, community, nreps=10, nsamples = 10,n_re
     trait_summarise_boot_moments(bootstrap_moments =  np_results_nt)
   
   #Get CWM species
-  cwm_species_results_nt <- 
+  cwm_species_results_nt <-
     trait_np_bootstrap(imputed_traits = imputed_species_mean,
                        nrep = n_reps_boot,
                        sample_size = 200)
@@ -80,7 +80,7 @@ sim_percent_sampling <- function(traits, community, nreps=10, nsamples = 10,n_re
     trait_summarise_boot_moments(bootstrap_moments =  cwm_species_results_nt)
   
   #Get CWM species x site
-  cwm_species_x_site_results_nt <- 
+  cwm_species_x_site_results_nt <-
     trait_np_bootstrap(imputed_traits = imputed_species_x_site_mean,
                        nrep = n_reps_boot,
                        sample_size = 200)
@@ -108,7 +108,7 @@ sim_percent_sampling <- function(traits, community, nreps=10, nsamples = 10,n_re
                     cbind(method = "parametric bs", sample_size = nsamples, pbs_results_nt),
                     cbind(method = "global cwm", sample_size = nsamples, cwm_species_results_nt),
                     cbind(method = "site-specic CWM", sample_size = nsamples, cwm_species_x_site_results_nt))
-  output_t <- merge(output_t,sample_sizes_t)
+  output_t <- merge(output_t, sample_sizes_t)
   output_t$replicate <- i
   
   
