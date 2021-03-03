@@ -38,7 +38,8 @@ sim_percent_sampling <- function(traits, community, nreps=10, nsamples = 10, n_r
                  taxon_col = "taxon",
                  trait_col = "trait",
                  value_col = "value",
-                 abundance_col = "abundance")
+                 abundance_col = "abundance",
+                 min_n_leaves = 1)
   
   #Trait imputation for species mean
   imputed_species_mean <- 
@@ -49,7 +50,8 @@ sim_percent_sampling <- function(traits, community, nreps=10, nsamples = 10, n_r
                  taxon_col = "taxon",
                  trait_col = "trait",
                  value_col = "value",
-                 abundance_col = "abundance")
+                 abundance_col = "abundance",
+                 min_n_leaves = 1)
   
   #Trait imputation for species x site mean
   imputed_species_x_site_mean <- 
@@ -60,7 +62,8 @@ sim_percent_sampling <- function(traits, community, nreps=10, nsamples = 10, n_r
                  taxon_col = "taxon",
                  trait_col = "trait",
                  value_col = "value",
-                 abundance_col = "abundance")
+                 abundance_col = "abundance",
+                 min_n_leaves = 1)
   
   #Get Non-parametric moments
   np_results_nt <-

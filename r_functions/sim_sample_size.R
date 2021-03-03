@@ -1,5 +1,6 @@
 
 sim_sample_size <- function(tidy_traits,
+                            community,
                             n_to_sample = (1:22)^2, #sample sizes
                             n_reps_trait = 10, #controls the number of replicated draws for each  sample size
                             n_reps_boot = 200, #number of bootstrap replicates to use
@@ -7,6 +8,9 @@ sim_sample_size <- function(tidy_traits,
                             prob = NULL #Probability for biased sampling.  If NULL, sampling will be random.
 ){
 
+  
+library(moments)
+library(tidyverse)
 set.seed(seed = seed)  
 output<-NULL
 
@@ -47,7 +51,8 @@ for( n in n_to_sample){
                    taxon_col = "taxon",
                    trait_col = "trait",
                    value_col = "value",
-                   abundance_col = "abundance")
+                   abundance_col = "abundance",
+                   min_n_leaves = 1)
     
     #Trait imputation for species mean
     imputed_species_mean <- 
@@ -58,7 +63,8 @@ for( n in n_to_sample){
                    taxon_col = "taxon",
                    trait_col = "trait",
                    value_col = "value",
-                   abundance_col = "abundance")
+                   abundance_col = "abundance",
+                   min_n_leaves = 1)
     
     #Trait imputation for species x site mean
     imputed_species_x_site_mean <- 
@@ -69,7 +75,8 @@ for( n in n_to_sample){
                    taxon_col = "taxon",
                    trait_col = "trait",
                    value_col = "value",
-                   abundance_col = "abundance")
+                   abundance_col = "abundance",
+                   min_n_leaves = 1)
     
     #Get Non-parametric moments
     np_results_nt <- 
