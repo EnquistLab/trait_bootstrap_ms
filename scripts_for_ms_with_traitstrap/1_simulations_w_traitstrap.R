@@ -105,11 +105,6 @@ colnames(panama)[which(colnames(panama)=="Plot")]<-"site"
 colnames(panama)[which(colnames(panama)=="Species")]<-"taxon"
 colnames(panama)[which(colnames(panama)=="Id")]<-"ID"
 
-
-#Convert to trait vs community
-panama %>% group_by(region,site,taxon) %>% summarise(across(ID,~(length(unique(.x))),.names = "abundance"),.groups="drop") -> panama_community
-
-
 #Convert to tidy/skinny/long form
 panama_traits <- gather(data=panama,key = "trait","value",12:20)
 panama_traits$value <- as.numeric(panama_traits$value)
@@ -127,9 +122,19 @@ ggplot(data = panama_traits,aes(x=log(value)))+geom_histogram()+facet_wrap(~trai
 panama_traits <- panama_traits[which(!panama_traits$trait %in% c("LCC","LDMC")),]
 panama_traits$value <- log10(panama_traits$value)
 
+#Convert to trait vs community
+panama_traits %>% group_by(region,site,taxon) %>%
+  summarise(across(ID,~(length(unique(.x))),.names = "abundance"),.groups="drop") -> panama_community
+
+
 
 #Run pct cover sims
-  panama_pct_sims <- sim_percent_sampling(traits = panama_traits, community = panama_community, nreps = 10, nsamples = 10,n_reps_boot = 200)
+  panama_pct_sims <- sim_percent_sampling(traits = panama_traits,
+                                          community = panama_community,
+                                          nreps = 10,
+                                          nsamples = 10,
+                                          n_reps_boot = 200)
+  
   saveRDS(object = panama_pct_sims,file = "output_data/Panama_percent_community_sims.RDS")  
 
 #Run sample size sims
