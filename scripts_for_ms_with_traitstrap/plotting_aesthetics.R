@@ -41,7 +41,7 @@ figure_theme =
 colors <- c("Cross-Site CWM" = "#F235B0",
             "Site-Specific CWM" = "#65B4E6",
             "Parametric BS" = "#D4F294",
-            "Non-parametric BS" = "#F29472",
+            "Non-Parametric BS" = "#F29472",
             "True" = "#ACBAF5")
 
 # Join colors with categories

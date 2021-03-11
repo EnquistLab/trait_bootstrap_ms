@@ -14,6 +14,12 @@ simdata =
 simdata_biased = 
   tidy_simdata(readRDS("output_data/simulation_results_biased.RDS"))
 
+simdata_panama <- 
+  tidy_simdata(readRDS("output_data/panama_simulation_results.RDS"))
+
+simdata_rats <- 
+  tidy_simdata(readRDS("output_data/simulation_results_rodents.RDS"))
+
 
 ### Accuracy (creative) ----
 
@@ -511,7 +517,7 @@ sim_win_text$dataset <- factor(sim_win_text$dataset,
                                           "Panama", 
                                           "Rodents"))
 
-doughnut = 
+#doughnut = 
   ggplot(sim_doughnuts_all) +
   geom_col(aes(
     x = 2,
@@ -519,15 +525,17 @@ doughnut =
     fill = method
   ),
   colour = 'grey96') +
-  xlim(c(0, 3)) +
+  xlim(c(0.7, 3)) +
   #annotation textboxes
   geom_text(data = sim_win_text,
-            aes(x = 3,
-                y = 0.5,
-                label = glue::glue("{method} - {percentage}%")),
-            colour = 'grey90',
-            hjust = 0.5,
-            size = 3) +
+            aes(x = 1.1,
+                y = 0.25,
+                colour = method,
+                label = glue::glue("{percentage}%")),
+                #label = glue::glue("{method} - {percentage}%")),
+            #colour = 'grey90',
+            hjust = 1,
+            size = 4) +
   coord_polar(theta = 'y') +
   facet_grid(rows = vars(dataset),
              cols = vars(moment),
