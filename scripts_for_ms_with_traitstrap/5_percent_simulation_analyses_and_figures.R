@@ -30,7 +30,8 @@ sim_moon_means_colorado =
          pct_abd_sampled = round(pct_abd_sampled, digits = -1)) %>%
   group_by(method, moment, pct_abd_sampled) %>%
   #calcualte proportion of 'hits' per trait, methods, moment
-  summarise(percentage = sum(hit - 1)/sum(hit),
+  summarise(percentage = sum(hit - 1)/n(),
+            group_size = n(),
             deviation = mean(ifelse(estimate > true_value,
                                     estimate - true_value,
                                     true_value - estimate),
@@ -46,7 +47,7 @@ sim_moon_means_panama =
          pct_abd_sampled = round(pct_abd_sampled, digits = -1)) %>%
   group_by(method, moment, pct_abd_sampled) %>%
   #calcualte proportion of 'hits' per trait, methods, moment
-  summarise(percentage = sum(hit - 1)/sum(hit),
+  summarise(percentage = sum(hit - 1)/n(),
             deviation = mean(ifelse(estimate > true_value,
                                     estimate - true_value,
                                     true_value - estimate),
@@ -63,7 +64,7 @@ sim_moon_means_colorado$moment =
                                                     "kurtosis"))
 
 moons <-
-  ggplot(sim_moon_means_colorado) +
+ggplot(sim_moon_means_colorado) +
   geom_hline(aes(yintercept = 0),
              color = "grey50",
              size = 1.5) +
@@ -73,11 +74,24 @@ moons <-
              color = "grey50",
              size = 0.5,
              linetype = 4) +
-  geom_smooth(aes(
-    x = pct_abd_sampled,
-    y = deviation ,
-    color = method,
-    linetype = "Colorado"),
+  geom_smooth(
+    data = colorado_percent %>%
+      #if true value falls in estimate's CI
+      filter(estimate != is.na(estimate)) %>%
+      mutate(hit = ifelse(ci_low <= true_value & true_value <= ci_high,
+                          2,
+                          1)) %>%
+      group_by(method, moment, pct_abd_sampled) %>%
+      #calcualte proportion of 'hits' per trait, methods, moment
+      summarise(deviation = mean(ifelse(estimate > true_value,
+                                        estimate - true_value,
+                                        true_value - estimate),
+                                 na.rm = TRUE)),
+    aes(
+      x = pct_abd_sampled,
+      y = deviation ,
+      color = method,
+      linetype = "Colorado"),
     alpha = 0.5,
     se = FALSE,
     size = 0.8) +
@@ -162,22 +176,7 @@ moons <-
   )
 
 cowplot::ggdraw(moons) +
-  cowplot::draw_plot(ggplot(data.frame(y = c(1,1.5,2,2.5),
-                                       x = 0, ratio = 1:4 * 0.25),
-                            aes(x = x, y = y)) +
-                       geom_moon(aes(ratio = ratio), size = 5, fill = "grey69", colour = "grey69") +
-                       geom_text(aes(x = x + 0.6,
-                                     label = paste0(ratio*100,"%")),
-                                 size = 2.6,
-                                 colour = "grey65",
-                                 family = "Noto") +
-                       coord_fixed() +
-                       ggtitle("Uuum") +
-                       lims(y = c(0.5, 2.7), x = c(-1, 1.4)) +
-                       theme_void() +
-                       theme(plot.title = element_text(hjust = 0.5),
-                             text = element_text(colour = "grey65",
-                                                 family = "Noto")),
+  cowplot::draw_plot(moon_legend,
                      .80, .11,
                      0.2, .23)
 
@@ -185,3 +184,4 @@ ggsave(here::here("figures/moons_pct_abund.png"),
        height = 7.4, width = 12.5,
        units = "in", dpi = 300)
 
+# End of script ----

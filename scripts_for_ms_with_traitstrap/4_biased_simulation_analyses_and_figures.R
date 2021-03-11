@@ -2,176 +2,22 @@
 
 
 ##############################################
-source(source("scripts_for_ms_with_traitstrap/plotting_aesthetics.R"))
+source("scripts_for_ms_with_traitstrap/plotting_aesthetics.R")
+#load function to clean data
+source("r_functions/tidy_simdata.R")
 
 #read in data
-simdata <- readRDS("output_data/simulation_results.RDS")
+simdata =
+  tidy_simdata(readRDS("output_data/simulation_results.RDS"))
 
-simdata_biased <- readRDS("output_data/simulation_results_biased.RDS")
+simdata_biased = 
+  tidy_simdata(readRDS("output_data/simulation_results_biased.RDS"))
 
-simdata_panama <- readRDS("output_data/panama_simulation_results.RDS")
+simdata_panama <- 
+  tidy_simdata(readRDS("output_data/panama_simulation_results.RDS"))
 
-simdata_rats <- readRDS("output_data/simulation_results_rodents.RDS")
-
-#need to further tidy up data (add a column for moment)
-
-#could probably do this with pipes, but I'll go oldschool and cut down the googling
-
-library(tidyverse)
-
-sim_mean <- simdata[c("site","trait","method","sample_size","n",
-                      "mean","ci_low_mean","ci_high_mean","true_mean")]
-sim_mean$moment <- "mean"
-colnames(sim_mean)[grep(pattern = "ci_low",x = colnames(sim_mean))]<-"ci_low"
-colnames(sim_mean)[grep(pattern = "ci_high",x = colnames(sim_mean))]<-"ci_high"
-colnames(sim_mean)[grep(pattern = "true",x = colnames(sim_mean))]<-"true_value"
-colnames(sim_mean)[grep(pattern = "mean",x = colnames(sim_mean))]<-"estimate"
-
-sim_var <- simdata[c("site","trait","method","sample_size","n",
-                     "var","ci_low_var","ci_high_var","true_variance")]
-sim_var$moment <- "variance"
-colnames(sim_var)[grep(pattern = "ci_low",x = colnames(sim_var))]<-"ci_low"
-colnames(sim_var)[grep(pattern = "ci_high",x = colnames(sim_var))]<-"ci_high"
-colnames(sim_var)[grep(pattern = "true",x = colnames(sim_var))]<-"true_value"
-colnames(sim_var)[grep(pattern = "var",x = colnames(sim_var))]<-"estimate"
-
-
-sim_skew <- simdata[c("site","trait","method","sample_size","n",
-                      "skew","ci_low_skew","ci_high_skew","true_skewness")]
-sim_skew$moment <- "skewness"
-colnames(sim_skew)[grep(pattern = "ci_low",x = colnames(sim_skew))]<-"ci_low"
-colnames(sim_skew)[grep(pattern = "ci_high",x = colnames(sim_skew))]<-"ci_high"
-colnames(sim_skew)[grep(pattern = "true",x = colnames(sim_skew))]<-"true_value"
-colnames(sim_skew)[grep(pattern = "skew",x = colnames(sim_skew))]<-"estimate"
-
-
-
-sim_kurt <- simdata[c("site","trait","method","sample_size","n",
-                      "kurt","ci_low_kurt","ci_high_Kurt","true_kurtosis")]
-sim_kurt$moment <- "kurtosis"
-colnames(sim_kurt)[grep(pattern = "ci_low",x = colnames(sim_kurt))]<-"ci_low"
-colnames(sim_kurt)[grep(pattern = "ci_high",x = colnames(sim_kurt))]<-"ci_high"
-colnames(sim_kurt)[grep(pattern = "true",x = colnames(sim_kurt))]<-"true_value"
-colnames(sim_kurt)[grep(pattern = "kurt",x = colnames(sim_kurt))]<-"estimate"
-
-simdata <- rbind(sim_mean,sim_var,sim_skew,sim_kurt)
-rm(sim_mean,sim_var,sim_skew,sim_kurt)
-
-#Rename methods for plotting
-unique(simdata$method)
-simdata$method[which(simdata$method=="global cwm")] <- "Cross-Site CWM"
-simdata$method[which(simdata$method=="site-specic CWM")] <- "Site-Specific CWM"
-simdata$method[which(simdata$method=="nonparametric bs")] <- "Non-Parametric BS"
-simdata$method[which(simdata$method=="parametric bs")] <- "Parametric BS"
-
-simdata$method <- ordered(simdata$method,levels = c("Cross-Site CWM","Site-Specific CWM","Parametric BS","Non-Parametric BS"))
-
-###Clenaing Biased sim data - the tidy way (for now...)
-
-simdata_biased =
-  simdata_biased %>%
-  pivot_longer(cols = c('mean', 'var', 'skew', 'kurt'),
-               names_to = 'moment',
-               values_to = 'estimate') %>%
-  pivot_longer(cols = contains('ci_high'),
-               names_to = 'ci_high_moment',
-               values_to = 'ci_high') %>%
-  mutate(ci_high_moment = str_to_lower(str_extract(ci_high_moment,'[[:alpha:]]*$'))) %>%
-  filter(ci_high_moment == moment) %>%
-  pivot_longer(cols = contains('ci_low'),
-               names_to = 'ci_low_moment',
-               values_to = 'ci_low') %>%
-  mutate(ci_low_moment = str_to_lower(str_extract(ci_low_moment,'[[:alpha:]]*$'))) %>%
-  filter(ci_low_moment == moment) %>%
-  pivot_longer(cols = contains('true'),
-               names_to = 'true_moment',
-               values_to = 'true_value') %>%
-  mutate(true_moment = str_to_lower(str_extract(true_moment,'[[:alpha:]]*$')),
-         moment = case_when(moment == 'var' ~ 'variance',
-                            moment == 'kurt' ~ 'kurtosis',
-                            moment == 'skew' ~ 'skewness',
-                            TRUE ~ moment),
-         method = case_when(method == 'global cwm' ~ 'Cross-Site CWM',
-                            method == 'site-specic CWM' ~ 'Site-Specific CWM',
-                            method == 'nonparametric bs' ~ 'Non-Parametric BS',
-                            method == 'parametric bs' ~ 'Parametric BS',
-                            TRUE ~ method)) %>%
-  filter(true_moment == moment) %>%
-  select(-c(global, true_moment, ci_low_moment, ci_high_moment))
-
-simdata_biased$method <- ordered(simdata_biased$method,levels = c("Cross-Site CWM","Site-Specific CWM","Parametric BS","Non-Parametric BS"))
-
-
-###Cleaning Panama sim data - the tidy way (for now...)
-
-simdata_panama =
-  simdata_panama %>%
-  pivot_longer(cols = c('mean', 'var', 'skew', 'kurt'),
-               names_to = 'moment',
-               values_to = 'estimate') %>%
-  pivot_longer(cols = contains('ci_high'),
-               names_to = 'ci_high_moment',
-               values_to = 'ci_high') %>%
-  mutate(ci_high_moment = str_to_lower(str_extract(ci_high_moment,'[[:alpha:]]*$'))) %>%
-  filter(ci_high_moment == moment) %>%
-  pivot_longer(cols = contains('ci_low'),
-               names_to = 'ci_low_moment',
-               values_to = 'ci_low') %>%
-  mutate(ci_low_moment = str_to_lower(str_extract(ci_low_moment,'[[:alpha:]]*$'))) %>%
-  filter(ci_low_moment == moment) %>%
-  pivot_longer(cols = contains('true'),
-               names_to = 'true_moment',
-               values_to = 'true_value') %>%
-  mutate(true_moment = str_to_lower(str_extract(true_moment,'[[:alpha:]]*$')),
-         moment = case_when(moment == 'var' ~ 'variance',
-                            moment == 'kurt' ~ 'kurtosis',
-                            moment == 'skew' ~ 'skewness',
-                            TRUE ~ moment),
-         method = case_when(method == 'global cwm' ~ 'Cross-Site CWM',
-                            method == 'site-specic CWM' ~ 'Site-Specific CWM',
-                            method == 'nonparametric bs' ~ 'Non-Parametric BS',
-                            method == 'parametric bs' ~ 'Parametric BS',
-                            TRUE ~ method)) %>%
-  filter(true_moment == moment) %>%
-  select(-c(global, true_moment, ci_low_moment, ci_high_moment))
-
-simdata_panama$method <- ordered(simdata_panama$method,levels = c("Cross-Site CWM","Site-Specific CWM","Parametric BS","Non-Parametric BS"))
-
-
-###Cleaning Panama sim data - the tidy way (for now...)
-
-simdata_rats =
-  simdata_rats %>%
-  pivot_longer(cols = c('mean', 'var', 'skew', 'kurt'),
-               names_to = 'moment',
-               values_to = 'estimate') %>%
-  pivot_longer(cols = contains('ci_high'),
-               names_to = 'ci_high_moment',
-               values_to = 'ci_high') %>%
-  mutate(ci_high_moment = str_to_lower(str_extract(ci_high_moment,'[[:alpha:]]*$'))) %>%
-  filter(ci_high_moment == moment) %>%
-  pivot_longer(cols = contains('ci_low'),
-               names_to = 'ci_low_moment',
-               values_to = 'ci_low') %>%
-  mutate(ci_low_moment = str_to_lower(str_extract(ci_low_moment,'[[:alpha:]]*$'))) %>%
-  filter(ci_low_moment == moment) %>%
-  pivot_longer(cols = contains('true'),
-               names_to = 'true_moment',
-               values_to = 'true_value') %>%
-  mutate(true_moment = str_to_lower(str_extract(true_moment,'[[:alpha:]]*$')),
-         moment = case_when(moment == 'var' ~ 'variance',
-                            moment == 'kurt' ~ 'kurtosis',
-                            moment == 'skew' ~ 'skewness',
-                            TRUE ~ moment),
-         method = case_when(method == 'global cwm' ~ 'Cross-Site CWM',
-                            method == 'site-specic CWM' ~ 'Site-Specific CWM',
-                            method == 'nonparametric bs' ~ 'Non-Parametric BS',
-                            method == 'parametric bs' ~ 'Parametric BS',
-                            TRUE ~ method)) %>%
-  filter(true_moment == moment) %>%
-  select(-c(global, true_moment, ci_low_moment, ci_high_moment))
-
-simdata_rats$method <- ordered(simdata_rats$method,levels = c("Cross-Site CWM","Site-Specific CWM","Parametric BS","Non-Parametric BS"))
+simdata_rats <- 
+  tidy_simdata(readRDS("output_data/simulation_results_rodents.RDS"))
 
 
 ### Moon plots - accuracy of moments - 'global' ----
@@ -188,7 +34,7 @@ sim_moon_means =
                       1)) %>%
   group_by(method, moment, sample_size) %>%
   #calcualte proportion of 'hits' per trait, methods, moment
-  summarise(percentage = sum(hit - 1)/sum(hit),
+  summarise(percentage = sum(hit - 1)/n(),
             deviation = mean(ifelse(estimate > true_value,
                                     estimate - true_value,
                                     true_value - estimate)))
@@ -201,7 +47,7 @@ sim_biased_moon_means =
                       1)) %>%
   group_by(method, moment, sample_size) %>%
   #calcualte proportion of 'hits' per trait, methods, moment
-  summarise(percentage = sum(hit - 1)/sum(hit),
+  summarise(percentage = sum(hit - 1)/n(),
             deviation = mean(ifelse(estimate > true_value,
                                     estimate - true_value,
                                     true_value - estimate)))
@@ -309,24 +155,10 @@ moons <-
   )
 
 cowplot::ggdraw(moons) +
-  cowplot::draw_plot(ggplot(data.frame(y = c(1,1.5,2,2.5),
-                                       x = 0, ratio = 1:4 * 0.25),
-                            aes(x = x, y = y)) +
-                       geom_moon(aes(ratio = ratio), size = 5, fill = "grey69", colour = "grey69") +
-                       geom_text(aes(x = x + 0.6,
-                                     label = paste0(ratio*100,"%")),
-                                 size = 2.5) +
-                       coord_fixed() +
-                       ggtitle("Uuum") +
-                       lims(y = c(0.5, 2.7), x = c(-1, 1.4)) +
-                       theme_void() +
-                       theme(plot.title = element_text(hjust = 0.5)),
+  cowplot::draw_plot(moon_legend,
                      .79, .12,
                      0.2, .23)
 
-ggsave(here::here("figures/moons_biased_AllTraits.png"),
-       height = 7, width = 12.5,
-       units = "in", dpi = 300)
 
 ### Bonus Plots----
 
@@ -340,7 +172,7 @@ sim_moon_panama =
                       1)) %>%
   group_by(method, moment, sample_size) %>%
   #calcualte proportion of 'hits' per trait, methods, moment
-  summarise(percentage = sum(hit - 1)/sum(hit),
+  summarise(percentage = sum(hit - 1)/n(),
             deviation = mean(ifelse(estimate > true_value,
                                     estimate - true_value,
                                     true_value - estimate)))
@@ -353,7 +185,7 @@ sim_moon_rats =
                       1)) %>%
   group_by(method, moment, sample_size) %>%
   #calcualte proportion of 'hits' per trait, methods, moment
-  summarise(percentage = sum(hit - 1)/sum(hit),
+  summarise(percentage = sum(hit - 1)/n(),
             deviation = mean(ifelse(estimate > true_value,
                                     estimate - true_value,
                                     true_value - estimate)))
@@ -519,7 +351,3 @@ cowplot::ggdraw(moons) +
                      .80, .075,
                      0.2, .23)
 
-
-ggsave(here::here("figures/moons_biased_AllTraits.png"),
-       height = 7, width = 12.5,
-       units = "in", dpi = 300)
