@@ -1,84 +1,24 @@
 #analyze and plot simulation results
 
+source("scripts_for_ms_with_traitstrap/plotting_aesthetics.R")
+#load function to clean data
+source("r_functions/tidy_simdata.R")
 
-##############################################
+#### Read Data ####
 
 
 #read in data
-simdata <- readRDS("output_data/simulation_results.RDS")
+simdata =
+  tidy_simdata(readRDS("output_data/simulation_results.RDS"))
 
-#need to further tidy up data (add a column for moment)
+simdata_biased = 
+  tidy_simdata(readRDS("output_data/simulation_results_biased.RDS"))
 
-#could probably do this with pipes, but I'll go oldschool and cut down the googling
+simdata_panama <- 
+  tidy_simdata(readRDS("output_data/panama_simulation_results.RDS"))
 
-sim_mean <- simdata[c("site","trait","method","sample_size","n",
-                      "mean","ci_low_mean","ci_high_mean","true_mean")]
-sim_mean$moment <- "mean"
-colnames(sim_mean)[grep(pattern = "ci_low",x = colnames(sim_mean))]<-"ci_low"
-colnames(sim_mean)[grep(pattern = "ci_high",x = colnames(sim_mean))]<-"ci_high"
-colnames(sim_mean)[grep(pattern = "true",x = colnames(sim_mean))]<-"true_value"
-colnames(sim_mean)[grep(pattern = "mean",x = colnames(sim_mean))]<-"estimate"
-
-sim_var <- simdata[c("site","trait","method","sample_size","n",
-                     "var","ci_low_var","ci_high_var","true_variance")]
-sim_var$moment <- "variance"
-colnames(sim_var)[grep(pattern = "ci_low",x = colnames(sim_var))]<-"ci_low"
-colnames(sim_var)[grep(pattern = "ci_high",x = colnames(sim_var))]<-"ci_high"
-colnames(sim_var)[grep(pattern = "true",x = colnames(sim_var))]<-"true_value"
-colnames(sim_var)[grep(pattern = "var",x = colnames(sim_var))]<-"estimate"
-
-
-sim_skew <- simdata[c("site","trait","method","sample_size","n",
-                      "skew","ci_low_skew","ci_high_skew","true_skewness")]
-sim_skew$moment <- "skewness"
-colnames(sim_skew)[grep(pattern = "ci_low",x = colnames(sim_skew))]<-"ci_low"
-colnames(sim_skew)[grep(pattern = "ci_high",x = colnames(sim_skew))]<-"ci_high"
-colnames(sim_skew)[grep(pattern = "true",x = colnames(sim_skew))]<-"true_value"
-colnames(sim_skew)[grep(pattern = "skew",x = colnames(sim_skew))]<-"estimate"
-
-
-
-sim_kurt <- simdata[c("site","trait","method","sample_size","n",
-                      "kurt","ci_low_kurt","ci_high_Kurt","true_kurtosis")]
-sim_kurt$moment <- "kurtosis"
-colnames(sim_kurt)[grep(pattern = "ci_low",x = colnames(sim_kurt))]<-"ci_low"
-colnames(sim_kurt)[grep(pattern = "ci_high",x = colnames(sim_kurt))]<-"ci_high"
-colnames(sim_kurt)[grep(pattern = "true",x = colnames(sim_kurt))]<-"true_value"
-colnames(sim_kurt)[grep(pattern = "kurt",x = colnames(sim_kurt))]<-"estimate"
-
-simdata <- rbind(sim_mean,sim_var,sim_skew,sim_kurt)
-rm(sim_mean,sim_var,sim_skew,sim_kurt)
-
-#Rename methods for plotting
-unique(simdata$method)
-simdata$method[which(simdata$method=="global cwm")] <- "Cross-Site CWM"
-simdata$method[which(simdata$method=="site-specic CWM")] <- "Site-Specific CWM"
-simdata$method[which(simdata$method=="nonparametric bs")] <- "Non-Parametric BS"
-simdata$method[which(simdata$method=="parametric bs")] <- "Parametric BS"
-
-simdata$method <- ordered(simdata$method,levels = c("Cross-Site CWM","Site-Specific CWM","Parametric BS","Non-Parametric BS"))
-
-library(ggplot2)
-
-
-##############################################################
-#Accuracy vs sample size
-
-ggplot(data = simdata[which(simdata$moment=="mean"),], mapping = aes(y=log10(estimate/true_value),x = sample_size,color=method))+
-  geom_abline(intercept=0,slope = 0)+geom_point(alpha=0.25)+geom_smooth()+scale_x_continuous(trans = "sqrt",breaks = c(0,10,50,100,200,500))+
-  facet_grid(rows = site~trait,scales = "free")+ggtitle("Mean")
-
-ggplot(data = simdata[which(simdata$moment=="variance"),], mapping = aes(y=log10(estimate/true_value),x = sample_size,color=method))+
-  geom_abline(intercept=0,slope = 0)+geom_point(alpha=0.25)+geom_smooth()+scale_x_continuous(trans = "sqrt",breaks = c(0,10,50,100,200,500))+
-  facet_grid(rows = site~trait,scales = "free")+ggtitle("Variance")
-
-ggplot(data = simdata[which(simdata$moment=="skewness"),], mapping = aes(y=log10(estimate/true_value),x = sample_size,color=method))+
-  geom_abline(intercept=0,slope = 0)+geom_point(alpha=0.25)+geom_smooth()+scale_x_continuous(trans = "sqrt",breaks = c(0,10,50,100,200,500))+
-  facet_grid(rows = site~trait,scales = "free")+ggtitle("Skewness")
-
-ggplot(data = simdata[which(simdata$moment=="kurtosis"),], mapping = aes(y=log10(abs(estimate/true_value)),x = sample_size,color=method))+
-  geom_abline(intercept=0,slope = 0)+geom_point(alpha=0.25)+geom_smooth()+scale_x_continuous(trans = "sqrt",breaks = c(0,10,50,100,200,500))+
-  facet_grid(rows = site~trait,scales = "free")+ggtitle("Kurtosis")
+simdata_rats <- 
+  tidy_simdata(readRDS("output_data/simulation_results_rodents.RDS"))
 
 
 ### Accuracy (creative) ----
@@ -155,15 +95,6 @@ ggplot(simmeans) +
              ncol = 4,
              scales = "free_x",
              strip.position = 'top') +
-  #facet_grid(rows = vars(trait),
-  #           cols = vars(moment),
-  #                      labeller = labeller(
-  #                        .default = capitalize,
-  #                        trait = traits_parsed,
-  #                        .multi_line = FALSE
-  #                      ),
-  #           scales = 'free',
-  #           switch = 'y') +
   scale_fill_manual(guide = guide_legend(title = "Method"),
                     values = pal_df$c,
                     labels = pal_df$l) +
@@ -281,7 +212,7 @@ sim_moon_means =
                       1)) %>%
   group_by(method, moment, sample_size) %>%
   #calcualte proportion of 'hits' per trait, methods, moment
-  summarise(percentage = sum(hit - 1)/sum(hit),
+  summarise(percentage = sum(hit - 1)/n(),
             deviation = mean(ifelse(estimate > true_value,
                                     estimate - true_value,
                                     true_value - estimate))) 
@@ -294,7 +225,7 @@ sim_biased_moon_means =
                       1)) %>%
   group_by(method, moment, sample_size) %>%
   #calcualte proportion of 'hits' per trait, methods, moment
-  summarise(percentage = sum(hit - 1)/sum(hit),
+  summarise(percentage = sum(hit - 1)/n(),
             deviation = mean(ifelse(estimate > true_value,
                                     estimate - true_value,
                                     true_value - estimate))) 
@@ -309,8 +240,8 @@ sim_moon_means$moment =
                                            "kurtosis"))
 
 moons <-
-  ggplot(sim_moon_means %>%
-           filter(sample_size %in% c(1,9,49,100,196,441))) + 
+ggplot(sim_moon_means %>%
+         filter(sample_size %in% c(1,9,49,100,196,441))) + 
   geom_hline(aes(yintercept = 0), 
              color = "grey50",
              size = 1.5) +
@@ -331,42 +262,42 @@ moons <-
     alpha = 0.5,
     se = FALSE,
     size = 0.8) +
-  #geom_linerange(aes(
-  #  x = sample_size,
-  #  ymax = deviation,
-  #  ymin = 0), 
-  #  color = "grey50", 
-  #  size = 0.3) +
+  ggblur::geom_point_blur(
+    aes(
+      x = sample_size,
+      y = deviation,
+      color = method
+    ),
+    color = "transparent",
+    size = 4) +
+  
   geom_point(aes(
     x = sample_size,
     y = deviation,
     color = method
   ), 
-  size = 5,
+  size = 4,
   alpha = 0.9) +
   geom_moon(aes(
     x = sample_size,
     y = deviation,
     ratio = percentage, 
-    #right = right, 
     fill = method
   ),
   color = "transparent",
-  size = 5) + 
+  size = 4) + 
   scale_fill_manual(guide = guide_legend(title = "Method",
-                                         #nrow = 1,
                                          title.position="top"),
-                    values = pal_df$c,
+                    values = colorspace::darken(pal_df$c, amount = 0.2),
                     labels = pal_df$l) +
   scale_colour_manual(guide = guide_legend(title = "Method",
-                                           #nrow = 1,
                                            title.position="top"),
-                      values = colorspace::lighten(pal_df$c, amount = 0.6),
-                      labels = pal_df$l) +
+                      values = colorspace::lighten(pal_df$c, amount = 0.5),
+                      labels = pal_df$l) +  
   scale_linetype_manual("Sampling",
                         values=c("Biased" = 2,
                                  "Random" = 1),
-                        guide = guide_legend(override.aes = list(colour = "black"))) +
+                        guide = guide_legend(override.aes = list(colour = "grey69"))) +
   scale_x_continuous(trans = 'sqrt', breaks = c(0,10,50,100,200,500),
                      limits = c(0, 500)) +
   facet_grid(rows = vars(moment),
@@ -379,37 +310,33 @@ moons <-
              scales = 'free') +
   labs(x = "Sample Size",
        y = "Average deviation from true moment") +
-  #draw_key_moon(data.frame(x = 1:5, y = 0, ratio = 0:4 * 0.25))
-  # Theme
   figure_theme +
   theme(
     legend.position = 'right',
-    legend.title = element_text(size = 14),
+    legend.title = element_text(size = 14, colour = "grey65"),
     strip.text.y = element_text(margin = margin(0, 0, 10, 0),
-                                size = 14, face = "bold"),
-    strip.text.x.top = element_blank(),
-    panel.grid.major.y = element_line(size = 0.05),
-    legend.key = element_blank()
+                                size = 14, face = "bold",
+                                colour = "grey65"),
+    strip.text.x.top = element_text(margin = margin(0, 0, 10, 0),
+                                    size = 14, face = "bold",
+                                    colour = "grey65"),
+    panel.grid.major.y = element_line(size = 0.05,
+                                      colour = "grey65"),
+    legend.key = element_blank(),
+    legend.text = element_text(colour = "grey65"),
+    axis.title = element_text(colour = "grey65"),
+    strip.background = element_blank(),
+    axis.line = element_blank(),
+    strip.placement = 'outside'
   )
 
 cowplot::ggdraw(moons) +
-  cowplot::draw_plot(ggplot(data.frame(y = c(1,1.5,2,2.5), 
-                                       x = 0, ratio = 1:4 * 0.25), 
-                            aes(x = x, y = y)) +
-                       geom_moon(aes(ratio = ratio), size = 5, fill = "grey69", colour = "grey69") +
-                       geom_text(aes(x = x + 0.6, 
-                                     label = paste0(ratio*100,"%")),
-                                 size = 2.5) +
-                       coord_fixed() +
-                       ggtitle("Uuum") +
-                       lims(y = c(0.5, 2.7), x = c(-1, 1.4)) +
-                       theme_void() +
-                       theme(plot.title = element_text(hjust = 0.5)),
-                     .79, .12, 
+  cowplot::draw_plot(moon_legend,
+                     .795, .12, 
                      0.2, .23)
 
 ggsave(here::here("figures/moons_biased_AllTraits.png"),
-       height = 7, width = 12.5,
+       height = 8, width = 12.5,
        units = "in", dpi = 300)
 
 ### Doughnut plots - winners ----
@@ -590,23 +517,25 @@ sim_win_text$dataset <- factor(sim_win_text$dataset,
                                           "Panama", 
                                           "Rodents"))
 
-doughnut = 
-ggplot(sim_doughnuts_all) +
+#doughnut = 
+  ggplot(sim_doughnuts_all) +
   geom_col(aes(
     x = 2,
     y = percentage,
     fill = method
   ),
   colour = 'grey96') +
-  xlim(c(0, 3)) +
+  xlim(c(0.7, 3)) +
   #annotation textboxes
   geom_text(data = sim_win_text,
-            aes(x = 3,
-                y = 0.5,
-                label = glue::glue("{method} - {percentage}%")),
-            colour = 'grey90',
-            hjust = 0.5,
-            size = 3) +
+            aes(x = 1.1,
+                y = 0.25,
+                colour = method,
+                label = glue::glue("{percentage}%")),
+                #label = glue::glue("{method} - {percentage}%")),
+            #colour = 'grey90',
+            hjust = 1,
+            size = 4) +
   coord_polar(theta = 'y') +
   facet_grid(rows = vars(dataset),
              cols = vars(moment),
