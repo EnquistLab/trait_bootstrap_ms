@@ -403,16 +403,19 @@ ggplot(sim_radar) +
     y = percentage,
     fill = method
   ),
-  colour = 'white') +
-  xlim(c(0, 3)) +
+  colour = 'grey96') +
+  xlim(c(0.7, 2.5)) +
   #annotation textboxes
   geom_text(data = sim_win_text,
-            aes(x = 3,
-                y = 0.5,
-                label = glue::glue("{method} - {percentage}%")),
-            colour = 'grey90',
-            hjust = 0.5,
-            size = 3) +
+            aes(x = 1.1,
+                y = 0.25,
+                colour = method,
+                label = glue::glue("{percentage}%")),
+            #label = glue::glue("{method} - {percentage}%")),
+            #colour = 'grey90',
+            hjust = 1,
+            show.legend = FALSE,
+            size = 4) +
   coord_polar(theta = 'y') +
   facet_grid(rows = vars(trait),
              cols = vars(moment),
@@ -426,7 +429,13 @@ ggplot(sim_radar) +
                                          title.position="top",
                                          title.hjust = 0.5),
                     values = pal_df$c,
-                    labels = pal_df$l) +
+                    breaks = pal_df$l) +
+  scale_colour_manual(guide = guide_legend(title = "Method",
+                                         #nrow = 1,
+                                         title.position="top",
+                                         title.hjust = 0.5),
+                    values = pal_df$c,
+                    breaks = pal_df$l) +
   # Theme
   theme_void() +
   theme(
@@ -517,7 +526,7 @@ sim_win_text$dataset <- factor(sim_win_text$dataset,
                                           "Panama", 
                                           "Rodents"))
 
-#doughnut = 
+doughnut = 
   ggplot(sim_doughnuts_all) +
   geom_col(aes(
     x = 2,
@@ -525,16 +534,17 @@ sim_win_text$dataset <- factor(sim_win_text$dataset,
     fill = method
   ),
   colour = 'grey96') +
-  xlim(c(0.7, 3)) +
+  xlim(c(0.7, 2.5)) +
   #annotation textboxes
   geom_text(data = sim_win_text,
-            aes(x = 1.1,
-                y = 0.25,
+            aes(x = 1,
+                y = 0.26,
                 colour = method,
                 label = glue::glue("{percentage}%")),
                 #label = glue::glue("{method} - {percentage}%")),
             #colour = 'grey90',
             hjust = 1,
+            show.legend = FALSE,
             size = 4) +
   coord_polar(theta = 'y') +
   facet_grid(rows = vars(dataset),
@@ -544,12 +554,14 @@ sim_win_text$dataset <- factor(sim_win_text$dataset,
                .default = capitalize
              ),
              switch = 'y')  + 
+    scale_colour_manual(values = pal_df$c,
+                      breaks = pal_df$l)  + 
   scale_fill_manual(guide = guide_legend(title = "Method",
                                          #nrow = 1,
                                          title.position="top",
                                          title.hjust = 0.5),
                     values = pal_df$c,
-                    labels = pal_df$l) +
+                    breaks = pal_df$l) +
   # Theme
   theme_void() +
   theme(
