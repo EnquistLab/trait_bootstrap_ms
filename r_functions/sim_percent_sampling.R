@@ -12,7 +12,8 @@ sim_percent_sampling <- function(traits, community, nreps=10, nsamples = 10, n_r
   for(i in 1:nreps){
     
   # Get initial sample of all species
-    traits_nt <- draw_traits_tidy(tidy_traits = traits, sample_size = nsamples)
+    traits_nt <- draw_traits_tidy(tidy_traits = traits, 
+                                  sample_size = nsamples)
     community_nt <- community
     
   while(nrow(community_nt) > 0){    

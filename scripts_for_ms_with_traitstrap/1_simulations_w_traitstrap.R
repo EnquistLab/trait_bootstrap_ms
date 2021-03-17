@@ -125,8 +125,17 @@ panama_traits <- panama_traits[which(!panama_traits$trait %in% c("LCC","LDMC")),
 panama_traits$value <- log10(panama_traits$value)
 
 #Convert to trait vs community
-panama_traits %>% group_by(region,site,taxon) %>%
-  summarise(across(ID,~(length(unique(.x))),.names = "abundance"),.groups="drop") -> panama_community
+panama_community <- panama_traits %>%
+  group_by(region,site,taxon) %>%
+  summarise(across(Tree,~(length(unique(.x))),
+                   .names = "abundance"),
+            .groups="drop")
+#Since N individuals != N samples, create a separate file containing sample sizes
+panama_samples <- panama_traits %>%
+  group_by(region,site,taxon) %>%
+  summarise(across(ID,~(length(unique(.x))),
+                   .names = "abundance"),
+            .groups="drop")
 
 #Run pct cover sims
   panama_pct_sims <- sim_percent_sampling(traits = panama_traits,
@@ -140,7 +149,9 @@ panama_traits %>% group_by(region,site,taxon) %>%
 
 #Run sample size sims
   output_pa <- sim_sample_size(tidy_traits = panama_traits,
-                               n_to_sample = (1:16)^2,
+                               n_to_sample = (1:ceiling(x = max(
+                                 panama_samples$abundance)^.5)
+                               )^2,
                                community = panama_community)
   saveRDS(object = output_pa,
           file = "output_data/panama_simulation_results.RDS")
