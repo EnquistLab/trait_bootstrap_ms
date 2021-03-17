@@ -278,7 +278,7 @@ ggplot(data = treefrog_output,
   facet_grid(method~site)
 
 ggplot(data = treefrog_output,mapping = aes(y=kurt-true_kurtosis,x = sample_size))+
-  geom_point()+facet_grid(method~site)+geom_hline(yintercept=-2)
+  geom_point()+facet_grid(method~site)
 
 
 treefrog_output %>% 
@@ -297,6 +297,63 @@ saveRDS(object = treefrog_output,
 #Traitstrap CWM vs traditional CWM
 
 
+trait_sample <- draw_traits_tidy(tidy_traits = atraits,
+                              sample_size =  100) 
+
+trait_sample <- samples_to_means(tidy_traits = trait_sample,
+                                     level = "taxon")
+
+trait_sample$site <- "ALL" #Note: adding a "dummy" site here so traitstrap will use global data but still return site-level moments
+
+imputed_species_mean <- 
+  trait_impute(comm = community,
+               traits = trait_sample,
+               scale_hierarchy = "site",
+               global = T,
+               taxon_col = "taxon",
+               trait_col = "trait",
+               value_col = "value",
+               abundance_col = "abundance",
+               min_n_leaves = 1)
+
+library(Weighted.Desc.Stat)
+source("r_functions/weighted.moments.R")
+
+cwm_estimates <- community_weighted_moments(imputed_traits = imputed_species_mean)
+bootstrap_cwm <- trait_np_bootstrap(imputed_traits = imputed_species_mean,
+                                    nrep = 200,
+                                    sample_size = 200)
+
+bootstrap_cwm <- trait_summarise_boot_moments(bootstrap_moments = bootstrap_cwm)
+
+merged_cwm <- merge(x = cwm_estimates,y = bootstrap_cwm,by = c("site","trait"))
+
+plot(merged_cwm$mean.x ~ merged_cwm$mean.y,
+     xlab = "Bootstrapped Community Weighted Mean",
+     ylab = "Traditional Community Weighted Mean")
+abline(a = 0,b = 1)
+
+plot(merged_cwm$variance ~ merged_cwm$var,
+     xlab = "Bootstrapped Community Weighted Variance",
+     ylab = "Traditional Community Weighted Variance")
+abline(a = 0,b = 1)
+
+plot(merged_cwm$skewness ~ merged_cwm$skew,
+     xlab = "Bootstrapped Community Weighted Skewness",
+     ylab = "Traditional Community Weighted Skewness")
+abline(a = 0,b = 1)
+
+
+plot(merged_cwm$kurtosis ~ merged_cwm$kurt,
+     xlab = "Bootstrapped Community Weighted Kurtosis",
+     ylab = "Traditional Community Weighted Kurtosis")
+abline(a = 0,b = 1)
+
+
+cor.test(merged_cwm$mean.x,merged_cwm$mean.y)
+cor.test(merged_cwm$variance,merged_cwm$var)
+cor.test(merged_cwm$skewness,merged_cwm$skew)
+cor.test(merged_cwm$kurtosis,merged_cwm$kurt)
 
 
 ###############################################################################
