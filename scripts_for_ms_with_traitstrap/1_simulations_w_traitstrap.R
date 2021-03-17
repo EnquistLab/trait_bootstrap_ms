@@ -59,7 +59,11 @@ atraits <- readRDS(file = "data/all_traits_unscaled_RMBL.rds")
   atraits <- gather(data = atraits,key = "trait","value",3:7)
 
 #Get community data
-  atraits %>% group_by(taxon,site) %>% summarise(across(ID,~(length(unique(.x))),.names = "abundance"),.groups="drop") -> community
+  community <- atraits %>% 
+    group_by(taxon,site) %>%
+    summarise(across(ID,~(length(unique(.x))),
+                     .names = "abundance"),
+              .groups="drop")
 
 #log transform
     #ggplot(data = atraits,mapping = aes(x=value))+geom_histogram()+facet_wrap(trait~site,scales = "free")
@@ -125,8 +129,17 @@ panama_traits <- panama_traits[which(!panama_traits$trait %in% c("LCC","LDMC")),
 panama_traits$value <- log10(panama_traits$value)
 
 #Convert to trait vs community
-panama_traits %>% group_by(region,site,taxon) %>%
-  summarise(across(ID,~(length(unique(.x))),.names = "abundance"),.groups="drop") -> panama_community
+panama_community <- panama_traits %>%
+  group_by(region,site,taxon) %>%
+  summarise(across(Tree,~(length(unique(.x))),
+                   .names = "abundance"),
+            .groups="drop")
+#Since N individuals != N samples, create a separate file containing sample sizes
+panama_samples <- panama_traits %>%
+  group_by(region,site,taxon) %>%
+  summarise(across(ID,~(length(unique(.x))),
+                   .names = "abundance"),
+            .groups="drop")
 
 #Run pct cover sims
   panama_pct_sims <- sim_percent_sampling(traits = panama_traits,
@@ -140,7 +153,9 @@ panama_traits %>% group_by(region,site,taxon) %>%
 
 #Run sample size sims
   output_pa <- sim_sample_size(tidy_traits = panama_traits,
-                               n_to_sample = (1:16)^2,
+                               n_to_sample = (1:ceiling(x = max(
+                                 panama_samples$abundance)^.5)
+                               )^2,
                                community = panama_community)
   saveRDS(object = output_pa,
           file = "output_data/panama_simulation_results.RDS")
