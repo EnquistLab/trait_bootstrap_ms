@@ -258,7 +258,7 @@ treefrog_output <- sim_sample_size(tidy_traits = treefrogs,
                                        treefrog_community$abundance)^.5)
                                       )^2,
                                    n_reps_trait = 10,
-                                   n_reps_boot = 10,
+                                   n_reps_boot = 200,
                                    seed = 2005)
 
 
@@ -290,6 +290,11 @@ treefrog_output %>%
 
 saveRDS(object = treefrog_output,
         file = "output_data/simulation_results_treefrogs.RDS")
+
+
+###############################################################################
+
+#Traitstrap CWM vs traditional CWM
 
 
 
