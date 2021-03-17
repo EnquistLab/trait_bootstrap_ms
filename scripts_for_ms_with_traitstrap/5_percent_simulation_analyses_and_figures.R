@@ -4,7 +4,7 @@
 ##############################################
 
 library(tidyverse)
-source(source("scripts_for_ms_with_traitstrap/plotting_aesthetics.R"))
+source("scripts_for_ms_with_traitstrap/plotting_aesthetics.R")
 
 #read in data
 colorado_percent <- readRDS("output_data/Colorado_percent_community_sims.RDS")
@@ -63,17 +63,23 @@ sim_moon_means_colorado$moment =
                                                     "skewness",
                                                     "kurtosis"))
 
+colorado_percent$moment =
+  ordered(colorado_percent$moment,levels = c("mean",
+                                             "variance",
+                                             "skewness",
+                                             "kurtosis"))
+
 moons <-
-ggplot(sim_moon_means_colorado) +
+  ggplot(sim_moon_means_colorado) +
   geom_hline(aes(yintercept = 0),
              color = "grey50",
              size = 1.5) +
-  geom_hline(data = sim_moon_means %>%
-               filter(sample_size == 9),
-             aes(yintercept = deviation),
-             color = "grey50",
-             size = 0.5,
-             linetype = 4) +
+  # geom_hline(data = sim_moon_means %>%
+  #              filter(sample_size == 9),
+  #            aes(yintercept = deviation),
+  #            color = "grey50",
+  #            size = 0.5,
+  #            linetype = 4) +
   geom_smooth(
     data = colorado_percent %>%
       #if true value falls in estimate's CI
@@ -92,16 +98,6 @@ ggplot(sim_moon_means_colorado) +
       y = deviation ,
       color = method,
       linetype = "Colorado"),
-    alpha = 0.5,
-    se = FALSE,
-    size = 0.8) +
-  geom_smooth(
-    data = sim_moon_means_panama,
-    aes(
-      x = pct_abd_sampled,
-      y = deviation ,
-      color = method,
-      linetype = "Panama"),
     alpha = 0.5,
     se = FALSE,
     size = 0.8) +
@@ -139,10 +135,6 @@ ggplot(sim_moon_means_colorado) +
                                            title.position="top"),
                       values = colorspace::lighten(pal_df$c, amount = 0.5),
                       labels = pal_df$l) +  
-  scale_linetype_manual("Sampling",
-                        values=c("Panama" = 2,
-                                 "Colorado" = 1),
-                        guide = guide_legend(override.aes = list(colour = "grey69"))) +
   facet_grid(rows = vars(moment),
              cols = vars(method),
              labeller = labeller(
@@ -153,7 +145,6 @@ ggplot(sim_moon_means_colorado) +
              scales = 'free') +
   labs(x = "Percent abundance sampled",
        y = "Average deviation from true moment") +
-  #draw_key_moon(data.frame(x = 1:5, y = 0, ratio = 0:4 * 0.25))
   # Theme
   figure_theme +
   theme(
