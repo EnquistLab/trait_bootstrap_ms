@@ -20,6 +20,9 @@ simdata_panama <-
 simdata_rats <- 
   tidy_simdata(readRDS("output_data/simulation_results_rodents.RDS"))
 
+simdata_frogs <- 
+  tidy_simdata(readRDS("output_data/simulation_results_treefrogs.RDS"))
+
 
 ### Accuracy (creative) ----
 
@@ -346,6 +349,8 @@ library(ggtext)
 
 sim_radar = 
   simdata %>%
+  filter(sample_size < 26 &
+           sample_size > 8) %>%
   mutate(diff = ifelse(estimate > true_value,
                        estimate - true_value,
                        true_value - estimate)) %>%
@@ -468,12 +473,14 @@ ggsave(here::here("figures/WinnerDoughnuts.png"),
 sim_doughnuts_all = 
   rbind(simdata %>%
           mutate(dataset = rep("Colorado", nrow(.))),
-        simdata_biased %>%
-          mutate(dataset = rep("Biased", nrow(.))),
+        simdata_frogs %>%
+          mutate(dataset = rep("Frogs", nrow(.))),
         simdata_panama %>%
           mutate(dataset = rep("Panama", nrow(.))),
         simdata_rats %>%
           mutate(dataset = rep("Rodents", nrow(.)))) %>%
+  filter(sample_size < 26 &
+           sample_size > 8) %>%
   mutate(diff = ifelse(estimate > true_value,
                        estimate - true_value,
                        true_value - estimate)) %>%
@@ -505,7 +512,7 @@ sim_doughnuts_all$method <- factor(sim_doughnuts_all$method,
 
 sim_doughnuts_all$dataset <- factor(sim_doughnuts_all$dataset,
                                     levels = c("Colorado",
-                                               "Biased",
+                                               "Frogs",
                                                "Panama", 
                                                "Rodents"))
 
@@ -523,7 +530,7 @@ sim_win_text$method <- factor(sim_win_text$method,
 
 sim_win_text$dataset <- factor(sim_win_text$dataset,
                                levels = c("Colorado",
-                                          "Biased",
+                                          "Frogs",
                                           "Panama", 
                                           "Rodents"))
 
