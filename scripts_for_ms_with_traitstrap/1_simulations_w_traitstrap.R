@@ -81,12 +81,14 @@ atraits <- readRDS(file = "data/all_traits_unscaled_RMBL.rds")
   
 
 #Run sample size sims
-  output_co <- sim_sample_size(tidy_traits = atraits)
+  output_co <- sim_sample_size(tidy_traits = atraits,
+                               community = community)
   #save output
     saveRDS(object = output_co,file = "output_data/simulation_results.RDS")
 
 #Run sample size sims with bias
   output_co_biased <- sim_sample_size(tidy_traits = atraits,
+                                      community = community,
                                       prob = 0.75)
   #save output
   saveRDS(object = output_co_biased,file = "output_data/simulation_results_biased.RDS")
@@ -126,8 +128,6 @@ panama_traits$value <- log10(panama_traits$value)
 panama_traits %>% group_by(region,site,taxon) %>%
   summarise(across(ID,~(length(unique(.x))),.names = "abundance"),.groups="drop") -> panama_community
 
-
-
 #Run pct cover sims
   panama_pct_sims <- sim_percent_sampling(traits = panama_traits,
                                           community = panama_community,
@@ -135,11 +135,15 @@ panama_traits %>% group_by(region,site,taxon) %>%
                                           nsamples = 10,
                                           n_reps_boot = 200)
   
-  saveRDS(object = panama_pct_sims,file = "output_data/Panama_percent_community_sims.RDS")  
+  saveRDS(object = panama_pct_sims,
+          file = "output_data/Panama_percent_community_sims.RDS")  
 
 #Run sample size sims
-  output_pa <- sim_sample_size(tidy_traits = panama_traits,n_to_sample = (1:16)^2)
-  saveRDS(object = output_pa,file = "output_data/panama_simulation_results.RDS")
+  output_pa <- sim_sample_size(tidy_traits = panama_traits,
+                               n_to_sample = (1:16)^2,
+                               community = panama_community)
+  saveRDS(object = output_pa,
+          file = "output_data/panama_simulation_results.RDS")
 ###############################################################################
 
 #Portal rodents data
@@ -174,16 +178,104 @@ portal_traits$ID <- 1:nrow(portal_traits)
 
 
 #Make community data
-portal_traits %>% group_by(taxon,site) %>% summarise(across(ID,~(length(unique(.x))),.names = "abundance"),.groups="drop") -> portal_community
+portal_community <- portal_traits %>%
+  group_by(taxon,site) %>%
+  summarise(across(ID,~(length(unique(.x))),
+                   .names = "abundance"),
+            .groups="drop") 
 
 #Make sure site is a character to keep code happy
 portal_traits$site <- as.character(portal_traits$site)
 portal_community$site <- as.character(portal_community$site)
 
 #Run sample size sims
-output_rodents <- sim_sample_size(tidy_traits = panama_traits,
-                                  n_to_sample = (1:13)^2)
-saveRDS(object = output_rodents,file = "output_data/simulation_results_rodents.RDS")
+output_rodents <- sim_sample_size(tidy_traits = portal_traits,
+                                  community = portal_community,
+                                  n_to_sample = (1:ceiling(x = max(
+                                    portal_community$abundance)^.5)
+                                  )^2
+                                  )
+                                  
+saveRDS(object = output_rodents,
+        file = "output_data/simulation_results_rodents.RDS")
+
+###############################################################################
+
+#Treefrog tadpoles
+
+#Load data
+treefrogs <- read.xlsx(file = "data/pond_critters/TreefrogTadpoles.xlsx",2)
+treefrogs <- treefrogs[c("Tank","Body.Length..mm."  )]
+treefrog_md <- read.xlsx(file = "data/pond_critters/TreefrogTadpoles.xlsx",1)
+treefrog_md <- treefrog_md[,1:4]
+treefrogs <- merge(treefrogs,treefrog_md,all.x = T)
+rm(treefrog_md)
+treatments <- unique(treefrogs[c("Timing","Synchrony")])
+treatments$treatment_numeric <- 1:nrow(treatments)
+treefrogs <- merge(treefrogs,treatments)
+rm(treatments)
+
+ggplot(data = treefrogs,aes(x=Body.Length..mm.))+geom_histogram()+facet_wrap(facets = "treatment_numeric")
+
+ggplot(data = treefrogs,aes(x=log10(Body.Length..mm.)))+geom_histogram()+facet_wrap(facets = "treatment_numeric")
+
+#Reformat to match necessary input for sims
+
+treefrogs <- treefrogs %>% mutate(
+                     site = "south_campus",
+                     taxon = as.character(treatment_numeric),
+                     trait = "body_length_mm",
+                     value = log10(Body.Length..mm.),
+                     ID = 1:nrow(treefrogs))
+
+treefrogs <- treefrogs[colnames(atraits)]
+
+treefrog_community <- treefrogs %>% 
+  group_by(taxon,site) %>%
+  summarise(across(ID,~(length(unique(.x))),
+                   .names = "abundance"),
+            .groups="drop")
+
+treefrog_output <- sim_sample_size(tidy_traits = treefrogs,
+                                   community = treefrog_community,
+                                   n_to_sample = 
+                                     (1:ceiling(x = max(
+                                       treefrog_community$abundance)^.5)
+                                      )^2,
+                                   n_reps_trait = 10,
+                                   n_reps_boot = 10,
+                                   seed = 2005)
+
+
+ggplot(data = treefrog_output,
+       mapping = aes(y=mean-true_mean,x = sample_size))+
+  geom_point()+
+  facet_grid(method~site)
+
+ggplot(data = treefrog_output,
+       mapping = aes(y=var-true_variance,x = sample_size))+
+  geom_point()+
+  facet_grid(method~site)
+
+ggplot(data = treefrog_output,
+       mapping = aes(y=skew-true_skewness,x = sample_size))+
+  geom_point()+
+  facet_grid(method~site)
+
+ggplot(data = treefrog_output,mapping = aes(y=kurt-true_kurtosis,x = sample_size))+
+  geom_point()+facet_grid(method~site)+geom_hline(yintercept=-2)
+
+
+treefrog_output %>% 
+  filter(sample_size<=25) %>% 
+  group_by(method) %>% 
+  summarise(mean_kurt_dist = mean(kurt - true_kurtosis))
+#seems to give reasonable performance
+
+
+saveRDS(object = treefrog_output,
+        file = "output_data/simulation_results_treefrogs.RDS")
+
 
 
 
