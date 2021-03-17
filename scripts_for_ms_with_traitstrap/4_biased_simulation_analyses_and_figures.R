@@ -46,7 +46,7 @@ sim_biased_moon_means =
                       2,
                       1)) %>%
   group_by(method, moment, sample_size) %>%
-  #calcualte proportion of 'hits' per trait, methods, moment
+  #calculate proportion of 'hits' per trait, methods, moment
   summarise(percentage = sum(hit - 1)/n(),
             deviation = mean(ifelse(estimate > true_value,
                                     estimate - true_value,

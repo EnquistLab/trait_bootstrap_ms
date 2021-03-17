@@ -76,10 +76,10 @@ moons <-
              size = 1.5) +
   geom_hline(data = sim_moon_means %>%
                filter(sample_size == 9),
-             aes(yintercept = deviation),
+             aes(yintercept = deviation,
+                 linetype = "Optimal"),
              color = "grey50",
-             size = 0.5,
-             linetype = 4) +
+             size = 0.5) +
   geom_smooth(
     data = colorado_percent %>%
       #if true value falls in estimate's CI
@@ -135,6 +135,12 @@ moons <-
                                            title.position="top"),
                       values = colorspace::lighten(pal_df$c, amount = 0.5),
                       labels = pal_df$l) +  
+  scale_linetype_manual("Sampling",
+                        values=c("Optimal" = 4,
+                                 "Colorado" = 1),
+                        guide = guide_legend(
+                          override.aes = list(colour = "black")
+                          )) +
   facet_grid(rows = vars(moment),
              cols = vars(method),
              labeller = labeller(
