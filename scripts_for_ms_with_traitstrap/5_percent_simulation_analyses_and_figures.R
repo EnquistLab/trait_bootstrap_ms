@@ -74,12 +74,12 @@ moons <-
   geom_hline(aes(yintercept = 0),
              color = "grey50",
              size = 1.5) +
-  # geom_hline(data = sim_moon_means %>%
-  #              filter(sample_size == 9),
-  #            aes(yintercept = deviation),
-  #            color = "grey50",
-  #            size = 0.5,
-  #            linetype = 4) +
+  geom_hline(data = sim_moon_means %>%
+               filter(sample_size == 9),
+             aes(yintercept = deviation),
+             color = "grey50",
+             size = 0.5,
+             linetype = 4) +
   geom_smooth(
     data = colorado_percent %>%
       #if true value falls in estimate's CI
