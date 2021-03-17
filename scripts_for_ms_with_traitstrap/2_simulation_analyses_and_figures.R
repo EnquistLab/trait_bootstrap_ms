@@ -97,10 +97,10 @@ ggplot(simmeans) +
              strip.position = 'top') +
   scale_fill_manual(guide = guide_legend(title = "Method"),
                     values = pal_df$c,
-                    labels = pal_df$l) +
+                    breaks = pal_df$l) +
   scale_colour_manual(guide = guide_legend(title = "Method"),
                       values = pal_df$c,
-                      labels = pal_df$l) +
+                      breaks = pal_df$l) +
   scale_size(guide = guide_legend(title = "Sample Size"),
              range = c(0.5, 2)) +
   labs(
@@ -317,6 +317,7 @@ ggplot(sim_moon_means %>%
     strip.text.y = element_text(margin = margin(0, 0, 10, 0),
                                 size = 14, face = "bold",
                                 colour = "grey65"),
+    strip.placement.y = "outside",
     strip.text.x.top = element_text(margin = margin(0, 0, 10, 0),
                                     size = 14, face = "bold",
                                     colour = "grey65"),
