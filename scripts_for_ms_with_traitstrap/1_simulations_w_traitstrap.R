@@ -59,7 +59,11 @@ atraits <- readRDS(file = "data/all_traits_unscaled_RMBL.rds")
   atraits <- gather(data = atraits,key = "trait","value",3:7)
 
 #Get community data
-  atraits %>% group_by(taxon,site) %>% summarise(across(ID,~(length(unique(.x))),.names = "abundance"),.groups="drop") -> community
+  community <- atraits %>% 
+    group_by(taxon,site) %>%
+    summarise(across(ID,~(length(unique(.x))),
+                     .names = "abundance"),
+              .groups="drop")
 
 #log transform
     #ggplot(data = atraits,mapping = aes(x=value))+geom_histogram()+facet_wrap(trait~site,scales = "free")
