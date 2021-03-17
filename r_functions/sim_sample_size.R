@@ -84,7 +84,8 @@ for( n in n_to_sample){
                          nrep = n_reps_boot,
                          sample_size = 200)
     np_results_nt <-
-      trait_summarise_boot_moments(bootstrap_moments = np_results_nt)
+      trait_summarise_boot_moments(bootstrap_moments = np_results_nt,
+                                   parametric = F)
     
     #Get CWM species
     cwm_species_results_nt <- 
@@ -93,7 +94,8 @@ for( n in n_to_sample){
                          sample_size = 200)
     
     cwm_species_results_nt <-
-      trait_summarise_boot_moments(bootstrap_moments = cwm_species_results_nt)
+      trait_summarise_boot_moments(bootstrap_moments = cwm_species_results_nt,
+                                   parametric = F)
     
     #Get CWM species x site
     cwm_species_x_site_results_nt <- 
@@ -102,7 +104,8 @@ for( n in n_to_sample){
                          sample_size = 200)
     
     cwm_species_x_site_results_nt <-
-      trait_summarise_boot_moments(bootstrap_moments = cwm_species_x_site_results_nt)
+      trait_summarise_boot_moments(bootstrap_moments = cwm_species_x_site_results_nt,
+                                   parametric = F)
     
     #Get parametric moments
     pbs_results_nt <-
@@ -115,7 +118,8 @@ for( n in n_to_sample){
                                                  sample_size = 200)  
     
     pbs_results_nt <-
-      trait_summarise_boot_moments(bootstrap_moments = pbs_results_nt)
+      trait_summarise_boot_moments(bootstrap_moments = pbs_results_nt,
+                                   parametric = F)
     
     output <- rbind(output,rbind(cbind(method = "nonparametric bs", sample_size = n, np_results_nt),
                                  cbind(method = "parametric bs", sample_size = n, pbs_results_nt),
