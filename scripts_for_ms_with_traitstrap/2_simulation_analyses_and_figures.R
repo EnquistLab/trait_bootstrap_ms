@@ -474,7 +474,10 @@ sim_doughnuts_all =
   rbind(simdata %>%
           mutate(dataset = rep("Colorado", nrow(.))),
         simdata_frogs %>%
-          mutate(dataset = rep("Frogs", nrow(.))),
+          mutate(dataset = rep("Frogs", nrow(.)),
+                 method = ifelse(method == "Site-Specific CWM",
+                                 "Cross-Site CWM",
+                                 as.character(method))),
         simdata_panama %>%
           mutate(dataset = rep("Panama", nrow(.))),
         simdata_rats %>%
