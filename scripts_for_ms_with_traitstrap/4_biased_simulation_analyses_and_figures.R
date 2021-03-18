@@ -159,6 +159,194 @@ cowplot::ggdraw(moons) +
                      .79, .12,
                      0.2, .23)
 
+### Transition plots - accuracy & directionality of moments - 'global' ----
+
+library(gggibbous)
+
+#### All traits combined
+
+sim_means =
+  simdata %>%
+  group_by(trait, method, moment, sample_size) %>%
+  mutate(group_size = n()) %>%
+  #if true value falls in estimate's CI
+  mutate(hit = ifelse(ci_low <= true_value & true_value <= ci_high,
+                      "yay",
+                      "nay"),
+         deviation = mean(true_value - estimate,
+                          na.rm = TRUE)) %>%
+  mutate(overunder = ifelse(true_value < estimate,
+                            "over",
+                            "under")) %>%
+  group_by(trait, method, moment, sample_size, overunder, hit, group_size) %>%
+  count() %>%
+  #calcualte proportion of 'hits' per trait, methods, moment
+  mutate(percentage = n/group_size)
+
+
+
+
+sim_means$moment =
+  ordered(sim_means$moment,levels = c("mean",
+                                      "variance",
+                                      "skewness",
+                                      "kurtosis"))
+
+ggplot(sim_means) +
+  ggstream::geom_stream(aes(x = sample_size,
+                            y = percentage,
+                            alpha = hit,
+                            group = paste0(overunder,hit),
+                            fill = method),
+                        method = "raw", bw = .6) +
+  ggstream::geom_stream(aes(x = sample_size,
+                            y = percentage,
+                            colour = overunder,
+                            group = paste0(overunder,hit)),
+                        method = "raw", bw = .6, fill = NA) +
+  facet_grid(rows = vars(moment),
+             cols = vars(method),
+             labeller = labeller(
+               trait = traits_parsed,
+               .default = capitalize
+             ),
+             switch = 'y',
+             scales = 'free') +
+  scale_fill_manual(guide = guide_legend(title = "Method",
+                                         #nrow = 1,
+                                         title.position="top"),
+                    values = colorspace::darken(pal_df$c, amount = 0.2),
+                    labels = pal_df$l) +
+  
+  # Theme
+  figure_theme +
+  theme(
+    legend.position = 'right',
+    legend.title = element_text(size = 14, colour = "grey65"),
+    strip.text.y = element_text(margin = margin(0, 0, 10, 0),
+                                size = 14, face = "bold",
+                                colour = "grey65"),
+    strip.text.x.top = element_text(margin = margin(0, 0, 10, 0),
+                                    size = 14, face = "bold",
+                                    colour = "grey65"),
+    panel.grid.major.y = element_line(size = 0.05,
+                                      colour = "grey65"),
+    legend.key = element_blank(),
+    legend.text = element_text(colour = "grey65"),
+    axis.title = element_text(colour = "grey65"),
+    strip.background = element_blank(),
+    axis.line = element_blank(),
+    strip.placement = 'outside'
+  )
+
+
+ggplot(sim_means) +
+  geom_col(aes(x = as.factor(sample_size),
+               y = percentage,
+               alpha = hit,
+               group = paste0(overunder,hit),
+               fill = method)) +
+  facet_grid(rows = vars(moment),
+             cols = vars(method),
+             labeller = labeller(
+               trait = traits_parsed,
+               .default = capitalize
+             ),
+             switch = 'y',
+             scales = 'free') +
+  scale_fill_manual(guide = guide_legend(title = "Method",
+                                         #nrow = 1,
+                                         title.position="top"),
+                    values = colorspace::darken(pal_df$c, amount = 0.2),
+                    labels = pal_df$l) +
+  # Theme
+  figure_theme +
+  theme(
+    legend.position = 'right',
+    legend.title = element_text(size = 14, colour = "grey65"),
+    strip.text.y = element_text(margin = margin(0, 0, 10, 0),
+                                size = 14, face = "bold",
+                                colour = "grey65"),
+    strip.text.x.top = element_text(margin = margin(0, 0, 10, 0),
+                                    size = 14, face = "bold",
+                                    colour = "grey65"),
+    panel.grid.major.y = element_line(size = 0.05,
+                                      colour = "grey65"),
+    legend.key = element_blank(),
+    legend.text = element_text(colour = "grey65"),
+    axis.title = element_text(colour = "grey65"),
+    strip.background = element_blank(),
+    axis.line = element_blank(),
+    strip.placement = 'outside'
+  )
+
+ggplot(sim_means) +
+  geom_area(aes(x = sample_size,
+               y = percentage,
+               alpha = hit,
+               group = paste0(overunder,hit, method),
+               fill = method)) +
+  geom_line(data = sim_means %>%
+              filter(overunder == "under") %>%
+              group_by(trait, moment, sample_size) %>%
+              summarise(divide = sum(percentage)),
+            aes(x = sample_size,
+                y = divide),
+            colour = "grey69",
+            size = 1.2,
+            linetype = 4) +
+  facet_grid(cols = vars(moment),
+             rows = vars(trait),
+             labeller = labeller(
+               trait = traits_parsed,
+               .default = capitalize
+             ),
+             switch = 'y',
+             scales = 'free') +
+  scale_fill_manual(guide = guide_legend(title = "Method",
+                                         #nrow = 1,
+                                         title.position="top"),
+                    values = colorspace::darken(pal_df$c, amount = 0.2),
+                    labels = pal_df$l) +
+  guides(alpha = 'none') +
+  labs(y = "Sample size") +
+  scale_x_continuous(trans = 'sqrt', breaks = c(0,10,50,100,200,500),
+                     limits = c(1, 484)) +
+  # Theme
+  figure_theme +
+  theme(
+    legend.position = 'right',
+    legend.title = element_text(size = 14, colour = "grey65"),
+    strip.text.y = element_text(margin = margin(0, 0, 10, 0),
+                                size = 14, face = "bold",
+                                colour = "grey65"),
+    strip.text.x.top = element_text(margin = margin(0, 0, 10, 0),
+                                    size = 14, face = "bold",
+                                    colour = "grey65"),
+    panel.grid.major.y = element_line(size = 0.05,
+                                      colour = "grey65"),
+    legend.key = element_blank(),
+    legend.text = element_text(colour = "grey65"),
+    axis.title = element_text(colour = "grey65"),
+    strip.background = element_blank(),
+    axis.line = element_blank(),
+    strip.placement = 'outside',
+    axis.text.y = element_blank(),
+    axis.title.y = element_blank()
+  )
+
+cowplot::ggdraw(moons) +
+  cowplot::draw_plot(moon_legend,
+                     .80, .11,
+                     0.2, .23)
+
+ggsave(here::here("figures/transition.png"),
+       height = 7.4, width = 12.5,
+       units = "in", dpi = 300)
+
+
+
+
 
 
 ### Bonus Plots----
@@ -212,8 +400,8 @@ sim_moon_rats$moment =
 unique(sim_moon_panama$sample_size)
 
 moons <-
-ggplot(sim_moon_means %>%
-         filter(sample_size %in% c(1,9,49,100,196,441))) +
+  ggplot(sim_moon_means %>%
+           filter(sample_size %in% c(1,9,49,100,196,441))) +
   geom_hline(aes(yintercept = 0),
              color = "grey50",
              size = 1.5) +
@@ -253,13 +441,13 @@ ggplot(sim_moon_means %>%
     size = 0.8) +
   ggblur::geom_point_blur(
     aes(
-    x = sample_size,
-    y = deviation,
-    color = method
-  ),
-  size = 5,
-  alpha = 0.9,
-  blur_size = 2) +
+      x = sample_size,
+      y = deviation,
+      color = method
+    ),
+    size = 5,
+    alpha = 0.9,
+    blur_size = 2) +
   geom_moon(aes(
     x = sample_size,
     y = deviation,
