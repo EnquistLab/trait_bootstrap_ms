@@ -506,7 +506,7 @@ simdata %>%
            sample_size > 8) %>%
   group_by(moment, sample_size, site, trait) %>%
   count()
-  
+
 
 sim_radar = 
   simdata %>%
@@ -629,6 +629,25 @@ ggsave(here::here("figures/WinnerDoughnuts.png"),
 
 ### Doughnut plots - across winners ----
 
+group_size = rbind(simdata %>%
+                     mutate(dataset = rep("Colorado", nrow(.))),
+                   simdata_frogs %>%
+                     mutate(dataset = rep("Frogs", nrow(.))#,
+                            # method = ifelse(method == "Site-Specific CWM",
+                            #                 "Cross-Site CWM",
+                            #                 as.character(method))
+                     ),
+                   simdata_panama %>%
+                     mutate(dataset = rep("Panama", nrow(.))),
+                   simdata_rats %>%
+                     mutate(dataset = rep("Rodents", nrow(.)))) %>%
+  filter(sample_size < 26 &
+           sample_size > 8) %>%
+  distinct(dataset, trait, moment, sample_size, site) %>%
+  group_by(moment, dataset) %>%
+  count() %>%
+  rename(grp_mn = n)
+
 sim_doughnuts_all = 
   rbind(simdata %>%
           mutate(dataset = rep("Colorado", nrow(.))),
@@ -646,14 +665,18 @@ sim_doughnuts_all =
            sample_size > 8) %>%
   mutate(diff = ifelse(estimate > true_value,
                        estimate - true_value,
-                       true_value - estimate)) %>%
-  group_by(moment, sample_size, site, dataset, trait) %>%
-  filter(diff == min(diff)) %>%
-  group_by(method, moment, dataset) %>%
+                       true_value - estimate),
+         hit = ifelse(ci_low <= true_value & true_value <= ci_high,
+                      2,
+                      1))%>%
+  group_by(dataset, trait, moment, sample_size, site) %>%
+  filter(diff == min(diff) &
+           hit == 2) %>%
+  group_by(dataset, method, moment) %>%
   count() %>%
-  group_by(moment, dataset) %>%
-  mutate(percentage = n/sum(n)) %>%
-  select(-n)
+  left_join(.,
+            group_size) %>%
+  mutate(percentage = n/grp_mn)
 
 sim_win_text =
   sim_doughnuts_all %>%
@@ -706,6 +729,7 @@ doughnut =
   ),
   colour = 'grey96') +
   xlim(c(0.7, 2.5)) +
+  ylim(c(0, 1)) +
   #annotation textboxes
   geom_text(data = sim_win_text,
             aes(x = 1,
