@@ -484,7 +484,7 @@ sim_doughnuts_all =
   mutate(diff = ifelse(estimate > true_value,
                        estimate - true_value,
                        true_value - estimate)) %>%
-  group_by(moment, sample_size, site, dataset) %>%
+  group_by(moment, sample_size, site, dataset, trait) %>%
   filter(diff == min(diff)) %>%
   group_by(method, moment, dataset) %>%
   count() %>%
