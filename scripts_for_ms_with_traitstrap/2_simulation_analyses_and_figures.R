@@ -30,6 +30,8 @@ simdata_frogs <-
 
 simmeans = 
   simdata %>%
+  filter(sample_size < 26 &
+           sample_size > 8) %>%
   group_by(trait, moment, site) %>%
   mutate(true_val = mean(true_value)) %>%
   group_by(trait, moment, method, site, true_val) %>%
@@ -39,10 +41,12 @@ simmeans =
 
 simdata_lollipop =
   simdata %>%
+  filter(sample_size < 26 &
+           sample_size > 8) %>%
   filter(site == 'Road') %>%
-  mutate(facet_lab = paste0(moment,"_",trait)) %>%
-  group_by(trait, moment, method, site, sample_size) %>%
-  slice_sample(n = 20)
+  mutate(facet_lab = paste0(moment,"_",trait)) #%>%
+# group_by(trait, moment, method, site, sample_size) %>%
+# slice_sample(n = 20)
 
 #re-order to match moment 'numbers'
 simmeans$moment <- factor(simmeans$moment,
@@ -68,8 +72,7 @@ ggplot(simmeans) +
   geom_jitter(data = simdata_lollipop,
               aes(x = estimate, 
                   y = method, 
-                  fill = method,
-                  size = sample_size), 
+                  fill = method), 
               color = "grey85", 
               width = 0, height = 0.2, alpha = 0.3, shape = 21) +
   geom_segment(data = simmeans,
@@ -141,6 +144,157 @@ ggplot(simmeans) +
 ggsave(here::here("figures/Lollipops_All.png"),
        height = 8, width = 11,
        units = "in", dpi = 300)
+
+
+
+### Accuracy Across datasets (creative) ----
+
+#All traits
+
+simmeans = 
+  rbind(simdata %>%
+          mutate(dataset = rep("Colorado", nrow(.))),
+        simdata_frogs %>%
+          mutate(dataset = rep("Frogs", nrow(.))#,
+                 # method = ifelse(method == "Site-Specific CWM",
+                 #                 "Cross-Site CWM",
+                 #                 as.character(method))
+          ),
+        simdata_panama %>%
+          mutate(dataset = rep("Panama", nrow(.))),
+        simdata_rats %>%
+          mutate(dataset = rep("Rodents", nrow(.)))) %>%
+  filter(sample_size < 26 &
+           sample_size > 8) %>%
+  filter(site %in% c("PBM", "south_campus", "BCIBALA TRES", "1")) %>%
+  filter(trait %in% c("dry_mass_mg", "body_length_mm", "LMA", "log10_weight")) %>%
+  group_by(dataset, moment) %>%
+  mutate(true_val = mean(true_value)) %>%
+  group_by(dataset, moment, method, true_val) %>%
+  summarise(estimate = mean(estimate)) %>%
+  mutate(facet_lab = paste0(moment,"_",dataset))
+
+simdata_lollipop =
+  rbind(simdata %>%
+          mutate(dataset = rep("Colorado", nrow(.))),
+        simdata_frogs %>%
+          mutate(dataset = rep("Frogs", nrow(.))#,
+                 # method = ifelse(method == "Site-Specific CWM",
+                 #                 "Cross-Site CWM",
+                 #                 as.character(method))
+          ),
+        simdata_panama %>%
+          mutate(dataset = rep("Panama", nrow(.))),
+        simdata_rats %>%
+          mutate(dataset = rep("Rodents", nrow(.)))) %>%
+  filter(sample_size < 26 &
+           sample_size > 8) %>%
+  filter(site %in% c("PBM", "south_campus", "BCIBALA TRES", "1")) %>%
+  filter(trait %in% c("dry_mass_mg", "body_length_mm", "LMA", "log10_weight")) %>%
+  mutate(facet_lab = paste0(moment,"_",dataset)) #%>%
+# group_by(dataset, moment, method, sample_size) %>%
+# slice_sample(n = 20)
+
+simdata_lollipop %>%
+  distinct(dataset, trait) %>%
+  group_by(dataset) %>%
+  slice_sample(n = 1)
+
+#re-order to match moment 'numbers'
+simmeans$moment <- factor(simmeans$moment,
+                          levels = c("mean",
+                                     "variance",
+                                     "skewness",
+                                     "kurtosis"))
+
+simdata_lollipop$moment <- factor(simdata_lollipop$moment,
+                                  levels = c("mean",
+                                             "variance",
+                                             "skewness",
+                                             "kurtosis"))
+
+#TODO clean labelling
+
+ggplot(simmeans) + 
+  geom_vline(aes(xintercept = true_val), 
+             color = "grey50",
+             size = 1) +
+  geom_jitter(data = simdata_lollipop,
+              aes(x = estimate, 
+                  y = method, 
+                  fill = method), 
+              color = "grey85", 
+              width = 0, height = 0.2, alpha = 0.3, shape = 21) +
+  geom_segment(data = simmeans,
+               aes(x = true_val, 
+                   xend = estimate, 
+                   y = method, 
+                   yend = method), 
+               color = "grey50", 
+               size = 0.5) +
+  geom_point(data = simmeans,
+             aes(x = estimate, 
+                 y = method),
+             color = "grey50", size = 3) + 
+  geom_point(data = simmeans,
+             aes(x = estimate, 
+                 y = method,
+                 color = method), 
+             size = 2) +
+  facet_wrap(~dataset + moment,
+             #rows = vars(trait),
+             # labeller = labeller(
+             #   .default = capitalize,
+             #   trait = traits_parsed,
+             #   .multi_line = FALSE
+             # ),
+             ncol = 4,
+             scales = "free_x",
+             strip.position = 'top') +
+  scale_fill_manual(guide = guide_legend(title = "Method"),
+                    values = pal_df$c,
+                    breaks = pal_df$l) +
+  scale_colour_manual(guide = guide_legend(title = "Method"),
+                      values = pal_df$c,
+                      breaks = pal_df$l) +
+  scale_size(guide = guide_legend(title = "Sample Size"),
+             range = c(0.5, 2)) +
+  labs(
+    x = "Estimated Value",
+    y = NULL
+  ) +
+  guides(size = 'none') +
+  figure_theme +
+  theme(axis.text.y = element_blank(),
+        axis.text.x = element_text(size = 8),
+        plot.background = element_rect(fill = "#141438",
+                                       colour = NA),
+        legend.background = element_rect(fill = "#141438",
+                                         colour = NA),
+        panel.background = element_rect(fill = "#141438",
+                                        colour = NA),
+        strip.text.y = element_text(margin = margin(0, 0, 10, 0),
+                                    size = 14, face = "bold",
+                                    colour = "grey65"),
+        strip.text.x.top = element_text(margin = margin(0, 0, 10, 0),
+                                        size = 12, face = "bold",
+                                        colour = "grey65"),
+        panel.grid.major.y = element_line(size = 0.05,
+                                          colour = "grey65"),
+        legend.key = element_blank(),
+        legend.text = element_text(colour = "grey65"),
+        axis.title = element_text(colour = "grey65"),
+        strip.background = element_blank(),
+        axis.line = element_blank(),
+        strip.placement = 'outside',
+        axis.ticks.y = element_blank(),
+        legend.title = element_text(colour = "grey65"),
+        legend.position = 'bottom')
+
+ggsave(here::here("figures/Lollipops_Datsets.png"),
+       height = 8, width = 11,
+       units = "in", dpi = 300)
+
 
 
 ############################################################
@@ -243,8 +397,8 @@ sim_moon_means$moment =
                                            "kurtosis"))
 
 moons <-
-ggplot(sim_moon_means %>%
-         filter(sample_size %in% c(1,9,49,100,196,441))) + 
+  ggplot(sim_moon_means %>%
+           filter(sample_size %in% c(1,9,49,100,196,441))) + 
   geom_hline(aes(yintercept = 0), 
              color = "grey50",
              size = 1.5) +
@@ -347,27 +501,31 @@ ggsave(here::here("figures/moons_biased_AllTraits.png"),
 
 library(ggtext)
 
+simdata %>%
+  filter(sample_size < 26 &
+           sample_size > 8) %>%
+  group_by(moment, sample_size, site, trait) %>%
+  count()
+  
+
 sim_radar = 
   simdata %>%
   filter(sample_size < 26 &
            sample_size > 8) %>%
   mutate(diff = ifelse(estimate > true_value,
                        estimate - true_value,
-                       true_value - estimate)) %>%
+                       true_value - estimate),
+         hit = ifelse(ci_low <= true_value & true_value <= ci_high,
+                      2,
+                      1)) %>%
   group_by(moment, sample_size, site, trait) %>%
-  filter(diff == min(diff)) %>%
+  filter(diff == min(diff) &
+           hit == 2) %>%
   group_by(method, moment, trait) %>%
   count() %>%
   group_by(moment, trait) %>%
-  mutate(percentage = n/sum(n)) %>%
+  mutate(percentage = n/40) %>%
   select(-n) %>%
-  right_join(.,
-             tibble(method = rep(rep(c("Cross-Site CWM","Site-Specific CWM","Parametric BS", "Non-Parametric BS"),
-                                     4),5),
-                    moment = rep(rep(c("mean", "variance", "skewness", "kurtosis"),
-                                     each = 4),5),
-                    trait = rep(c("biomass_per_ind", "dry_mass_mg", "height", "leaf_area_mm2", "LMA_mg_mm2"),
-                                each = 16))) %>%
   mutate(percentage = ifelse(is.na(percentage),
                              0,
                              percentage))
@@ -411,6 +569,7 @@ ggplot(sim_radar) +
   ),
   colour = 'grey96') +
   xlim(c(0.7, 2.5)) +
+  ylim(c(0, 1))  +
   #annotation textboxes
   geom_text(data = sim_win_text,
             aes(x = 1.1,
@@ -437,11 +596,11 @@ ggplot(sim_radar) +
                     values = pal_df$c,
                     breaks = pal_df$l) +
   scale_colour_manual(guide = guide_legend(title = "Method",
-                                         #nrow = 1,
-                                         title.position="top",
-                                         title.hjust = 0.5),
-                    values = pal_df$c,
-                    breaks = pal_df$l) +
+                                           #nrow = 1,
+                                           title.position="top",
+                                           title.hjust = 0.5),
+                      values = pal_df$c,
+                      breaks = pal_df$l) +
   # Theme
   theme_void() +
   theme(
@@ -478,7 +637,7 @@ sim_doughnuts_all =
                  # method = ifelse(method == "Site-Specific CWM",
                  #                 "Cross-Site CWM",
                  #                 as.character(method))
-                 ),
+          ),
         simdata_panama %>%
           mutate(dataset = rep("Panama", nrow(.))),
         simdata_rats %>%
@@ -553,7 +712,7 @@ doughnut =
                 y = 0.26,
                 colour = method,
                 label = glue::glue("{percentage}%")),
-                #label = glue::glue("{method} - {percentage}%")),
+            #label = glue::glue("{method} - {percentage}%")),
             #colour = 'grey90',
             hjust = 1,
             show.legend = FALSE,
@@ -566,7 +725,7 @@ doughnut =
                .default = capitalize
              ),
              switch = 'y')  + 
-    scale_colour_manual(values = pal_df$c,
+  scale_colour_manual(values = pal_df$c,
                       breaks = pal_df$l)  + 
   scale_fill_manual(guide = guide_legend(title = "Method",
                                          #nrow = 1,
