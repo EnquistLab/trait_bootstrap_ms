@@ -36,11 +36,14 @@ for( n in n_to_sample){
     
     
     #Get species mean traits
-    species_means_nt <- samples_to_means(tidy_traits = traits_nt,level = "taxon")
+    species_means_nt <- samples_to_means(tidy_traits = traits_nt,
+                                         level = "taxon")
+    
     species_means_nt$site <- "ALL" #Note: adding a "dummy" site here so traitstrap will use global data but still return site-level moments
     
     #Get species x site mean traits
-    species_site_means_nt <- samples_to_means(tidy_traits = traits_nt,level = "taxon_by_site")
+    species_site_means_nt <- samples_to_means(tidy_traits = traits_nt,
+                                              level = "taxon_by_site")
     
     #Trait imputation for distributions
     imputed_full <- 
