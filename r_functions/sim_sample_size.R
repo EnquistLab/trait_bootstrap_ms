@@ -26,7 +26,7 @@ for( n in n_to_sample){
       
     }else{
       
-      traits_nt <- draw_traits_tidy_large(tidy_traits = atraits,
+      traits_nt <- draw_traits_tidy_large(tidy_traits = tidy_traits,
                                           sample_size =  n,
                                           focal_trait = "leaf_area_mm2",
                                           prob = prob)
