@@ -86,16 +86,29 @@ atraits <- readRDS(file = "data/all_traits_unscaled_RMBL.rds")
 
 #Run sample size sims
   output_co <- sim_sample_size(tidy_traits = atraits,
-                               community = community)
+                               community = community,
+                               n_to_sample = 
+                                 (1:ceiling(x = max(community$abundance)^.5))^2,
+                               n_reps_trait = 10,
+                               n_reps_boot = 200,
+                               seed = 2005,
+                               prob = NULL)
   #save output
     saveRDS(object = output_co,file = "output_data/simulation_results.RDS")
 
 #Run sample size sims with bias
-  output_co_biased <- sim_sample_size(tidy_traits = atraits,
-                                      community = community,
-                                      prob = 0.75)
+  output_co_biased <-
+    sim_sample_size(tidy_traits = atraits,
+                    community = community,
+                    prob = 0.75,
+                    n_to_sample =
+                      (1:ceiling(x = max(community$abundance)^.5))^2,
+                    n_reps_trait = 10,
+                    n_reps_boot = 200,
+                    seed = 2005)
   #save output
-  saveRDS(object = output_co_biased,file = "output_data/simulation_results_biased.RDS")
+  saveRDS(object = output_co_biased,
+          file = "output_data/simulation_results_biased.RDS")
   
 
 #############################################################################
@@ -103,29 +116,36 @@ atraits <- readRDS(file = "data/all_traits_unscaled_RMBL.rds")
 # Messier Panama Data
 
 library(xlsx)
-panama <- read.xlsx(file = "data/Julies_Panama_data.xlsx",1)
+panama <- read.xlsx(file = "data/Julies_Panama_data.xlsx", 1)
 
 #Rename a few columns so the data plays well with the simulation code
-colnames(panama)[which(colnames(panama)=="Site")]<-"region"
-colnames(panama)[which(colnames(panama)=="Plot")]<-"site"
-colnames(panama)[which(colnames(panama)=="Species")]<-"taxon"
-colnames(panama)[which(colnames(panama)=="Id")]<-"ID"
+colnames(panama)[which(colnames(panama)=="Site")] <- "region"
+colnames(panama)[which(colnames(panama)=="Plot")] <- "site"
+colnames(panama)[which(colnames(panama)=="Species")] <- "taxon"
+colnames(panama)[which(colnames(panama)=="Id")] <- "ID"
 
 #Convert to tidy/skinny/long form
-panama_traits <- gather(data=panama,key = "trait","value",12:20)
+panama_traits <- gather(data=panama, key = "trait", "value", 12:20)
 panama_traits$value <- as.numeric(panama_traits$value)
 
 #which traits have the most NAs?  Toss those and then any rows with NA values
-panama_traits %>% group_by(trait) %>% summarise(across(value,~length(which(is.na(.x)))))
+panama_traits %>%
+  group_by(trait) %>%
+  summarise(across(value,~length(which(is.na(.x)))))
 panama_traits <- panama_traits[which(panama_traits$trait!="SPAD.average"),]
 panama_traits <- panama_traits[which(!is.na(panama_traits$value)),]
 
 #check scales, log tf if necessary
-ggplot(data = panama_traits,aes(x=value))+geom_histogram()+facet_wrap(~trait,scales = "free")
-ggplot(data = panama_traits,aes(x=log(value)))+geom_histogram()+facet_wrap(~trait,scales = "free")
+ggplot(data = panama_traits,aes(x=value))+
+  geom_histogram()+facet_wrap(~trait,scales = "free")
+
+ggplot(data = panama_traits,aes(x=log(value)))+
+  geom_histogram()+facet_wrap(~trait,scales = "free")
 
 #Log tfing improves everything except LDMC and LLC so I'll toss those rather than dealing with confusing axis options and captions
-panama_traits <- panama_traits[which(!panama_traits$trait %in% c("LCC","LDMC")),]
+panama_traits <- 
+  panama_traits[which(!panama_traits$trait %in% c("LCC","LDMC")),]
+
 panama_traits$value <- log10(panama_traits$value)
 
 #Convert to trait vs community
@@ -134,6 +154,7 @@ panama_community <- panama_traits %>%
   summarise(across(Tree,~(length(unique(.x))),
                    .names = "abundance"),
             .groups="drop")
+
 #Since N individuals != N samples, create a separate file containing sample sizes
 panama_samples <- panama_traits %>%
   group_by(region,site,taxon) %>%
@@ -152,11 +173,15 @@ panama_samples <- panama_traits %>%
           file = "output_data/Panama_percent_community_sims.RDS")  
 
 #Run sample size sims
-  output_pa <- sim_sample_size(tidy_traits = panama_traits,
-                               n_to_sample = (1:ceiling(x = max(
-                                 panama_samples$abundance)^.5)
-                               )^2,
-                               community = panama_community)
+  output_pa <-
+    sim_sample_size(tidy_traits = panama_traits,
+                    n_to_sample =
+                      (1:ceiling(x = max(panama_samples$abundance)^.5))^2,
+                    community = panama_community,
+                    n_reps_trait = 10,
+                    n_reps_boot = 200,
+                    seed = 2005)
+  
   saveRDS(object = output_pa,
           file = "output_data/panama_simulation_results.RDS")
 ###############################################################################
@@ -180,7 +205,9 @@ portal_traits <- portal_traits[which(portal_traits$taxa=="Rodent"),]
 portal_traits <- portal_traits[which(!is.na(portal_traits$wgt)),]
 
 #Cut down to the year with the most records
-portal_traits <- portal_traits[which(portal_traits$year==as.numeric(names(which.max(table(portal_traits$year))))),]
+portal_traits <-
+  portal_traits[which(portal_traits$year ==
+                        as.numeric(names(which.max(table(portal_traits$year))))),]
 
 #Log tf weight
 portal_traits$wgt <- log10(portal_traits$wgt)
@@ -204,15 +231,28 @@ portal_traits$site <- as.character(portal_traits$site)
 portal_community$site <- as.character(portal_community$site)
 
 #Run sample size sims
-output_rodents <- sim_sample_size(tidy_traits = portal_traits,
-                                  community = portal_community,
-                                  n_to_sample = (1:ceiling(x = max(
-                                    portal_community$abundance)^.5)
-                                  )^2
-                                  )
+output_rodents <-
+  sim_sample_size(tidy_traits = portal_traits,
+                  community = portal_community,
+                  n_to_sample =
+                    (1:ceiling(x = max(portal_community$abundance)^.5))^2,
+                  n_reps_trait = 10,
+                  n_reps_boot = 200,
+                  seed = 2005,
+                  prob = NULL
+                  )
                                   
 saveRDS(object = output_rodents,
         file = "output_data/simulation_results_rodents.RDS")
+
+
+#Run pct cover sims
+rodent_pct_sims <- sim_percent_sampling(traits = portal_traits,
+                                        community = portal_community,
+                                        nreps = 10,
+                                        nsamples = 10,
+                                        n_reps_boot = 200)
+
 
 ###############################################################################
 
@@ -277,15 +317,17 @@ ggplot(data = treefrog_output,
   geom_point()+
   facet_grid(method~site)
 
-ggplot(data = treefrog_output,mapping = aes(y=kurt-true_kurtosis,x = sample_size))+
-  geom_point()+facet_grid(method~site)
+ggplot(data = treefrog_output,
+       mapping = aes(y=kurt-true_kurtosis,x = sample_size))+
+  geom_point()+
+  facet_grid(method~site)
 
 
 treefrog_output %>% 
-  filter(sample_size<=25) %>% 
+  filter(sample_size <= 25) %>% 
   group_by(method) %>% 
   summarise(mean_kurt_dist = mean(kurt - true_kurtosis))
-#seems to give reasonable performance
+  #seems to give reasonable performance
 
 
 saveRDS(object = treefrog_output,
@@ -295,7 +337,6 @@ saveRDS(object = treefrog_output,
 ###############################################################################
 
 #Traitstrap CWM vs traditional CWM
-
 
 trait_sample <- draw_traits_tidy(tidy_traits = atraits,
                               sample_size =  100) 

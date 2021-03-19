@@ -7,7 +7,7 @@ resample <- function(x, ...) x[sample.int(length(x), ...)]
 
 #'@param tidy_traits Trait data in tidy format
 #'@param sample_size Numeric (one number only)
-draw_traits_tidy <- function(tidy_traits,sample_size){
+draw_traits_tidy <- function(tidy_traits, sample_size){
   
   tidy_traits$site <- as.character(tidy_traits$site)
   tidy_traits$taxon <- as.character(tidy_traits$taxon)
@@ -39,7 +39,7 @@ draw_traits_tidy <- function(tidy_traits,sample_size){
 #######################
 
 
-#Quick convenient function when convertin to species mean data
+#Quick convenient function when converting to species mean data
 #'@param tidy_traits Trait data in tidy format
 #'@param level Level at which to calculate means.  Options are "taxon_by_site" or "taxon".
 samples_to_means <- function(tidy_traits, level = "taxon_by_site"){

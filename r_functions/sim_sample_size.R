@@ -1,3 +1,11 @@
+library(moments)
+library(tidyverse)
+
+# Note that this applies sample sizes at the species x site level.
+# This function assumes that one ID is one sample.  
+  # So assigning IDs to individuals could return multiple samples per individula.
+  # Assigning IDs to traits taken from the same organ returns 
+  # multiple traits form the same organ (e.g. leaf)
 
 sim_sample_size <- function(tidy_traits,
                             community,
@@ -9,8 +17,6 @@ sim_sample_size <- function(tidy_traits,
 ){
 
   
-library(moments)
-library(tidyverse)
 set.seed(seed = seed)  
 output<-NULL
 
@@ -20,7 +26,8 @@ for( n in n_to_sample){
     
     #First simulate a draw of the relevant sample size
     if (is.null(prob)){
-    
+      
+      #note that this draws traits for species and sites combos by their ID.
       traits_nt <- draw_traits_tidy(tidy_traits = tidy_traits,
                                     sample_size =  n)  
       

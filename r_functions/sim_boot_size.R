@@ -7,7 +7,8 @@ ggplot(data = output, mapping = aes(x = boot_sample_size, y = (kurt - true_kurto
 
 boot_sample_output <-
 sim_boot_size(tidy_traits = atraits,
-              community = community,n_to_sample = (1:22)^2,
+              community = community,
+              n_to_sample = (1:22)^2,
               n_reps_trait = 10,
               n_reps_boot = 200,
               boot_sample_size = c(200, 400, 800, 1600, 3200),
