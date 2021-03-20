@@ -142,9 +142,16 @@ ggplot(data = panama_traits,aes(x=value))+
 ggplot(data = panama_traits,aes(x=log(value)))+
   geom_histogram()+facet_wrap(~trait,scales = "free")
 
-#Log tfing improves everything except LDMC and LLC so I'll toss those rather than dealing with confusing axis options and captions
-panama_traits <- 
-  panama_traits[which(!panama_traits$trait %in% c("LCC","LDMC")),]
+panama_traits %>% group_by(trait) %>% 
+  summarise(ks_untf = ks.test(x = .data$value,
+                              y = "pnorm")$statistic,
+            ks_tf =ks.test(x = log10(.data$value),
+                             y = "pnorm")$statistic,
+            sw_untf = shapiro.test(x = .data$value)$statistic,
+            sw_tf =shapiro.test(x = log10(.data$value))$statistic)
+#Log tfing seems to substantially improve some, and make relatively minor changes to others,
+#so I'll log tf everything
+
 
 panama_traits$value <- log10(panama_traits$value)
 
@@ -254,6 +261,9 @@ rodent_pct_sims <- sim_percent_sampling(traits = portal_traits,
                                         n_reps_boot = 200)
 
 
+saveRDS(object = rodent_pct_sims,
+        file = "output_data/Rodent_percent_community_sims.RDS")
+
 ###############################################################################
 
 #Treefrog tadpoles
@@ -338,17 +348,14 @@ saveRDS(object = treefrog_output,
 
 #Traitstrap CWM vs traditional CWM
 
-trait_sample <- draw_traits_tidy(tidy_traits = atraits,
-                              sample_size =  100) 
-
-trait_sample <- samples_to_means(tidy_traits = trait_sample,
-                                     level = "taxon")
-
-trait_sample$site <- "ALL" #Note: adding a "dummy" site here so traitstrap will use global data but still return site-level moments
+#Convert all of the trait to means
+colorado_means <- samples_to_means(tidy_traits = atraits,
+                                 level = "taxon")
+colorado_means$site <- "ALL" #Note: adding a "dummy" site here so traitstrap will use global data but still return site-level moments
 
 imputed_species_mean <- 
   trait_impute(comm = community,
-               traits = trait_sample,
+               traits = colorado_means,
                scale_hierarchy = "site",
                global = T,
                taxon_col = "taxon",
@@ -367,7 +374,24 @@ bootstrap_cwm <- trait_np_bootstrap(imputed_traits = imputed_species_mean,
 
 bootstrap_cwm <- trait_summarise_boot_moments(bootstrap_moments = bootstrap_cwm)
 
-merged_cwm <- merge(x = cwm_estimates,y = bootstrap_cwm,by = c("site","trait"))
+colnames(bootstrap_cwm)
+colnames(cwm_estimates)
+
+cwm_estimates <- cwm_estimates[c("site","trait","mean","variance","skewness","kurtosis")]
+cwm_estimates$method <- "traditional CWM"
+bootstrap_cwm <- bootstrap_cwm %>% ungroup() %>% 
+  mutate(variance = var, skewness = skew, kurtosis = kurt, method = "bootstrap CWM") %>% 
+  select(colnames(cwm_estimates))
+
+merged_cwm <- rbind(cwm_estimates,bootstrap_cwm)
+
+bootstrap_cwm <- bootstrap_cwm %>% 
+  mutate(mean_bootsrapped = mean,
+         variance_bootstrapped = variance,
+         skewness_bootstrapped = skewness,
+         kurtosis_bootstrapped = kurtosis)
+
+
 
 plot(merged_cwm$mean.x ~ merged_cwm$mean.y,
      xlab = "Bootstrapped Community Weighted Mean",
@@ -395,6 +419,9 @@ cor.test(merged_cwm$mean.x,merged_cwm$mean.y)
 cor.test(merged_cwm$variance,merged_cwm$var)
 cor.test(merged_cwm$skewness,merged_cwm$skew)
 cor.test(merged_cwm$kurtosis,merged_cwm$kurt)
+
+saveRDS(object = merged_cwm)
+
 
 
 ###############################################################################
