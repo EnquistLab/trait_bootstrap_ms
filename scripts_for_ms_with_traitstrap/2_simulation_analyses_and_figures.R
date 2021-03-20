@@ -116,19 +116,15 @@ ggplot(simmeans) +
   guides(size = 'none') +
   figure_theme +
   theme(axis.text.y = element_blank(),
-        axis.text.x = element_text(size = 8),
+        axis.text.x = element_blank(),
         plot.background = element_rect(fill = "#141438",
                                        colour = NA),
         legend.background = element_rect(fill = "#141438",
                                          colour = NA),
         panel.background = element_rect(fill = "#141438",
-                                        colour = NA),
-        strip.text.y = element_text(margin = margin(0, 0, 10, 0),
-                                    size = 14, face = "bold",
-                                    colour = "grey65"),
-        strip.text.x.top = element_text(margin = margin(0, 0, 10, 0),
-                                        size = 12, face = "bold",
-                                        colour = "grey65"),
+                                        colour = "grey69"),
+        strip.text.y = element_blank(),
+        strip.text.x.top = element_blank(),
         panel.grid.major.y = element_line(size = 0.05,
                                           colour = "grey65"),
         legend.key = element_blank(),
@@ -139,10 +135,11 @@ ggplot(simmeans) +
         strip.placement = 'outside',
         axis.ticks.y = element_blank(),
         legend.title = element_text(colour = "grey65"),
-        legend.position = 'bottom')
+        legend.position = 'bottom',
+        plot.margin=unit(c(3,0.3,0,5), "cm"))
 
 ggsave(here::here("figures/Lollipops_All.png"),
-       height = 8, width = 11,
+       height = 9, width = 13,
        units = "in", dpi = 300)
 
 
@@ -512,16 +509,16 @@ sim_radar =
   simdata %>%
   filter(sample_size < 26 &
            sample_size > 8) %>%
-  mutate(diff = ifelse(estimate > true_value,
+  mutate(diff = ifelse(estimate >= true_value,
                        estimate - true_value,
                        true_value - estimate),
          hit = ifelse(ci_low <= true_value & true_value <= ci_high,
                       2,
                       1)) %>%
-  group_by(moment, sample_size, site, trait) %>%
-  filter(diff == min(diff) &
-           hit == 2) %>%
-  group_by(method, moment, trait) %>%
+  group_by(trait, moment, sample_size, site) %>%
+  filter(hit == 2) %>%
+  filter(diff == min(diff)) %>%
+  group_by(trait, method, moment) %>%
   count() %>%
   group_by(moment, trait) %>%
   mutate(percentage = n/40) %>%
@@ -629,6 +626,12 @@ ggsave(here::here("figures/WinnerDoughnuts.png"),
 
 ### Doughnut plots - across winners ----
 
+simdata %>%
+  filter(sample_size < 26 &
+           sample_size > 8) %>%
+  group_by(moment, sample_size, site, trait) %>%
+  count()
+
 group_size = rbind(simdata %>%
                      mutate(dataset = rep("Colorado", nrow(.))),
                    simdata_frogs %>%
@@ -643,8 +646,8 @@ group_size = rbind(simdata %>%
                      mutate(dataset = rep("Rodents", nrow(.)))) %>%
   filter(sample_size < 26 &
            sample_size > 8) %>%
-  distinct(dataset, trait, moment, sample_size, site) %>%
-  group_by(moment, dataset) %>%
+  distinct(dataset, moment, sample_size, site, trait) %>%
+  group_by(dataset, moment) %>%
   count() %>%
   rename(grp_mn = n)
 
@@ -663,17 +666,17 @@ sim_doughnuts_all =
           mutate(dataset = rep("Rodents", nrow(.)))) %>%
   filter(sample_size < 26 &
            sample_size > 8) %>%
-  mutate(diff = ifelse(estimate > true_value,
+  mutate(diff = ifelse(estimate >= true_value,
                        estimate - true_value,
                        true_value - estimate),
          hit = ifelse(ci_low <= true_value & true_value <= ci_high,
                       2,
                       1))%>%
-  group_by(dataset, trait, moment, sample_size, site) %>%
-  filter(diff == min(diff) &
-           hit == 2) %>%
+  group_by(dataset, moment, sample_size, site, trait) %>%
+  filter(hit == 2) %>%
+  filter(diff == min(diff)) %>%
   group_by(dataset, method, moment) %>%
-  count() %>%
+  count()  %>%
   left_join(.,
             group_size) %>%
   mutate(percentage = n/grp_mn)
@@ -777,12 +780,6 @@ doughnut =
                                      vjust = 0),
     legend.text = element_text(colour = "grey65")
   )
-
-
-#ggsave(here::here("figures/WinnerDoughnuts_datasets.png"),
-#       height = 10, width = 10.4,
-#       units = "in", dpi = 300)
-
 
 img1 = png::readPNG("images/Colorado.png")
 img2 = png::readPNG("images/Coral.png")

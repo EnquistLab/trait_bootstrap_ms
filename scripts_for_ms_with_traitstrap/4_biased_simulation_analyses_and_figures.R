@@ -22,22 +22,62 @@ simdata_rats <-
 
 ### Moon plots - accuracy of moments - 'global' ----
 
-library(gggibbous)
-
 #### All traits combined
+
+overunders = 
+simdata %>%
+  #if true value falls in estimate's CI
+  mutate(hit = ifelse(ci_low <= true_value & true_value <= ci_high,
+                      2,
+                      1),
+         overunder = ifelse(true_value < estimate,
+                            "over",
+                            "under"),
+         deviation = ifelse(estimate > true_value,
+                            estimate - true_value,
+                            true_value - estimate)) %>%
+  group_by(method, moment, sample_size, overunder) %>%
+  count() %>%
+  group_by(method, moment, sample_size) %>%
+  filter(n == max(n))
 
 sim_moon_means =
   simdata %>%
   #if true value falls in estimate's CI
   mutate(hit = ifelse(ci_low <= true_value & true_value <= ci_high,
                       2,
-                      1)) %>%
+                      1),
+         overunder = ifelse(true_value < estimate,
+                            "over",
+                            "under")) %>%
   group_by(method, moment, sample_size) %>%
   #calcualte proportion of 'hits' per trait, methods, moment
   summarise(percentage = sum(hit - 1)/n(),
             deviation = mean(ifelse(estimate > true_value,
                                     estimate - true_value,
-                                    true_value - estimate)))
+                                    true_value - estimate))) %>%
+  left_join(.,
+            overunders) %>%
+  mutate(deviation = ifelse(overunder == "under",
+                            -1*deviation,
+                            deviation))
+
+overunders_biased = 
+  simdata_biased %>%
+  #if true value falls in estimate's CI
+  mutate(hit = ifelse(ci_low <= true_value & true_value <= ci_high,
+                      2,
+                      1),
+         overunder = ifelse(true_value < estimate,
+                            "over",
+                            "under"),
+         deviation = ifelse(estimate > true_value,
+                            estimate - true_value,
+                            true_value - estimate)) %>%
+  group_by(method, moment, sample_size, overunder) %>%
+  count() %>%
+  group_by(method, moment, sample_size) %>%
+  filter(n == max(n))
 
 sim_biased_moon_means =
   simdata_biased %>%
@@ -50,7 +90,12 @@ sim_biased_moon_means =
   summarise(percentage = sum(hit - 1)/n(),
             deviation = mean(ifelse(estimate > true_value,
                                     estimate - true_value,
-                                    true_value - estimate)))
+                                    true_value - estimate))) %>%
+  left_join(.,
+            overunders_biased) %>%
+  mutate(deviation = ifelse(overunder == "under",
+                            -1*deviation,
+                            deviation))
 
 sim_biased_moon_means$moment =
   ordered(sim_biased_moon_means$moment,levels = c("mean","variance","skewness","kurtosis"))
@@ -119,7 +164,7 @@ moons <-
   scale_linetype_manual("Sampling",
                         values=c("Biased" = 2,
                                  "Random" = 1),
-                        guide = guide_legend(override.aes = list(colour = "black"))) +
+                        guide = guide_legend(override.aes = list(colour = "grey69"))) +
   scale_x_continuous(trans = 'sqrt', breaks = c(0,10,50,100,200,500),
                      limits = c(0, 500)) +
   facet_grid(rows = vars(moment),
@@ -151,7 +196,25 @@ moons <-
     axis.title = element_text(colour = "grey65"),
     strip.background = element_blank(),
     axis.line = element_blank(),
-    strip.placement = 'outside'
+    strip.placement = 'outside',
+    panel.background = element_rect(colour = colorspace::lighten("#141438", 0.1),
+                                    size = 1)
+  ) 
+
+moons +
+  annotation_custom(grob=ggplotGrob(inset), 
+                     # data = sim_means %>%
+                     #   distinct(method,moment),
+                     ymin = 0, ymax=2, xmin=400, xmax=500)
+
+
+insets <- plot_data %>% 
+  split(f = .$category) %>%
+  purrr::map(~annotation_custom2(
+    grob = ggplotGrob(get_inset(.) +
+                        scale_y_continuous(limits=c(0,105), breaks = c(0, 50, 100))), 
+    data = data.frame(category=unique(.$category)),
+    ymin = -8, ymax=34, xmin=1955, xmax=2015)
   )
 
 cowplot::ggdraw(moons) +
@@ -159,16 +222,28 @@ cowplot::ggdraw(moons) +
                      .79, .12,
                      0.2, .23)
 
+ggsave(here::here("figures/moons_biased_directionality.png"),
+       height = 7.4, width = 12.5,
+       units = "in", dpi = 300)
+
 ### Transition plots - accuracy & directionality of moments - 'global' ----
 
-library(gggibbous)
+annotation_custom2 <- function (grob, xmin = -Inf, xmax = Inf, ymin = -Inf, ymax = Inf, data) 
+{
+  layer(data = data, stat = StatIdentity, position = PositionIdentity, 
+        geom = ggplot2:::GeomCustomAnn,
+        inherit.aes = TRUE, params = list(grob = grob, 
+                                          xmin = xmin, xmax = xmax, 
+                                          ymin = ymin, ymax = ymax))
+}
+
 
 #### All traits combined
 
 sim_means =
   simdata %>%
   #filter(sample_size %in% c(1,9,49,100,196,441)) %>%
-  group_by(trait, method, moment, sample_size) %>%
+  group_by(method, moment, sample_size) %>%
   mutate(group_size = n()) %>%
   #if true value falls in estimate's CI
   mutate(hit = ifelse(ci_low <= true_value & true_value <= ci_high,
@@ -183,8 +258,10 @@ sim_means =
   mutate(deviation = ifelse(overunder == "over",
                             deviation,
                             -1*deviation)) %>%
-  group_by(trait, method, moment, sample_size) %>%
-  summarise(mean_dev = mean(deviation))
+  group_by(method, moment, sample_size) %>%
+  summarise(mean_dev = mean(deviation)) %>%
+  group_by(moment, method) %>%
+  mutate(dev_pct = mean_dev/max(abs(mean_dev)))
 
 
 
@@ -194,37 +271,26 @@ sim_means$moment =
                                       "variance",
                                       "skewness",
                                       "kurtosis"))
-
-library(ggh4x)
-
-divergent_scale <- scale_y_continuous(
-  breaks = c(0.25, 0.5 ,1),
-  guide = guide_axis_truncated(trunc_lower = 0),
-  sec.axis = sec_axis(
-    trans = ~ .x,
-    breaks = c(-0.25, -0.5 ,-1),
-    guide = guide_axis_truncated(trunc_upper = 0)
-  )
-)
-
+inset =
 ggplot(sim_means %>%
-         filter(trait == 'height')) +
-  geom_col(aes(y = mean_dev,
+         filter(sample_size %in% c(1,9,49,100,196,441))) +
+  geom_col(aes(y = dev_pct,
                x = as.factor(sample_size),
                fill = method,
                group = method),
-           position = 'dodge') +
+           position = 'dodge',
+           show.legend = FALSE) +
   geom_hline(aes(yintercept = 0),
-             colour = "#141438",
+             colour = "grey69",
              size = 1.2) +
-  facet_grid(rows = vars(moment),
-             cols = vars(method),
-             labeller = labeller(
-               trait = traits_parsed,
-               .default = capitalize
-             ),
-             switch = 'y',
-             scales = 'free') +
+  # facet_grid(rows = vars(method),
+  #            cols = vars(moment),
+  #            labeller = labeller(
+  #              trait = traits_parsed,
+  #              .default = capitalize
+  #            ),
+  #            switch = 'y',
+  #            scales = 'free') +
   scale_fill_manual(guide = guide_legend(title = "Method",
                                          #nrow = 1,
                                          title.position="top"),
@@ -253,7 +319,6 @@ ggplot(sim_means %>%
     strip.background = element_blank(),
     axis.line = element_blank(),
     axis.ticks = element_blank(),
-    axis.text.x = element_blank(),
     strip.placement = 'outside'
   )
 
