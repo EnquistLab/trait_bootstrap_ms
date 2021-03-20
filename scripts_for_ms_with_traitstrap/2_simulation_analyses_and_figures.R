@@ -819,3 +819,23 @@ cowplot::ggdraw(doughnut) +
 ggsave(here::here("figures/WinnerDoughnuts_datasets_images.png"),
        height = 8.3, width = 10.4,
        units = "in", dpi = 300)
+
+### Over Under - across winners ----
+
+rbind(simdata %>%
+        mutate(dataset = rep("Herbs", nrow(.))),
+      simdata_frogs %>%
+        mutate(dataset = rep("Tadpoles", nrow(.))),
+      simdata_panama %>%
+        mutate(dataset = rep("Trees", nrow(.))),
+      simdata_rats %>%
+        mutate(dataset = rep("Rodents", nrow(.)))) %>%
+  filter(sample_size < 26 &
+           sample_size > 8) %>%
+  mutate(overunder = ifelse(true_value < estimate,
+                            "over",
+                            "under")) %>%
+  group_by(dataset, moment, method, overunder) %>%
+  count() %>%
+  group_by(dataset, moment, method) %>%
+  filter(n == max(n))
