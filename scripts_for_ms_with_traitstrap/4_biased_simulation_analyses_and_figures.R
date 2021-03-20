@@ -167,21 +167,24 @@ library(gggibbous)
 
 sim_means =
   simdata %>%
+  #filter(sample_size %in% c(1,9,49,100,196,441)) %>%
   group_by(trait, method, moment, sample_size) %>%
   mutate(group_size = n()) %>%
   #if true value falls in estimate's CI
   mutate(hit = ifelse(ci_low <= true_value & true_value <= ci_high,
                       "yay",
                       "nay"),
-         deviation = mean(true_value - estimate,
-                          na.rm = TRUE)) %>%
+         deviation = ifelse(estimate > true_value,
+                            abs(estimate - true_value),
+                            abs(true_value - estimate))) %>%
   mutate(overunder = ifelse(true_value < estimate,
                             "over",
                             "under")) %>%
-  group_by(trait, method, moment, sample_size, overunder, hit, group_size) %>%
-  count() %>%
-  #calcualte proportion of 'hits' per trait, methods, moment
-  mutate(percentage = n/group_size)
+  mutate(deviation = ifelse(overunder == "over",
+                            deviation,
+                            -1*deviation)) %>%
+  group_by(trait, method, moment, sample_size) %>%
+  summarise(mean_dev = mean(deviation))
 
 
 
@@ -191,6 +194,129 @@ sim_means$moment =
                                       "variance",
                                       "skewness",
                                       "kurtosis"))
+
+library(ggh4x)
+
+divergent_scale <- scale_y_continuous(
+  breaks = c(0.25, 0.5 ,1),
+  guide = guide_axis_truncated(trunc_lower = 0),
+  sec.axis = sec_axis(
+    trans = ~ .x,
+    breaks = c(-0.25, -0.5 ,-1),
+    guide = guide_axis_truncated(trunc_upper = 0)
+  )
+)
+
+ggplot(sim_means %>%
+         filter(trait == 'height')) +
+  geom_col(aes(y = mean_dev,
+               x = as.factor(sample_size),
+               fill = method,
+               group = method),
+           position = 'dodge') +
+  geom_hline(aes(yintercept = 0),
+             colour = "#141438",
+             size = 1.2) +
+  facet_grid(rows = vars(moment),
+             cols = vars(method),
+             labeller = labeller(
+               trait = traits_parsed,
+               .default = capitalize
+             ),
+             switch = 'y',
+             scales = 'free') +
+  scale_fill_manual(guide = guide_legend(title = "Method",
+                                         #nrow = 1,
+                                         title.position="top"),
+                    values = colorspace::darken(pal_df$c, amount = 0.2),
+                    labels = pal_df$l) +
+  scale_alpha_manual(values = c(0.4,1)) +
+  guides(alpha = 'none') +
+  labs(x = 'sample size') +
+  # Theme
+  figure_theme +
+  theme(
+    legend.position = 'right',
+    legend.title = element_text(size = 14, colour = "grey65"),
+    strip.text.y = element_text(margin = margin(0, 0, 10, 0),
+                                size = 14, face = "bold",
+                                colour = "grey65"),
+    strip.text.x.top = element_text(margin = margin(0, 0, 10, 0),
+                                    size = 14, face = "bold",
+                                    colour = "grey65"),
+    panel.grid.major.y = element_line(size = 0.05,
+                                      colour = "grey65"),
+    panel.grid.major.x = element_blank(),
+    legend.key = element_blank(),
+    legend.text = element_text(colour = "grey65"),
+    axis.title = element_blank(),
+    strip.background = element_blank(),
+    axis.line = element_blank(),
+    axis.ticks = element_blank(),
+    axis.text.x = element_blank(),
+    strip.placement = 'outside'
+  )
+
+#tiles
+
+sim_means =
+  simdata %>%
+  #filter(sample_size %in% c(1,9,49,100,196,441)) %>%
+  #if true value falls in estimate's CI
+  mutate(deviation = ifelse(estimate > true_value,
+                            estimate - true_value,
+                            true_value - estimate)) %>%
+  mutate(overunder = ifelse(true_value < estimate,
+                            "over",
+                            "under"),
+         deviation = ifelse(true_value < estimate,
+                            deviation,
+                            -1*deviation)) %>%
+  group_by(trait, moment, method, overunder) %>%
+  mutate(max_dev = ifelse(overunder == "over",
+                          max(deviation),
+                          min(deviation))) %>%
+  group_by(trait, moment, method, sample_size, overunder, max_dev) %>%
+  count() %>%
+  group_by(trait, moment, method, sample_size) %>%
+  mutate(percentage = ifelse(overunder == "over",
+                             n/sum(n),
+                             -1*n/sum(n)))
+
+ggplot(sim_means %>%
+         filter(trait == 'height')) +
+  geom_col(aes(x = as.factor(sample_size),
+               y = percentage,
+               group = method,
+               fill = method),
+           position = 'dodge') +
+  facet_grid(cols = vars(method),
+             rows = vars(moment),
+             scales = "free")
+  
+
+
+
+
+
+ggplot(sim_means %>%
+         filter(trait == "biomass_per_ind")) +
+  geom_rect(aes(xmin = min_dev,
+                xmax = max_dev,
+                ymin = sample_size - 0.5,
+                ymax = sample_size + 0.5,
+                alpha = hit,
+                fill = method)) +
+  facet_wrap(vars(method,moment),
+             scales = 'free') +
+  scale_y_continuous(trans = 'sqrt', breaks = c(0,10,50,100,200,500),
+                     limits = c(1, 484)) +
+  scale_fill_manual(guide = guide_legend(title = "Method",
+                                         #nrow = 1,
+                                         title.position="top"),
+                    values = colorspace::darken(pal_df$c, amount = 0.2),
+                    labels = pal_df$l)
+
 
 ggplot(sim_means) +
   ggstream::geom_stream(aes(x = sample_size,
