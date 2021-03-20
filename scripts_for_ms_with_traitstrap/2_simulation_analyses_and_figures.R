@@ -116,15 +116,19 @@ ggplot(simmeans) +
   guides(size = 'none') +
   figure_theme +
   theme(axis.text.y = element_blank(),
-        axis.text.x = element_blank(),
+        axis.text.x = element_text(size = 8),
         plot.background = element_rect(fill = "#141438",
                                        colour = NA),
         legend.background = element_rect(fill = "#141438",
                                          colour = NA),
         panel.background = element_rect(fill = "#141438",
-                                        colour = "grey69"),
-        strip.text.y = element_blank(),
-        strip.text.x.top = element_blank(),
+                                        colour = 'grey69'),
+        strip.text.y = element_text(margin = margin(0, 0, 10, 0),
+                                    size = 14, face = "bold",
+                                    colour = "grey65"),
+        strip.text.x.top = element_text(margin = margin(0, 0, 10, 0),
+                                        size = 12, face = "bold",
+                                        colour = "grey65"),
         panel.grid.major.y = element_line(size = 0.05,
                                           colour = "grey65"),
         legend.key = element_blank(),
@@ -135,8 +139,7 @@ ggplot(simmeans) +
         strip.placement = 'outside',
         axis.ticks.y = element_blank(),
         legend.title = element_text(colour = "grey65"),
-        legend.position = 'bottom',
-        plot.margin=unit(c(3,0.3,0,5), "cm"))
+        legend.position = 'bottom')
 
 ggsave(here::here("figures/Lollipops_All.png"),
        height = 9, width = 13,
@@ -504,6 +507,14 @@ simdata %>%
   group_by(moment, sample_size, site, trait) %>%
   count()
 
+group_size = 
+  simdata %>%
+  filter(sample_size < 26 &
+           sample_size > 8) %>%
+  distinct(moment, sample_size, site, trait) %>%
+  group_by(trait, moment) %>%
+  count() %>%
+  rename(grp_mn = n)
 
 sim_radar = 
   simdata %>%
@@ -521,7 +532,7 @@ sim_radar =
   group_by(trait, method, moment) %>%
   count() %>%
   group_by(moment, trait) %>%
-  mutate(percentage = n/40) %>%
+  mutate(percentage = n/15) %>%
   select(-n) %>%
   mutate(percentage = ifelse(is.na(percentage),
                              0,
@@ -632,18 +643,19 @@ simdata %>%
   group_by(moment, sample_size, site, trait) %>%
   count()
 
-group_size = rbind(simdata %>%
-                     mutate(dataset = rep("Colorado", nrow(.))),
-                   simdata_frogs %>%
-                     mutate(dataset = rep("Frogs", nrow(.))#,
-                            # method = ifelse(method == "Site-Specific CWM",
-                            #                 "Cross-Site CWM",
-                            #                 as.character(method))
-                     ),
-                   simdata_panama %>%
-                     mutate(dataset = rep("Panama", nrow(.))),
-                   simdata_rats %>%
-                     mutate(dataset = rep("Rodents", nrow(.)))) %>%
+group_size = 
+  rbind(simdata %>%
+          mutate(dataset = rep("Herbs", nrow(.))),
+        simdata_frogs %>%
+          mutate(dataset = rep("Tadpoles", nrow(.))#,
+                 # method = ifelse(method == "Site-Specific CWM",
+                 #                 "Cross-Site CWM",
+                 #                 as.character(method))
+          ),
+        simdata_panama %>%
+          mutate(dataset = rep("Trees", nrow(.))),
+        simdata_rats %>%
+          mutate(dataset = rep("Rodents", nrow(.)))) %>%
   filter(sample_size < 26 &
            sample_size > 8) %>%
   distinct(dataset, moment, sample_size, site, trait) %>%
@@ -653,15 +665,15 @@ group_size = rbind(simdata %>%
 
 sim_doughnuts_all = 
   rbind(simdata %>%
-          mutate(dataset = rep("Colorado", nrow(.))),
+          mutate(dataset = rep("Herbs", nrow(.))),
         simdata_frogs %>%
-          mutate(dataset = rep("Frogs", nrow(.))#,
+          mutate(dataset = rep("Tadpoles", nrow(.))#,
                  # method = ifelse(method == "Site-Specific CWM",
                  #                 "Cross-Site CWM",
                  #                 as.character(method))
           ),
         simdata_panama %>%
-          mutate(dataset = rep("Panama", nrow(.))),
+          mutate(dataset = rep("Trees", nrow(.))),
         simdata_rats %>%
           mutate(dataset = rep("Rodents", nrow(.)))) %>%
   filter(sample_size < 26 &
@@ -700,9 +712,9 @@ sim_doughnuts_all$method <- factor(sim_doughnuts_all$method,
                                               "Non-Parametric BS"))
 
 sim_doughnuts_all$dataset <- factor(sim_doughnuts_all$dataset,
-                                    levels = c("Colorado",
-                                               "Frogs",
-                                               "Panama", 
+                                    levels = c("Herbs",
+                                               "Tadpoles",
+                                               "Trees", 
                                                "Rodents"))
 
 sim_win_text$moment <- factor(sim_win_text$moment,
@@ -718,9 +730,9 @@ sim_win_text$method <- factor(sim_win_text$method,
                                          "Non-Parametric BS"))
 
 sim_win_text$dataset <- factor(sim_win_text$dataset,
-                               levels = c("Colorado",
-                                          "Frogs",
-                                          "Panama", 
+                               levels = c("Herbs",
+                                          "Tadpoles",
+                                          "Trees", 
                                           "Rodents"))
 
 doughnut = 
@@ -782,7 +794,7 @@ doughnut =
   )
 
 img1 = png::readPNG("images/Colorado.png")
-img2 = png::readPNG("images/Coral.png")
+img2 = png::readPNG("images/Frogs.png")
 img3 = png::readPNG("images/Panama.png")
 img4 = png::readPNG("images/AZ.png")
 
