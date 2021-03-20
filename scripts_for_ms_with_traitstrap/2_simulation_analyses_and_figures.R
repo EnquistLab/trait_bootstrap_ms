@@ -814,7 +814,12 @@ cowplot::ggdraw(doughnut) +
   cowplot::draw_image(
     img4, x = 0.08, y = 0.145, hjust = 1, vjust = 1, halign = 1, valign = 1,
     width = 0.07
-  )
+  ) +
+  cowplot::draw_plot(inset,
+                     width = 0.75,
+                     height = 0.95,
+                     x = 0.18,
+                     y = 0.1)
 
 ggsave(here::here("figures/WinnerDoughnuts_datasets_images.png"),
        height = 8.3, width = 10.4,
@@ -822,14 +827,15 @@ ggsave(here::here("figures/WinnerDoughnuts_datasets_images.png"),
 
 ### Over Under - across winners ----
 
-rbind(simdata %>%
-        mutate(dataset = rep("Herbs", nrow(.))),
-      simdata_frogs %>%
-        mutate(dataset = rep("Tadpoles", nrow(.))),
-      simdata_panama %>%
-        mutate(dataset = rep("Trees", nrow(.))),
-      simdata_rats %>%
-        mutate(dataset = rep("Rodents", nrow(.)))) %>%
+over_under =
+  rbind(simdata %>%
+          mutate(dataset = rep("Herbs", nrow(.))),
+        simdata_frogs %>%
+          mutate(dataset = rep("Tadpoles", nrow(.))),
+        simdata_panama %>%
+          mutate(dataset = rep("Trees", nrow(.))),
+        simdata_rats %>%
+          mutate(dataset = rep("Rodents", nrow(.)))) %>%
   filter(sample_size < 26 &
            sample_size > 8) %>%
   mutate(overunder = ifelse(true_value < estimate,
@@ -838,4 +844,38 @@ rbind(simdata %>%
   group_by(dataset, moment, method, overunder) %>%
   count() %>%
   group_by(dataset, moment, method) %>%
-  filter(n == max(n))
+  filter(n == max(n)) %>%
+  mutate(x = ifelse(overunder == "under",
+                    -0.7,
+                    0.7))
+
+inset = 
+ggplot(over_under) +
+  geom_col(aes(x = x,
+               y = method,
+               fill = method),
+           alpha = 0.5,
+           show.legend = FALSE) +
+  facet_grid(rows = vars(dataset),
+             cols = vars(moment),
+             labeller = labeller(
+               trait = traits_parsed,
+               .default = capitalize
+             ),
+             switch = 'y')  + 
+  geom_segment(aes(x = 0,
+                   yend = 4.5,
+                   y = 0.5, xend = 0),
+             colour = 'grey96',
+             size = 0.7) +
+  scale_fill_manual(values = pal_df$c,
+                    breaks = pal_df$l) +
+  lims(x = c(-4,4)) + 
+  expand_limits(y= c(-9, 11)) +
+  # Theme
+  theme_void() +
+  theme(
+    strip.text = element_blank()
+  )
+
+
