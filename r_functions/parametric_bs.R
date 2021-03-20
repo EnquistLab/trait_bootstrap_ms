@@ -13,7 +13,7 @@
 #' @importFrom stats var 
 #' @importFrom e1071 skewness kurtosis
 #' @export
-trait_parametric_bootstrap <- function( imputed_traits, 
+trait_parametric_bootstrap_individuals <- function( imputed_traits, 
                                        distribution_type, 
                                        nrep = 100, 
                                        samples_per_abundance = 1 ){

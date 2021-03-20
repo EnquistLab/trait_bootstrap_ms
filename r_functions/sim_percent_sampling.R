@@ -5,7 +5,7 @@
 #'@param nsamples Number of trait samples per species per plot.
 #'@param n_reps_boot is the number of bootstrap replicates to use
 #'@note This simple little function isn't very general and currently assumes normal distributions.
-sim_percent_sampling <- function(traits, community, nreps=10, nsamples = 10, n_reps_boot=200){
+sim_percent_sampling <- function(traits, community, nreps = 10, nsamples = 10, n_reps_boot = 200){
   
   output <- NULL
   
@@ -24,11 +24,14 @@ sim_percent_sampling <- function(traits, community, nreps=10, nsamples = 10, n_r
     
   # calculate values and record
   #Get species mean traits
-  species_means_nt <- samples_to_means(tidy_traits = traits_nt,level = "taxon")
+  species_means_nt <- samples_to_means(tidy_traits = traits_nt,
+                                       level = "taxon")
+  
   species_means_nt$site <- "ALL" #Note: adding a "dummy" site here so traitstrap will use global data but still return site-level moments
   
   #Get species x site mean traits
-  species_site_means_nt <- samples_to_means(tidy_traits = traits_nt,level = "taxon_by_site")
+  species_site_means_nt <- samples_to_means(tidy_traits = traits_nt,
+                                            level = "taxon_by_site")
   
   #Trait imputation for distributions
   imputed_full <- 
@@ -105,13 +108,17 @@ sim_percent_sampling <- function(traits, community, nreps=10, nsamples = 10, n_r
     trait_summarise_boot_moments(bootstrap_moments = pbs_results_nt)
 
 
-  sample_sizes_t <- community_nt %>% group_by(site) %>% summarise(sum_abd = sum(abundance), ntaxa= length(abundance))
+  sample_sizes_t <- 
+    community_nt %>%
+    group_by(site) %>%
+    summarise(sum_abd = sum(abundance), ntaxa= length(abundance))
 
 
   output_t <- rbind(cbind(method = "nonparametric bs", sample_size = nsamples, np_results_nt),
                     cbind(method = "parametric bs", sample_size = nsamples, pbs_results_nt),
                     cbind(method = "global cwm", sample_size = nsamples, cwm_species_results_nt),
                     cbind(method = "site-specic CWM", sample_size = nsamples, cwm_species_x_site_results_nt))
+  
   output_t <- merge(output_t, sample_sizes_t)
   output_t$replicate <- i
   
@@ -135,42 +142,26 @@ sim_percent_sampling <- function(traits, community, nreps=10, nsamples = 10, n_r
   
   
   #Now update the community_nt and traits objects by removing the least common species
-  community_nt  %>% group_by(site) %>%summarise(taxon=taxon[rand.min(abundance)]) -> to_toss
+  to_toss <- community_nt %>%
+    group_by(site) %>%
+    summarise(taxon=taxon[rand.min(abundance)]) 
   
   #remove the "to toss" species from the community_nt and trait data
   
   community_nt %>% anti_join(to_toss) -> community_nt
   
   traits_nt %>% anti_join(to_toss) -> traits_nt
-  
-  
-  
+
   
   }#while loop
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-      
+
     
   }# i loop  
 
   
-  
-  
   #Append percent community sampled to output
   output %>% group_by(site) %>% mutate(pct_abd_sampled = sum_abd/max(sum_abd)*100)-> output 
 
-  
-  
   #Calculate true moment
   traits %>% group_by(site,trait) %>% summarise(true_mean=mean(value),
                                                  true_variance=var(value),
@@ -234,12 +225,9 @@ sim_percent_sampling <- function(traits, community, nreps=10, nsamples = 10, n_r
   output$method[which(output$method=="parametric bs")] <- "Parametric BS"
   
   output$method <- ordered(output$method,levels = c("Cross-Site CWM","Site-Specific CWM","Parametric BS","Non-Parametric BS"))
-  
-  
+
   return(output)
-  
-  
-  
+
 } #fx
 
 
