@@ -840,14 +840,20 @@ over_under =
            sample_size > 8) %>%
   mutate(overunder = ifelse(true_value < estimate,
                             "over",
-                            "under")) %>%
+                            "under"),
+         deviation = ifelse(estimate > true_value,
+                            estimate - true_value,
+                            true_value - estimate)) %>%
   group_by(dataset, moment, method, overunder) %>%
-  count() %>%
+  summarise(dev = mean(deviation),
+            tally = n()) %>%
   group_by(dataset, moment, method) %>%
-  filter(n == max(n)) %>%
+  filter(tally == max(tally)) %>%
+  group_by(dataset, moment, overunder) %>%
+  mutate(x = dev/max(dev)) %>%
   mutate(x = ifelse(overunder == "under",
-                    -0.7,
-                    0.7))
+                    -1*x,
+                    x))
 
 inset = 
 ggplot(over_under) +
@@ -870,7 +876,7 @@ ggplot(over_under) +
              size = 0.7) +
   scale_fill_manual(values = pal_df$c,
                     breaks = pal_df$l) +
-  lims(x = c(-4,4)) + 
+  lims(x = c(-5,5)) + 
   expand_limits(y= c(-9, 11)) +
   # Theme
   theme_void() +
