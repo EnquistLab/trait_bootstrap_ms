@@ -678,9 +678,9 @@ sim_doughnuts_all =
           mutate(dataset = rep("Rodents", nrow(.)))) %>%
   filter(sample_size < 26 &
            sample_size > 8) %>%
-  mutate(diff = ifelse(estimate >= true_value,
-                       estimate - true_value,
-                       true_value - estimate),
+  mutate(diff = ifelse(abs(estimate) > abs(true_value),
+                       abs(estimate) - abs(true_value),
+                       abs(true_value) - abs(estimate)),
          hit = ifelse(ci_low <= true_value & true_value <= ci_high,
                       2,
                       1))%>%
@@ -841,9 +841,9 @@ over_under =
   mutate(overunder = ifelse(true_value < estimate,
                             "over",
                             "under"),
-         deviation = ifelse(estimate > true_value,
-                            estimate - true_value,
-                            true_value - estimate)) %>%
+         deviation = ifelse(abs(estimate) > abs(true_value),
+                            abs(estimate) - abs(true_value),
+                            abs(true_value) - abs(estimate))) %>%
   group_by(dataset, moment, method, overunder) %>%
   summarise(dev = mean(deviation),
             tally = n()) %>%
