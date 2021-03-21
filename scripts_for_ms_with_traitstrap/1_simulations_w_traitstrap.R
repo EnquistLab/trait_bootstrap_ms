@@ -425,6 +425,37 @@ saveRDS(object = merged_cwm)
 
 
 ###############################################################################
+
+#Bootstrap sample size and method
+
+#Sample size (of bootstrap sample) vs method and moment
+
+#Should also incorporate the Older version of parametric bs
+
+source("r_functions/sim_boot_size.R")
+
+boot_sample_output <-
+  sim_boot_size(tidy_traits = atraits,
+                community = community,
+                n_to_sample = (1:22)^2,
+                n_reps_trait = 10,
+                n_reps_boot = 200,
+                boot_sample_size = c(200, 400, 800, 1600, 3200),
+                seed = 2005)
+
+saveRDS(object = boot_sample_output,
+        file = "output_data/bootstrap_sample_size_and_method_sims.RDS")
+
+
+
+
+
+
+
+
+
+
+############################################################################
 #Global vs local should be a separate simulation 
 
   # Using "best guess" means
