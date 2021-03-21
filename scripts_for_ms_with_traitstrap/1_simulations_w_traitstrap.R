@@ -351,6 +351,7 @@ saveRDS(object = treefrog_output,
 #Convert all of the trait to means
 colorado_means <- samples_to_means(tidy_traits = atraits,
                                  level = "taxon")
+
 colorado_means$site <- "ALL" #Note: adding a "dummy" site here so traitstrap will use global data but still return site-level moments
 
 imputed_species_mean <- 
@@ -374,57 +375,67 @@ bootstrap_cwm <- trait_np_bootstrap(imputed_traits = imputed_species_mean,
 
 bootstrap_cwm <- trait_summarise_boot_moments(bootstrap_moments = bootstrap_cwm)
 
-colnames(bootstrap_cwm)
-colnames(cwm_estimates)
-
 cwm_estimates <- cwm_estimates[c("site","trait","mean","variance","skewness","kurtosis")]
-cwm_estimates$method <- "traditional CWM"
-bootstrap_cwm <- bootstrap_cwm %>% ungroup() %>% 
-  mutate(variance = var, skewness = skew, kurtosis = kurt, method = "bootstrap CWM") %>% 
-  select(colnames(cwm_estimates))
+cwm_estimates <- cwm_estimates %>% 
+  pivot_longer(cols = c(mean,variance,skewness,kurtosis),
+               names_to = "moment",
+               values_to = "traditional_CWM")
 
-merged_cwm <- rbind(cwm_estimates,bootstrap_cwm)
+bootstrap_cwm <- bootstrap_cwm %>% ungroup() %>% 
+  mutate(variance = var, skewness = skew, kurtosis = kurt, method = "bootstrap CWM")
 
 bootstrap_cwm <- bootstrap_cwm %>% 
-  mutate(mean_bootsrapped = mean,
-         variance_bootstrapped = variance,
-         skewness_bootstrapped = skewness,
-         kurtosis_bootstrapped = kurtosis)
+  pivot_longer(cols = c(mean,variance,skewness,kurtosis),
+               names_to = "moment",
+               values_to = "bootstrap_CWM")
 
+cwm_comparison <- merge(cwm_estimates,bootstrap_cwm)
 
+cwm_comparison <- cwm_comparison %>% 
+  select(c(site,trait,moment,traditional_CWM, bootstrap_CWM))
 
-plot(merged_cwm$mean.x ~ merged_cwm$mean.y,
-     xlab = "Bootstrapped Community Weighted Mean",
-     ylab = "Traditional Community Weighted Mean")
-abline(a = 0,b = 1)
+ggplot(data = cwm_comparison,aes(x= traditional_CWM,y=bootstrap_CWM))+
+  geom_point()+
+  facet_wrap(moment ~ trait, scales = "free")+
+  geom_abline(slope = 1,intercept = 0)
 
-plot(merged_cwm$variance ~ merged_cwm$var,
-     xlab = "Bootstrapped Community Weighted Variance",
-     ylab = "Traditional Community Weighted Variance")
-abline(a = 0,b = 1)
+cor.test(cwm_comparison$traditional_CWM,cwm_comparison$bootstrap_CWM)
 
-plot(merged_cwm$skewness ~ merged_cwm$skew,
-     xlab = "Bootstrapped Community Weighted Skewness",
-     ylab = "Traditional Community Weighted Skewness")
-abline(a = 0,b = 1)
-
-
-plot(merged_cwm$kurtosis ~ merged_cwm$kurt,
-     xlab = "Bootstrapped Community Weighted Kurtosis",
-     ylab = "Traditional Community Weighted Kurtosis")
-abline(a = 0,b = 1)
-
-
-cor.test(merged_cwm$mean.x,merged_cwm$mean.y)
-cor.test(merged_cwm$variance,merged_cwm$var)
-cor.test(merged_cwm$skewness,merged_cwm$skew)
-cor.test(merged_cwm$kurtosis,merged_cwm$kurt)
-
-saveRDS(object = merged_cwm)
-
+saveRDS(object = cwm_comparison, file = "output_data/CWM_methods_comparison.RDS")
 
 
 ###############################################################################
+
+#Bootstrap sample size and method
+
+#Sample size (of bootstrap sample) vs method and moment
+
+#Should also incorporate the Older version of parametric bs
+
+source("r_functions/sim_boot_size.R")
+
+boot_sample_output <-
+  sim_boot_size(tidy_traits = atraits,
+                community = community,
+                n_to_sample = (1:22)^2,
+                n_reps_trait = 10,
+                n_reps_boot = 200,
+                boot_sample_size = c(200, 400, 800, 1600, 3200),
+                seed = 2005)
+
+saveRDS(object = boot_sample_output,
+        file = "output_data/bootstrap_sample_size_and_method_sims.RDS")
+
+
+
+
+
+
+
+
+
+
+############################################################################
 #Global vs local should be a separate simulation 
 
   # Using "best guess" means
