@@ -856,7 +856,7 @@ over_under =
                     x))
 
 inset = 
-ggplot(over_under) +
+  ggplot(over_under) +
   geom_col(aes(x = x,
                y = method,
                fill = method),
@@ -872,8 +872,8 @@ ggplot(over_under) +
   geom_segment(aes(x = 0,
                    yend = 4.5,
                    y = 0.5, xend = 0),
-             colour = 'grey96',
-             size = 0.7) +
+               colour = 'grey96',
+               size = 0.7) +
   scale_fill_manual(values = pal_df$c,
                     breaks = pal_df$l) +
   lims(x = c(-5,5)) + 
@@ -885,3 +885,185 @@ ggplot(over_under) +
   )
 
 
+### Doughnut - Panama by trait ----
+
+
+simdata_panama %>%
+  filter(sample_size < 26 &
+           sample_size > 8) %>%
+  group_by(moment, sample_size, site, trait) %>%
+  count()
+
+sim_radar = 
+  simdata_panama %>%
+  filter(sample_size < 26 &
+           sample_size > 8) %>%
+  mutate(diff = ifelse(estimate >= true_value,
+                       estimate - true_value,
+                       true_value - estimate),
+         hit = ifelse(ci_low <= true_value & true_value <= ci_high,
+                      2,
+                      1)) %>%
+  group_by(trait, moment, sample_size, site) %>%
+  filter(hit == 2) %>%
+  filter(diff == min(diff)) %>%
+  group_by(trait, method, moment) %>%
+  count() %>%
+  group_by(moment, trait) %>%
+  mutate(percentage = n/60) %>%
+  select(-n) %>%
+  mutate(percentage = ifelse(is.na(percentage),
+                             0,
+                             percentage))
+
+sim_win_text =
+  sim_radar %>%
+  group_by(moment, trait) %>%
+  filter(percentage == max(percentage)) %>%
+  mutate(percentage = round(percentage*100))
+
+sim_radar$moment <- factor(sim_radar$moment,
+                           levels = c("mean",
+                                      "variance",
+                                      "skewness",
+                                      "kurtosis"))
+
+sim_radar$method <- factor(sim_radar$method,
+                           levels = c("Cross-Site CWM",
+                                      "Site-Specific CWM",
+                                      "Parametric BS", 
+                                      "Non-Parametric BS"))
+
+sim_win_text$moment <- factor(sim_win_text$moment,
+                              levels = c("mean",
+                                         "variance",
+                                         "skewness",
+                                         "kurtosis"))
+
+sim_win_text$method <- factor(sim_win_text$method,
+                              levels = c("Cross-Site CWM",
+                                         "Site-Specific CWM",
+                                         "Parametric BS", 
+                                         "Non-Parametric BS"))
+
+over_under =
+  simdata_panama %>%
+  filter(sample_size < 26 &
+           sample_size > 8) %>%
+  mutate(overunder = ifelse(true_value < estimate,
+                            "over",
+                            "under"),
+         deviation = ifelse(abs(estimate) > abs(true_value),
+                            abs(estimate) - abs(true_value),
+                            abs(true_value) - abs(estimate))) %>%
+  group_by(trait, moment, method, overunder) %>%
+  summarise(dev = mean(deviation),
+            tally = n()) %>%
+  group_by(trait, moment, method) %>%
+  filter(tally == max(tally)) %>%
+  group_by(trait, moment, overunder) %>%
+  mutate(x = dev/max(dev)) %>%
+  mutate(x = ifelse(overunder == "under",
+                    -1*x,
+                    x))
+
+doughnut = 
+  ggplot(sim_radar) +
+  geom_col(aes(
+    x = 2,
+    y = percentage,
+    fill = method
+  ),
+  colour = 'grey96') +
+  xlim(c(0.7, 2.5)) +
+  ylim(c(0, 1))  +
+  #annotation textboxes
+  geom_text(data = sim_win_text,
+            aes(x = 1.1,
+                y = 0.25,
+                colour = method,
+                label = glue::glue("{percentage}%")),
+            #label = glue::glue("{method} - {percentage}%")),
+            #colour = 'grey90',
+            hjust = 1,
+            show.legend = FALSE,
+            size = 4) +
+  coord_polar(theta = 'y') +
+  facet_grid(rows = vars(trait),
+             cols = vars(moment),
+             labeller = labeller(
+               .default = capitalize
+             ),
+             switch = 'y')  + 
+  scale_fill_manual(guide = guide_legend(title = "Method",
+                                         #nrow = 1,
+                                         title.position="top",
+                                         title.hjust = 0.5),
+                    values = pal_df$c,
+                    breaks = pal_df$l) +
+  scale_colour_manual(guide = guide_legend(title = "Method",
+                                           #nrow = 1,
+                                           title.position="top",
+                                           title.hjust = 0.5),
+                      values = pal_df$c,
+                      breaks = pal_df$l) +
+  # Theme
+  theme_void() +
+  theme(
+    legend.position = "right",
+    legend.title = element_text(size = 14,
+                                colour = "grey65"),
+    plot.background = element_rect(fill = "#141438",
+                                   colour = NA),
+    panel.background = element_rect(fill = "#141438",
+                                    colour = NA),
+    strip.text.x = element_text(margin = margin(0, 0, 10, 0),
+                                size = 16, face = "bold",
+                                colour = "grey70"),
+    strip.text.y.left = element_text(colour = "grey69",
+                                     margin = margin(0, 10, 10, 10),
+                                     angle = 0,
+                                     size = 16),
+    legend.text = element_text(colour = "grey65")
+  )
+
+inset = 
+  ggplot(over_under) +
+  geom_col(aes(x = x,
+               y = method,
+               fill = method),
+           alpha = 0.5,
+           show.legend = FALSE) +
+  facet_grid(rows = vars(trait),
+             cols = vars(moment),
+             labeller = labeller(
+               trait = traits_parsed,
+               .default = capitalize
+             ),
+             switch = 'y')  + 
+  geom_segment(aes(x = 0,
+                   yend = 4.5,
+                   y = 0.5, xend = 0),
+               colour = 'grey96',
+               size = 0.7) +
+  scale_fill_manual(values = pal_df$c,
+                    breaks = pal_df$l) +
+  lims(x = c(-5,5)) + 
+  expand_limits(y= c(-9, 11)) +
+  # Theme
+  theme_void() +
+  theme(
+    strip.text = element_blank()
+  )
+
+
+cowplot::ggdraw(doughnut) +
+  cowplot::draw_plot(inset,
+                     width = 0.7,
+                     height = 0.95,
+                     x = 0.23,
+                     y = 0.05)
+
+ggsave(here::here("figures/WinnerDoughnuts_panama.png"),
+       height = 15, width = 10.4,
+       units = "in", dpi = 300)
