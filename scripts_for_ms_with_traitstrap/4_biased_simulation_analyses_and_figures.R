@@ -38,7 +38,7 @@ overunders =
             tally = n()) %>%
   group_by(moment, method, sample_size) %>%
   filter(tally == max(tally)) %>%
-  group_by(moment, method, overunder) %>%
+  group_by(moment, method) %>%
   mutate(x = dev/max(dev)) %>%
   mutate(x = ifelse(overunder == "under",
                     -1*x,
@@ -105,7 +105,7 @@ inset <-
   geom_segment(aes(y = 0,
                    xend = 6.5,
                    x = 0.5, yend = 0),
-               colour = '#4e5368',
+               fill = '#4e5368',
                size = 0.5) +
   scale_fill_manual(values = pal_df$c,
                     breaks = pal_df$l) +
@@ -223,15 +223,6 @@ ggsave(here::here("figures/moons_biased_directionality.png"),
        units = "in", dpi = 300)
 
 ### Transition plots - accuracy & directionality of moments - 'global' ----
-
-annotation_custom2 <- function (grob, xmin = -Inf, xmax = Inf, ymin = -Inf, ymax = Inf, data) 
-{
-  layer(data = data, stat = StatIdentity, position = PositionIdentity, 
-        geom = ggplot2:::GeomCustomAnn,
-        inherit.aes = TRUE, params = list(grob = grob, 
-                                          xmin = xmin, xmax = xmax, 
-                                          ymin = ymin, ymax = ymax))
-}
 
 
 #### All traits combined
