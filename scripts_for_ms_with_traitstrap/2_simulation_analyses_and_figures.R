@@ -293,7 +293,7 @@ ggplot(sim_radar) +
   colour = 'grey96',
   size = 0.1,
   show.legend = FALSE) +
-  xlim(c(0.7, 11)) +
+  xlim(c(0.7, 5)) +
   ylim(c(0, 1))  +
   #annotation textboxes
   coord_polar(theta = 'y') +

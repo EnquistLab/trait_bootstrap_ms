@@ -18,24 +18,36 @@ cwm_corr =
   group_by(trait, moment) %>%
   summarise(corr = sprintf('%.2f',(summary(lm(bootstrap_CWM~traditional_CWM))$r.squared)))
 
+cwm_methods$moment <- factor(cwm_methods$moment,
+                             levels = c("mean",
+                                        "variance",
+                                        "skewness",
+                                        "kurtosis"))
+
+cwm_corr$moment <- factor(cwm_corr$moment,
+                             levels = c("mean",
+                                        "variance",
+                                        "skewness",
+                                        "kurtosis"))
+
 ggplot(cwm_methods) +
   geom_abline(aes(slope = 1, 
                   intercept = 0),
               colour = "grey69") +
-  geom_point(aes(x = log(abs(traditional_CWM)),
-                 y = log(abs(bootstrap_CWM))),
+  geom_point(aes(x = log10(abs(traditional_CWM)),
+                 y = log10(abs(bootstrap_CWM))),
              colour = "grey69",
              fill = pal_df$c[1],
              shape = 21,
              size = 2) +
   geom_textbox(data = cwm_corr,
-            aes(x = min(log(abs(cwm_methods$traditional_CWM))),
-                y = max(log(abs(cwm_methods$bootstrap_CWM))),
-                label = glue::glue("R^2 = {corr}")),
-            hjust = 0,
-            vjust = 1,
-            width = unit(0.27, "npc"),
-            family = "Noto") +
+               aes(x = min(log10(abs(cwm_methods$traditional_CWM))),
+                   y = max(log10(abs(cwm_methods$bootstrap_CWM))),
+                   label = glue::glue("R^2 = {corr}")),
+               hjust = 0,
+               vjust = 1,
+               width = unit(0.27, "npc"),
+               family = "Noto") +
   facet_grid(rows = vars(trait),
              cols = vars(moment),
              labeller = labeller(
@@ -46,8 +58,8 @@ ggplot(cwm_methods) +
   labs(x = "Traditional CWM; log-transformed",
        y = "Bootstrapped CWM; log-transformed") +
   figure_theme +
-  theme(axis.text.y = element_text(size = 8),
-        axis.text.x = element_text(size = 8),
+  theme(axis.text.y = element_text(size = 9),
+        axis.text.x = element_text(size = 9),
         plot.background = element_rect(fill = "#141438",
                                        colour = NA),
         legend.background = element_rect(fill = "#141438",
