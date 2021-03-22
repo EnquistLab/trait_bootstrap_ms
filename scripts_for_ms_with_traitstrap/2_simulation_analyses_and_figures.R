@@ -207,6 +207,7 @@ simdata_lollipop$moment <- factor(simdata_lollipop$moment,
 
 #TODO clean labelling
 
+lollipop = 
 ggplot(simmeans) + 
   geom_vline(aes(xintercept = 0), 
              color = "grey50",
@@ -251,7 +252,7 @@ ggplot(simmeans) +
   scale_size_discrete(guide = guide_legend(title = "Value in CI"),
              range = c(1, 2)) +
   labs(
-    x = "Estimated Value",
+    x = "Deviation from true value",
     y = NULL
   ) +
   #guides(size = 'none') +
@@ -281,6 +282,54 @@ ggplot(simmeans) +
         axis.ticks.y = element_blank(),
         legend.title = element_text(colour = "grey65"),
         legend.position = 'bottom')
+
+inset = 
+ggplot(sim_radar) +
+  geom_col(aes(
+    x = 2,
+    y = percentage,
+    fill = method
+  ),
+  colour = 'grey96',
+  size = 0.1,
+  show.legend = FALSE) +
+  xlim(c(0.7, 11)) +
+  ylim(c(0, 1))  +
+  #annotation textboxes
+  coord_polar(theta = 'y') +
+  facet_grid(rows = vars(trait),
+             cols = vars(moment),
+             labeller = labeller(
+               trait = traits_parsed,
+               .default = capitalize
+             ),
+             switch = 'y')  + 
+  scale_fill_manual(guide = guide_legend(title = "Method",
+                                         #nrow = 1,
+                                         title.position="top",
+                                         title.hjust = 0.5),
+                    values = pal_df$c,
+                    breaks = pal_df$l) +
+  scale_colour_manual(guide = guide_legend(title = "Method",
+                                           #nrow = 1,
+                                           title.position="top",
+                                           title.hjust = 0.5),
+                      values = pal_df$c,
+                      breaks = pal_df$l) +
+  # Theme
+  theme_void() +
+  theme(
+    strip.text = element_blank()
+  )
+
+
+cowplot::ggdraw(lollipop) +
+  cowplot::draw_plot(inset,
+                     width = 0.9,
+                     height = 0.5,
+                     x = 0.2,
+                     y = 0.1)
+
 
 ggsave(here::here("figures/Lollipops_deviation.png"),
        height = 9, width = 14,
