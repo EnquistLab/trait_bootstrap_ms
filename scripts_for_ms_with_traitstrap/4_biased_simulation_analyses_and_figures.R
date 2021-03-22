@@ -27,7 +27,7 @@ simdata_rats <-
 overunders = 
   simdata %>%
   filter(sample_size %in% c(1,9,49,100,196,441))  %>%
-  mutate(overunder = ifelse(true_value < estimate,
+  mutate(overunder = ifelse(true_value <= estimate,
                             "over",
                             "under"),
          deviation = ifelse(abs(estimate) > abs(true_value),
@@ -105,7 +105,7 @@ inset <-
   geom_segment(aes(y = 0,
                    xend = 6.5,
                    x = 0.5, yend = 0),
-               fill = '#4e5368',
+               colour = '#4e5368',
                size = 0.5) +
   scale_fill_manual(values = pal_df$c,
                     breaks = pal_df$l) +

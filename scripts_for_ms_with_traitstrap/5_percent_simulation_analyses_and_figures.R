@@ -311,19 +311,10 @@ moons <-
   geom_hline(aes(yintercept = 0),
              color = "grey50",
              size = 1.5) +
-  # geom_hline(data = sim_moon_means %>%
-  #              filter(sample_size == 9),
-  #            aes(yintercept = deviation,
-  #                linetype = "Optimal"),
-  #            color = "grey50",
-  #            size = 0.5) +
   geom_smooth(
     data = rodent_percent %>%
       #if true value falls in estimate's CI
       filter(estimate != is.na(estimate)) %>%
-      mutate(hit = ifelse(ci_low <= true_value & true_value <= ci_high,
-                          2,
-                          1)) %>%
       group_by(method, moment, pct_abd_sampled) %>%
       #calcualte proportion of 'hits' per trait, methods, moment
       summarise(deviation = mean(ifelse(abs(estimate) > abs(true_value),
@@ -350,7 +341,7 @@ moons <-
     y = deviation,
     color = method
   ),
-  size = 3,
+  size = 3.5,
   alpha = 0.9) +
   geom_moon(aes(
     x = pct_abd_sampled,
@@ -360,11 +351,11 @@ moons <-
     fill = method
   ),
   color = "transparent",
-  size = 3) +
+  size = 3.5) +
   scale_fill_manual(guide = guide_legend(title = "Method",
                                          #nrow = 1,
                                          title.position="top"),
-                    values = colorspace::darken(pal_df$c, amount = 0.2),
+                    values = colorspace::darken(pal_df$c, amount = 0.25),
                     labels = pal_df$l) +
   scale_colour_manual(guide = guide_legend(title = "Method",
                                            #nrow = 1,
@@ -419,7 +410,7 @@ inset =
              ),
              switch = 'y')  + 
   geom_segment(aes(y = 0,
-                   xend = 7.5,
+                   xend = 9.5,
                    x = 0.5, yend = 0),
                colour = '#4e5368',
                size = 0.5) +
