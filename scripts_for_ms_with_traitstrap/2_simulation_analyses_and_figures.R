@@ -147,6 +147,149 @@ ggsave(here::here("figures/Lollipops_All.png"),
 
 
 
+
+### Accuracy but using absolutes ----
+
+#All traits
+
+simmeans = 
+  simdata %>%
+  filter(sample_size == 9) %>%
+  mutate(overunder = ifelse(true_value <= estimate,
+                            "over",
+                            "under"),
+         deviation = ifelse(estimate > true_value,
+                            abs(estimate - true_value),
+                            abs(true_value - estimate))) %>%
+  mutate(deviation = ifelse(overunder == "over",
+                            deviation,
+                            -deviation))  %>%
+  group_by(trait, moment, method) %>%
+  summarise(estimate = mean(deviation)) %>%
+  mutate(facet_lab = paste0(moment,"_",trait))
+
+simdata_lollipop =
+  simdata %>%
+  filter(sample_size == 9) %>%
+  mutate(overunder = ifelse(true_value <= estimate,
+                            "over",
+                            "under"),
+         deviation = ifelse(estimate > true_value,
+                            abs(estimate - true_value),
+                            abs(true_value - estimate)),
+         hit = ifelse(ci_low <= true_value & true_value <= ci_high,
+                      'Yes',
+                      'No'),
+         shape = ifelse(ci_low <= true_value & true_value <= ci_high,
+                      21,
+                      24)) %>%
+  mutate(deviation = ifelse(overunder == "over",
+                            deviation,
+                            -deviation)) %>%
+  mutate(facet_lab = paste0(moment,"_",trait)) #%>%
+# group_by(trait, moment, method, site, sample_size) %>%
+# slice_sample(n = 20)
+
+#re-order to match moment 'numbers'
+simmeans$moment <- factor(simmeans$moment,
+                          levels = c("mean",
+                                     "variance",
+                                     "skewness",
+                                     "kurtosis"))
+
+
+simdata_lollipop$moment <- factor(simdata_lollipop$moment,
+                                  levels = c("mean",
+                                             "variance",
+                                             "skewness",
+                                             "kurtosis"))
+
+
+#TODO clean labelling
+
+ggplot(simmeans) + 
+  geom_vline(aes(xintercept = 0), 
+             color = "grey50",
+             size = 1) +
+  geom_jitter(data = simdata_lollipop,
+              aes(x = deviation, 
+                  y = method, 
+                  fill = method,
+                  size = hit), 
+              color = "grey85", 
+              width = 0, height = 0.2, shape = 21, alpha = 0.3) +
+  geom_segment(data = simmeans,
+               aes(x = 0, 
+                   xend = estimate, 
+                   y = method, 
+                   yend = method), 
+               color = "grey50", 
+               size = 0.5) +
+  geom_point(data = simmeans,
+             aes(x = estimate, 
+                 y = method),
+             color = "grey50", size = 3) + 
+  geom_point(data = simmeans,
+             aes(x = estimate, 
+                 y = method,
+                 color = method), 
+             size = 2) +
+  facet_grid(rows = vars(trait),
+             cols = vars(moment),
+             labeller = labeller(
+               trait = traits_parsed,
+               .default = capitalize
+             ),
+             switch = 'y',
+             scales = 'free')  + 
+  scale_fill_manual(guide = guide_legend(title = "Method"),
+                    values = pal_df$c,
+                    breaks = pal_df$l) +
+  scale_colour_manual(guide = guide_legend(title = "Method"),
+                      values = pal_df$c,
+                      breaks = pal_df$l) +
+  scale_size_discrete(guide = guide_legend(title = "Value in CI"),
+             range = c(1, 2)) +
+  labs(
+    x = "Estimated Value",
+    y = NULL
+  ) +
+  #guides(size = 'none') +
+  figure_theme +
+  theme(axis.text.y = element_blank(),
+        axis.text.x = element_text(size = 8),
+        plot.background = element_rect(fill = "#141438",
+                                       colour = NA),
+        legend.background = element_rect(fill = "#141438",
+                                         colour = NA),
+        panel.background = element_rect(fill = "#141438",
+                                        colour = 'grey69'),
+        strip.text.y = element_text(margin = margin(0, 0, 10, 0),
+                                    size = 14, face = "bold",
+                                    colour = "grey65"),
+        strip.text.x.top = element_text(margin = margin(0, 0, 10, 0),
+                                        size = 12, face = "bold",
+                                        colour = "grey65"),
+        panel.grid.major.y = element_line(size = 0.05,
+                                          colour = "grey65"),
+        legend.key = element_blank(),
+        legend.text = element_text(colour = "grey65"),
+        axis.title = element_text(colour = "grey65"),
+        strip.background = element_blank(),
+        axis.line = element_blank(),
+        strip.placement = 'outside',
+        axis.ticks.y = element_blank(),
+        legend.title = element_text(colour = "grey65"),
+        legend.position = 'bottom')
+
+ggsave(here::here("figures/Lollipops_deviation.png"),
+       height = 9, width = 14,
+       units = "in", dpi = 300)
+
+
+
+
+
 ### Accuracy Across datasets (creative) ----
 
 #All traits
