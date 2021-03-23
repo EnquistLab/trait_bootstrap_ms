@@ -598,7 +598,7 @@ sim_win_text$method <- factor(sim_win_text$method,
                                          "Parametric BS", 
                                          "Non-Parametric BS"))
 
-
+doughnut_CO = 
 ggplot(sim_radar) +
   geom_col(aes(
     x = 2,
@@ -656,12 +656,63 @@ ggplot(sim_radar) +
                                      margin = margin(0, 10, 10, 10),
                                      angle = 0,
                                      size = 16),
-    legend.text = element_text(colour = "grey65")
+    legend.text = element_text(colour = "grey65"),
+    plot.margin = margin(15, 15, 10, 15)
   )
 
+over_under =
+  simdata  %>%
+  filter(sample_size < 26 &
+           sample_size > 8) %>%
+  group_by(trait, moment, method, overunder) %>%
+  summarise(dev = mean(abs(deviation)),
+            tally = n()) %>%
+  group_by(trait, moment, method) %>%
+  filter(tally == max(tally)) %>%
+  group_by(trait, moment, overunder) %>%
+  mutate(x = dev/max(dev)) %>%
+  mutate(x = ifelse(overunder == "under",
+                    -1*x,
+                    x))
+
+inset = 
+  ggplot(over_under) +
+  geom_col(aes(x = x,
+               y = method,
+               fill = method),
+           alpha = 0.5,
+           show.legend = FALSE) +
+  facet_grid(rows = vars(trait),
+             cols = vars(moment),
+             labeller = labeller(
+               trait = traits_parsed,
+               .default = capitalize
+             ),
+             switch = 'y')  + 
+  geom_segment(aes(x = 0,
+                   yend = 4.5,
+                   y = 0.5, xend = 0),
+               colour = 'grey96',
+               size = 0.7) +
+  scale_fill_manual(values = pal_df$c,
+                    breaks = pal_df$l) +
+  lims(x = c(-5,5)) + 
+  expand_limits(y= c(-9, 11)) +
+  # Theme
+  theme_void() +
+  theme(
+    strip.text = element_blank()
+  )
+
+cowplot::ggdraw(doughnut_CO) +
+  cowplot::draw_plot(inset,
+                     width = 0.74,
+                     height = 0.925,
+                     x = 0.185,
+                     y = 0.085)
 
 ggsave(here::here("figures/WinnerDoughnuts.png"),
-       height = 10, width = 10.4,
+       height = 9.8, width = 10.4,
        units = "in", dpi = 300)
 
 
