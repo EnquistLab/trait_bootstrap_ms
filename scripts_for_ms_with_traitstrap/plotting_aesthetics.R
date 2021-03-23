@@ -36,8 +36,8 @@ figure_theme =
       legend.key = element_blank(),
       legend.text = element_text(color = "grey65"),
       legend.title = element_text(color = "grey65"),
-      text = element_text(family = "Noto") #font change
-      )
+      text = element_text(family = "Noto"), #font change
+      plot.margin = margin(25, 25, 10, 25))
 
 ##Colour palete
 colors <- c("Cross-Site CWM" = "#F235B0",
