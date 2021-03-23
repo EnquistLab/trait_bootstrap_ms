@@ -404,6 +404,27 @@ ggpubr::ggarrange(moons_co,
 
 library(patchwork)
 
+moon_legend = 
+  ggplot(data.frame(y = c(1,2.5,4,5.5), 
+                    x = 0, ratio = 1:4 * 0.25),
+         aes(x = x, y = y)) +
+  geom_moon(aes(ratio = ratio), size = 5, fill = "grey69", colour = "grey69") +
+  geom_text(aes(x = x + 2,
+                label = paste0(ratio*100,"%")),
+            size = 3,
+            colour = "grey65",
+            family = "Noto") +
+  coord_fixed() +
+  ggtitle("Value in CI") +
+  lims(y = c(0.5, 6), x = c(-2, 6)) +
+  theme_void() +
+  theme(plot.title = element_markdown(hjust = 0.5,
+                                      halign = 0,
+                                      size = rel(1.05)),
+        plot.title.position = "panel",
+        text = element_text(colour = "grey65",
+                            family = "Noto"))
+
 (moons_co +
   labs(title = "A: Herbs") + 
   theme(plot.title.position = 'plot',
@@ -433,7 +454,7 @@ library(patchwork)
                 left = 0.81, 
                 bottom = 0.28, 
                 right = 0.92, 
-                top = 0.48,
+                top = 0.4,
                 align_to = 'full')
 
 ggsave(here::here("figures/moons_pct_abund_AB.png"),
