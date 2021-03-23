@@ -325,7 +325,8 @@ simmeans$dataset <- factor(simmeans$dataset,
 
 #TODO clean labelling
 
-ggplot(simmeans) + 
+lollipop_all = 
+  ggplot(simmeans) + 
   geom_vline(aes(xintercept = 0), 
              color = "grey50",
              size = 1) +
@@ -821,7 +822,8 @@ img2 = png::readPNG("images/Frogs.png")
 img3 = png::readPNG("images/Panama.png")
 img4 = png::readPNG("images/AZ.png")
 
-cowplot::ggdraw(doughnut) +
+doughnut_all = 
+  cowplot::ggdraw(doughnut) +
   cowplot::draw_image(
     img1, x = 0.08, y = 0.89, hjust = 1, vjust = 1, halign = 1, valign = 1,
     width = 0.06
@@ -846,6 +848,66 @@ cowplot::ggdraw(doughnut) +
 
 ggsave(here::here("figures/WinnerDoughnuts_datasets_images.png"),
        height = 8.3, width = 10.4,
+       units = "in", dpi = 300)
+
+### Fig 2 panel ----
+
+inset = 
+  ggplot(over_under) +
+  geom_col(aes(x = x,
+               y = method,
+               fill = method),
+           alpha = 0.5,
+           show.legend = FALSE) +
+  facet_grid(rows = vars(dataset),
+             cols = vars(moment),
+             labeller = labeller(
+               trait = traits_parsed,
+               .default = capitalize
+             ),
+             switch = 'y')  + 
+  geom_segment(aes(x = 0,
+                   yend = 4.5,
+                   y = 0.5, xend = 0),
+               colour = 'grey96',
+               size = 0.7) +
+  scale_fill_manual(values = pal_df$c,
+                    breaks = pal_df$l) +
+  lims(x = c(-8,1)) + 
+  expand_limits(y= c(-12, 8)) +
+  # Theme
+  theme_void() +
+  theme(
+    strip.text = element_blank()
+  )
+
+(plot_spacer() + doughnut +
+   theme(legend.position = 'none') #+
+    # inset_element(inset, 
+    #               left = 0, 
+    #               bottom = 0, 
+    #               right = 1, 
+    #               top = 1) 
+    ) /
+  lollipop_all +
+  theme(
+    strip.text.x = element_text(margin = margin(0, 0, 10, 0),
+                                size = 16, face = "bold",
+                                colour = "grey70"),
+    strip.text.y.left = element_text(colour = "grey69",
+                                     margin = margin(0, 10, 10, 10),
+                                     angle = 0,
+                                     size = 12,
+                                     vjust = 0),
+    legend.text = element_text(colour = "grey65")
+  ) +
+  plot_layout(guides = 'collect',
+              widths = c(1, 1)) +
+  plot_annotation(theme = theme(
+    plot.background = element_rect(fill = "#141438", colour = NA))) 
+
+ggsave(here::here("figures/Fig2_panel.png"),
+       height = 12, width = 14,
        units = "in", dpi = 300)
 
 ### Over Under - across winners ----
