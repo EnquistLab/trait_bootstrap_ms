@@ -22,21 +22,22 @@ trace(grDevices::png, exit = quote({
 
 figure_theme = 
   theme_classic() +
-  theme(panel.grid.minor = element_blank(),
+  theme(
+    panel.grid.minor = element_blank(),
       panel.grid.major.x = element_blank(),
       panel.grid.major.y = element_line(size = 0.1),
       axis.text.x = element_text(size = 11, face = "bold", color = "grey65"),
       axis.title.x = element_text(color = "grey65"),
       axis.text.y = element_text(size = 9, color = "grey65"),
       axis.line = element_blank(),
-      plot.background = element_rect(fill = "#141438"),
-      panel.background = element_rect(fill = "#141438"),
-      legend.background = element_rect(fill = "#141438"),
+      plot.background = element_rect(fill = "#141438", colour = NA),
+      panel.background = element_rect(fill = "#141438", colour = NA),
+      legend.background = element_rect(fill = "#141438", colour = NA),
       legend.position = 'bottom',
       legend.key = element_blank(),
       legend.text = element_text(color = "grey65"),
       legend.title = element_text(color = "grey65"),
-      text = element_text(family = "Noto"), #font change
+      text = element_text(family = "Noto", color = "grey65"), #font change
       plot.margin = margin(25, 25, 10, 25))
 
 ##Colour palete

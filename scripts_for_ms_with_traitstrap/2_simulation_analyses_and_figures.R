@@ -901,52 +901,6 @@ inset =
     strip.text = element_blank()
   )
 
-### Stream - across datasets ----
-
-
-group_size = 
-  rbind(simdata %>%
-          mutate(dataset = rep("Herbs", nrow(.))),
-        simdata_frogs %>%
-          mutate(dataset = rep("Tadpoles", nrow(.))),
-        simdata_panama %>%
-          mutate(dataset = rep("Trees", nrow(.))),
-        simdata_rats %>%
-          mutate(dataset = rep("Rodents", nrow(.)))) %>%
-  distinct(dataset, moment, sample_size, site, trait, hit) %>%
-  group_by(dataset, moment, sample_size, hit) %>%
-  count() %>%
-  rename(grp_mn = n)
-
-stream_wins = 
-rbind(simdata %>%
-        mutate(dataset = rep("Herbs", nrow(.))),
-      simdata_frogs %>%
-        mutate(dataset = rep("Tadpoles", nrow(.))),
-      simdata_panama %>%
-        mutate(dataset = rep("Trees", nrow(.))),
-      simdata_rats %>%
-        mutate(dataset = rep("Rodents", nrow(.)))) %>%
-  mutate(deviation = ifelse(abs(estimate) > abs(true_value),
-                            abs(estimate) - abs(true_value),
-                            abs(true_value) - abs(estimate))) %>%
-  group_by(dataset, moment, sample_size, site, hit, trait) %>%
-  filter(deviation == min(deviation)) %>%
-  group_by(dataset, method, moment, hit, sample_size) %>%
-  count()  %>%
-  left_join(.,
-            group_size) %>%
-  mutate(percentage = n/grp_mn)
-
-ggplot(stream_wins) +
-ggstream::geom_stream(aes(x = sample_size,
-                          y = percentage,
-                          fill = method)) +
-  facet_grid(rows = vars(dataset)) +
-  scale_x_continuous(trans = 'sqrt', breaks = c(0,10,50,100,200,500),
-                     limits = c(0, 500))
-  theme_void()
-
 ### Doughnut - Panama by trait ----
 
 
