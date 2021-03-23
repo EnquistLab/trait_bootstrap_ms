@@ -49,6 +49,18 @@ sim_moon_means =
   summarise(percentage = sum(hit - 1)/n(),
             deviation = mean(abs(deviation)))
 
+sim_ci =
+  simdata %>%
+  mutate(ci_low_dev = abs(deviation) - ifelse(abs(ci_low) < abs(estimate),
+                                              abs(estimate) - abs(ci_low),
+                                              abs(ci_low) - abs(estimate)),
+         ci_high_dev = abs(deviation) + ifelse(abs(ci_high) < abs(estimate),
+                                               abs(estimate) - abs(ci_high),
+                                               abs(ci_high) - abs(estimate))) %>%
+  group_by(moment, method, sample_size) %>%
+  summarise(ci_low_dev = mean(ci_low_dev),
+            ci_high_dev = mean(ci_high_dev))
+
 sim_biased_moon_means =
   simdata_biased %>%
   #if true value falls in estimate's CI
@@ -58,7 +70,7 @@ sim_biased_moon_means =
   group_by(method, moment, sample_size) %>%
   #calcualte proportion of 'hits' per trait, methods, moment
   summarise(percentage = sum(hit - 1)/n(),
-            deviation = mean(mean(abs(deviation))))
+            deviation = mean(abs(deviation)))
 
 sim_biased_moon_means$moment =
   ordered(sim_biased_moon_means$moment,levels = c("mean",
@@ -109,20 +121,24 @@ inset <-
 
 
 moons <-
-  ggplot(sim_moon_means %>%
-           filter(sample_size %in% c(1,9,49,100,196,441))) +
+ggplot(sim_moon_means %>%
+         filter(sample_size %in% c(1,9,49,100,196,441))) +
   geom_hline(aes(yintercept = 0),
              color = "grey50",
              size = 1.5) +
-  geom_smooth(aes(
-    x = sample_size,
-    y = sim_biased_moon_means %>%
-      filter(sample_size %in% c(1,9,49,100,196,441)) %>%
-      pull(deviation),
-    color = method,
-    linetype = "Biased"),
-    se = FALSE,
-    size = 0.4) +
+  geom_ribbon(data = sim_ci,
+              aes(x = sample_size,
+                  ymax = ci_high_dev,
+                  ymin = ci_low_dev,
+                  fill = method)) +
+  geom_smooth(data = sim_biased_moon_means,
+              aes(
+                x = sample_size,
+                y = deviation,
+                color = method,
+                linetype = "Biased"),
+              se = FALSE,
+              size = 0.4) +
   geom_smooth(aes(
     x = sample_size,
     y = deviation ,
@@ -142,18 +158,15 @@ moons <-
     x = sample_size,
     y = deviation,
     ratio = percentage,
-    #right = right,
     fill = method
   ),
   color = "transparent",
   size = 5) +
   scale_fill_manual(guide = guide_legend(title = "Method",
-                                         #nrow = 1,
                                          title.position="top"),
                     values = colorspace::darken(pal_df$c, amount = 0.2),
                     labels = pal_df$l) +
   scale_colour_manual(guide = guide_legend(title = "Method",
-                                           #nrow = 1,
                                            title.position="top"),
                       values = colorspace::lighten(pal_df$c, amount = 0.6),
                       labels = pal_df$l) +
