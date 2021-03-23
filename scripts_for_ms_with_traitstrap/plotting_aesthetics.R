@@ -3,6 +3,7 @@ library(extrafont)
 library(sysfonts)
 library(showtext)
 library(gggibbous)
+library(ggtext)
 
 ##Fonts
 

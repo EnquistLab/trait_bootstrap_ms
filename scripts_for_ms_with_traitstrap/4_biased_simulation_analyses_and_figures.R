@@ -27,14 +27,8 @@ simdata_rats <-
 overunders = 
   simdata %>%
   filter(sample_size %in% c(1,9,49,100,196,441))  %>%
-  mutate(overunder = ifelse(true_value <= estimate,
-                            "over",
-                            "under"),
-         deviation = ifelse(abs(estimate) > abs(true_value),
-                            abs(estimate) - abs(true_value),
-                            abs(true_value) - abs(estimate))) %>%
   group_by(moment, method, sample_size, overunder) %>%
-  summarise(dev = mean(deviation),
+  summarise(dev = mean(abs(deviation)),
             tally = n()) %>%
   group_by(moment, method, sample_size) %>%
   filter(tally == max(tally)) %>%
@@ -53,9 +47,7 @@ sim_moon_means =
   group_by(method, moment, sample_size) %>%
   #calcualte proportion of 'hits' per trait, methods, moment
   summarise(percentage = sum(hit - 1)/n(),
-            deviation = mean(ifelse(abs(estimate) > abs(true_value),
-                                    abs(estimate) - abs(true_value),
-                                    abs(true_value) - abs(estimate))))
+            deviation = mean(abs(deviation)))
 
 sim_biased_moon_means =
   simdata_biased %>%
@@ -66,9 +58,7 @@ sim_biased_moon_means =
   group_by(method, moment, sample_size) %>%
   #calcualte proportion of 'hits' per trait, methods, moment
   summarise(percentage = sum(hit - 1)/n(),
-            deviation = mean(ifelse(abs(estimate) > abs(true_value),
-                                    abs(estimate) - abs(true_value),
-                                    abs(true_value) - abs(estimate))))
+            deviation = mean(mean(abs(deviation))))
 
 sim_biased_moon_means$moment =
   ordered(sim_biased_moon_means$moment,levels = c("mean",
@@ -233,15 +223,6 @@ sim_means =
   group_by(method, moment, sample_size) %>%
   mutate(group_size = n()) %>%
   #if true value falls in estimate's CI
-  mutate(hit = ifelse(ci_low <= true_value & true_value <= ci_high,
-                      "yay",
-                      "nay"),
-         deviation = ifelse(estimate > true_value,
-                            abs(estimate - true_value),
-                            abs(true_value - estimate))) %>%
-  mutate(overunder = ifelse(true_value < estimate,
-                            "over",
-                            "under")) %>%
   mutate(deviation = ifelse(overunder == "over",
                             deviation,
                             -1*deviation)) %>%
