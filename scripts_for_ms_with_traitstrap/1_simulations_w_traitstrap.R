@@ -426,8 +426,8 @@ boot_sample_output <-
 saveRDS(object = boot_sample_output,
         file = "output_data/bootstrap_sample_size_and_method_sims.RDS")
 
-
-
+boot_sample_output <-
+  readRDS("output_data/bootstrap_sample_size_and_method_sims.RDS")
 
 
 
