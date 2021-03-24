@@ -154,15 +154,18 @@ ggsave(here::here("figures/Lollipops_All.png"),
 
 simmeans = 
   simdata %>%
-  filter(sample_size == 9) %>%
+  filter(sample_size < 26 &
+           sample_size > 8) %>%
   group_by(trait, moment, method) %>%
   summarise(estimate = mean(deviation)) %>%
   mutate(facet_lab = paste0(moment,"_",trait))
 
 simdata_lollipop =
   simdata %>%
-  filter(sample_size == 9) %>%
-  mutate(facet_lab = paste0(moment,"_",trait))
+  filter(sample_size < 26 &
+           sample_size > 8) %>%
+  group_by(trait, moment, method, sample_size) %>%
+  slice_sample(n = 20)
 
 #re-order to match moment 'numbers'
 simmeans$moment <- factor(simmeans$moment,
@@ -191,7 +194,7 @@ ggplot(simmeans) +
                   fill = method,
                   size = hit), 
               color = "grey85", 
-              width = 0, height = 0.2, shape = 21, alpha = 0.3) +
+              width = 0, height = 0.2, shape = 21, alpha = 0.2) +
   geom_segment(data = simmeans,
                aes(x = 0, 
                    xend = estimate, 
@@ -398,10 +401,11 @@ lollipop_all =
         strip.placement = 'outside',
         axis.ticks.y = element_blank(),
         legend.title = element_text(colour = "grey65"),
-        legend.position = 'right')
+        legend.position = 'bottom')
 
 
 ggsave(here::here("figures/Lollipops_Datsets.png"),
+       lollipop_all,
        height = 8, width = 11,
        units = "in", dpi = 300)
 
