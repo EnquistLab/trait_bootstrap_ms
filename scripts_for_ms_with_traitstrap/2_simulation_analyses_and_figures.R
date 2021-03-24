@@ -1027,7 +1027,8 @@ inset =
   plot_annotation(tag_levels = 'A',
                   theme = theme(
     plot.background = element_rect(fill = "#141438", colour = NA),
-    panel.background = element_rect(fill = "#141438", colour = NA))) 
+    panel.background = element_rect(fill = "#141438", colour = NA),
+    text = element_text(family = "Noto", color = "grey65"))) 
 
 ggsave(here::here("figures/Fig2_panel.png"),
        height = 12, width = 14,
