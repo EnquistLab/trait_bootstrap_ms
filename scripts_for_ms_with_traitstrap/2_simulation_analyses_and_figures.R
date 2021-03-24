@@ -1266,6 +1266,7 @@ doughnut =
   facet_grid(rows = vars(trait),
              cols = vars(moment),
              labeller = labeller(
+               trait = traits_panama,
                .default = capitalize
              ),
              switch = 'y')  + 
@@ -1311,7 +1312,7 @@ inset =
   facet_grid(rows = vars(trait),
              cols = vars(moment),
              labeller = labeller(
-               trait = traits_parsed,
+               trait = traits_panama,
                .default = capitalize
              ),
              switch = 'y')  + 
@@ -1335,7 +1336,7 @@ cowplot::ggdraw(doughnut) +
   cowplot::draw_plot(inset,
                      width = 0.7,
                      height = 0.95,
-                     x = 0.23,
+                     x = 0.24,
                      y = 0.05)
 
 ggsave(here::here("figures/WinnerDoughnuts_panama.png"),

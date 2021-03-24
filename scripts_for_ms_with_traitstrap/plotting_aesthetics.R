@@ -67,6 +67,17 @@ traits_parsed <- c(
   LMA_mg_mm2 = "LMA"
 )
 
+traits_panama <- c(
+  Area = "Area",
+  Dry.weight = "Dry weight",
+  Fresh.weight = "Fresh.weight",
+  LDMC = "LDMC",
+  LMA = "LMA",
+  LCC = "Carbon content",
+  LNC = "Nitrogen content",
+  N.C = "Nitrogen:Carbon"
+)
+
 ##Manual Legend for moon plots
 moon_legend = 
 ggplot(data.frame(y = c(1,1.5,2,2.5), 
