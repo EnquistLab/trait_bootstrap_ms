@@ -1,4 +1,4 @@
-library(moments)
+library(e1071)
 library(tidyverse)
 
 # Note that this applies sample sizes at the species x site level.
@@ -153,7 +153,7 @@ rm(cwm_species_results_nt,cwm_species_x_site_results_nt,imputed_full,imputed_spe
 tidy_traits %>% group_by(site,trait) %>% summarise(true_mean=mean(value),
                                                true_variance=var(value),
                                                true_skewness = skewness(value),
-                                               true_kurtosis = kurtosis(value)) -> true_moments
+                                               true_kurtosis = e1071::kurtosis(value)) -> true_moments
 
 #Next, append true moments to output data for convenience
 output <- merge(x = output,y = true_moments,by = c("site","trait"))
