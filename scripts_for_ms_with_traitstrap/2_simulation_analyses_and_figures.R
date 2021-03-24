@@ -679,6 +679,19 @@ over_under =
                     -1*x,
                     x))
 
+
+over_under$method <- factor(over_under$method,
+                            levels = c("Cross-Site CWM",
+                                       "Site-Specific CWM",
+                                       "Parametric BS", 
+                                       "Non-Parametric BS"))
+
+over_under$moment <- factor(over_under$moment,
+                            levels = c("mean",
+                                       "variance",
+                                       "skewness",
+                                       "kurtosis"))
+
 inset = 
   ggplot(over_under) +
   geom_col(aes(x = x,
@@ -707,6 +720,7 @@ inset =
   theme(
     strip.text = element_blank()
   )
+
 
 cowplot::ggdraw(doughnut_CO) +
   cowplot::draw_plot(inset,
@@ -877,7 +891,7 @@ img2 = png::readPNG("images/Frogs.png")
 img3 = png::readPNG("images/Panama.png")
 img4 = png::readPNG("images/AZ.png")
 
-doughnut_all = 
+
   cowplot::ggdraw(doughnut) +
   cowplot::draw_image(
     img1, x = 0.08, y = 0.89, hjust = 1, vjust = 1, halign = 1, valign = 1,
@@ -1062,6 +1076,24 @@ over_under =
                     -1*x,
                     x))
 
+over_under$method <- factor(over_under$method,
+                                   levels = c("Cross-Site CWM",
+                                              "Site-Specific CWM",
+                                              "Parametric BS", 
+                                              "Non-Parametric BS"))
+
+over_under$dataset <- factor(over_under$dataset,
+                                    levels = c("Herbs",
+                                               "Tadpoles",
+                                               "Trees", 
+                                               "Rodents"))
+
+over_under$moment <- factor(over_under$moment,
+                              levels = c("mean",
+                                         "variance",
+                                         "skewness",
+                                         "kurtosis"))
+
 inset = 
   ggplot(over_under) +
   geom_col(aes(x = x,
@@ -1127,6 +1159,15 @@ sim_radar$moment <- factor(sim_radar$moment,
                                       "variance",
                                       "skewness",
                                       "kurtosis"))
+sim_radar$trait <- factor(sim_radar$trait,
+                          levels = c("Area",
+                                     "Dry.weight",
+                                     "Fresh.weight",
+                                     "LDMC",
+                                     "LMA",
+                                     "LCC",
+                                     "LNC",
+                                     "N.C"))
 
 sim_radar$method <- factor(sim_radar$method,
                            levels = c("Cross-Site CWM",
@@ -1139,6 +1180,16 @@ sim_win_text$moment <- factor(sim_win_text$moment,
                                          "variance",
                                          "skewness",
                                          "kurtosis"))
+
+sim_win_text$trait <- factor(sim_win_text$trait,
+                          levels = c("Area",
+                                     "Dry.weight",
+                                     "Fresh.weight",
+                                     "LDMC",
+                                     "LMA",
+                                     "LCC",
+                                     "LNC",
+                                     "N.C"))
 
 sim_win_text$method <- factor(sim_win_text$method,
                               levels = c("Cross-Site CWM",
@@ -1166,6 +1217,29 @@ over_under =
   mutate(x = ifelse(overunder == "under",
                     -1*x,
                     x))
+
+over_under$moment <- factor(over_under$moment,
+                              levels = c("mean",
+                                         "variance",
+                                         "skewness",
+                                         "kurtosis"))
+
+over_under$trait <- factor(over_under$trait,
+                             levels = c("Area",
+                                        "Dry.weight",
+                                        "Fresh.weight",
+                                        "LDMC",
+                                        "LMA",
+                                        "LCC",
+                                        "LNC",
+                                        "N.C"))
+
+over_under$method <- factor(over_under$method,
+                              levels = c("Cross-Site CWM",
+                                         "Site-Specific CWM",
+                                         "Parametric BS", 
+                                         "Non-Parametric BS"))
+
 
 doughnut = 
   ggplot(sim_radar) +
