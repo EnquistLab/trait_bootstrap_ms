@@ -51,14 +51,18 @@ sim_moon_means =
 
 sim_ci =
   simdata %>%
-  mutate(ci_low_dev = true_value - ci_low,
-         ci_high_dev = ci_high - true_value) %>%
   mutate(ci_low_dev = ifelse(ci_low < true_value,
+                             true_value - ci_low,
+                             ci_low - true_value),
+         ci_high_dev = ifelse(ci_high > true_value,
+                              ci_high - true_value,
+                              true_value - ci_high)) %>%
+  mutate(ci_high_dev = ifelse(ci_high < true_value,
+                              ci_high_dev,
+                              abs(ci_high_dev)),
+         ci_low_dev = ifelse(ci_low < true_value & ci_low_dev > 0,
                              -ci_low_dev,
-                             ci_low_dev),
-         ci_high_dev = ifelse(ci_high < true_value,
-                              -ci_high_dev,
-                              ci_high_dev)) %>%
+                             ci_low_dev)) %>%
   group_by(moment, method, sample_size) %>%
   summarise(ci_low_dev = mean(ci_low_dev),
             ci_high_dev = mean(ci_high_dev))
@@ -128,11 +132,12 @@ ggplot(sim_moon_means %>%
   geom_hline(aes(yintercept = 0),
              color = "grey50",
              size = 1.5) +
-  # geom_ribbon(data = sim_ci,
-  #             aes(x = sample_size,
-  #                 ymax = ci_high_dev,
-  #                 ymin = ci_low_dev,
-  #                 fill = method)) +
+  geom_ribbon(data = sim_ci,
+              aes(x = sample_size,
+                  ymax = ci_high_dev,
+                  ymin = ci_low_dev,
+                  fill = method),
+              alpha = 0.2) +
   geom_smooth(data = sim_biased_moon_means,
               aes(
                 x = sample_size,
