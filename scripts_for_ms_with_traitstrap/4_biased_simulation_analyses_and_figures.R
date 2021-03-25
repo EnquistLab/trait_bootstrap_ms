@@ -126,18 +126,18 @@ inset <-
   )
 
 
-#moons <-
+moons <-
 ggplot(sim_moon_means %>%
          filter(sample_size %in% c(1,9,49,100,196,441))) +
   geom_hline(aes(yintercept = 0),
              color = "grey50",
              size = 1.5) +
-  geom_ribbon(data = sim_ci,
-              aes(x = sample_size,
-                  ymax = ci_high_dev,
-                  ymin = ci_low_dev,
-                  fill = method),
-              alpha = 0.2) +
+  # geom_ribbon(data = sim_ci,
+  #             aes(x = sample_size,
+  #                 ymax = ci_high_dev,
+  #                 ymin = ci_low_dev,
+  #                 fill = method),
+  #             alpha = 0.2) +
   geom_smooth(data = sim_biased_moon_means,
               aes(
                 x = sample_size,
@@ -221,16 +221,16 @@ ggplot(sim_moon_means %>%
 
 cowplot::ggdraw(moons) +
   cowplot::draw_plot(moon_legend,
-                     .8, .12,
+                     .79, .12,
                      0.21, .22) +
   cowplot::draw_plot(inset,
-                     width = 0.8,
+                     width = 0.78,
                      height = 0.9,
-                     x = 0.1,
+                     x = 0.11,
                      y = 0.07)
 
 ggsave(here::here("figures/moons_biased_directionality.png"),
-       height = 7.4, width = 12.5,
+       height = 7.4, width = 13.2,
        units = "in", dpi = 300)
 
 ### Transition plots - accuracy & directionality of moments - 'global' ----

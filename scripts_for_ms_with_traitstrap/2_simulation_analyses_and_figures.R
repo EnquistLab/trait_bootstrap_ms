@@ -157,7 +157,7 @@ simmeans =
   filter(sample_size < 26 &
            sample_size > 8) %>%
   group_by(trait, moment, method) %>%
-  summarise(estimate = mean(deviation)) %>%
+  summarise(estimate = mean(deviation))
   mutate(facet_lab = paste0(moment,"_",trait))
 
 simdata_lollipop =
@@ -284,6 +284,8 @@ simmeans =
            sample_size > 8) %>%
   group_by(dataset, moment) %>%
   mutate(true_val = mean(true_value)) %>%
+  group_by(dataset, moment) %>%
+  mutate(deviation = scale(deviation)) %>%
   group_by(dataset, moment, method, true_val) %>%
   summarise(estimate = mean(deviation))
 
@@ -298,6 +300,8 @@ simdata_lollipop =
           mutate(dataset = rep("Rodents", nrow(.)))) %>%
   filter(sample_size < 26 &
            sample_size > 8) %>%
+  group_by(dataset, moment) %>%
+  mutate(deviation = scale(deviation)) %>%
   group_by(dataset, moment, method, sample_size) %>%
   slice_sample(n = 20)
 

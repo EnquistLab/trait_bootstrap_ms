@@ -203,7 +203,7 @@ inset_co =
 
 cowplot::ggdraw(moons_co) +
   cowplot::draw_plot(moon_legend,
-                     .8, .12,
+                     .79, .17,
                      0.21, .22) +
   cowplot::draw_plot(inset_co,
                      width = 0.8,
@@ -384,7 +384,7 @@ inset_az =
 
 cowplot::ggdraw(moons_az) +
   cowplot::draw_plot(moon_legend,
-                     .8, .17,
+                     .79, .17,
                      0.21, .22) +
   cowplot::draw_plot(inset_az,
                      width = 0.8,
