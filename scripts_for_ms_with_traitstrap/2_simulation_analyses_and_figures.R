@@ -260,7 +260,7 @@ ggplot(simmeans) +
         legend.position = 'bottom')
 
 ggsave(here::here("figures/Lollipops_deviation.png"),
-       height = 9, width = 14,
+       height = 7.5, width = 11,
        units = "in", dpi = 300)
 
 
@@ -1034,6 +1034,7 @@ inset =
           text = element_text(family = "Noto", color = "grey65")))/
   lollipop_all +
   theme(
+    legend.position = 'right',
     strip.text.x = element_text(margin = margin(0, 0, 10, 0),
                                 size = 16, face = "bold",
                                 colour = "grey70"),
@@ -1053,7 +1054,7 @@ inset =
     text = element_text(family = "Noto", color = "grey65"))) 
 
 ggsave(here::here("figures/Fig2_panel.png"),
-       height = 12, width = 14,
+       height = 12, width = 19,
        units = "in", dpi = 300)
 
 ### Over Under - across winners ----
