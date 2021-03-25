@@ -1,7 +1,7 @@
 
 ########################################################################
 
-library(moments)
+library(e1071)
 library(tidyverse)
 source("r_functions/parametric_bs.R")
 

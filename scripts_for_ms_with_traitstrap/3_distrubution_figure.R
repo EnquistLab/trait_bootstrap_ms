@@ -5,7 +5,7 @@
 #Load stuff in
 
 library(BIEN)
-library(moments)
+library(e1071)
 library(traitstrap)
 library(devtools)
 library(tidyr)
