@@ -225,8 +225,9 @@ ggplot(simmeans) +
                       breaks = pal_df$l) +
   scale_size_discrete(guide = guide_legend(title = "Sample Size"),
                       range = c(1, 2.5)) +
-  scale_alpha_discrete(range = c(0.2, 0.5)) +
-  guides(alpha = 'none') +
+  scale_alpha_discrete(guide = guide_legend(title = "Value in CI",
+                                            override.aes = list(shape = 16)),
+                       range = c(0.2, 0.5)) +
   labs(
     x = "Deviation from true value",
     y = NULL
@@ -373,8 +374,9 @@ lollipop_all =
                       breaks = pal_df$l) +
   scale_size_discrete(guide = guide_legend(title = "Sample Size"),
                       range = c(1, 2.5)) +
-  scale_alpha_discrete(range = c(0.2, 0.5)) +
-  guides(alpha = 'none') +
+  scale_alpha_discrete(guide = guide_legend(title = "Value in CI",
+                                            override.aes = list(shape = 16)),
+                       range = c(0.2, 0.5)) +
   labs(
     x = "Deviation from true value",
     y = NULL
