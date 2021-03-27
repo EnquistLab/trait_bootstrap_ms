@@ -188,6 +188,13 @@ ggplot(simmeans) +
   geom_vline(aes(xintercept = 0), 
              color = "grey50",
              size = 1) +
+  geom_segment(data = simmeans,
+               aes(x = 0, 
+                   xend = estimate, 
+                   y = method, 
+                   yend = method), 
+               color = "grey50", 
+               size = 0.5) +
   geom_jitter(data = simdata_lollipop,
               aes(x = deviation, 
                   y = method, 
@@ -196,22 +203,12 @@ ggplot(simmeans) +
                   alpha = hit), 
               color = "grey85", 
               width = 0, height = 0.2, shape = 21) +
-  geom_segment(data = simmeans,
-               aes(x = 0, 
-                   xend = estimate, 
-                   y = method, 
-                   yend = method), 
-               color = "grey50", 
-               size = 0.5) +
-  geom_point(data = simmeans,
-             aes(x = estimate, 
-                 y = method),
-             color = "grey50", size = 3) + 
   geom_point(data = simmeans,
              aes(x = estimate, 
                  y = method,
-                 color = method), 
-             size = 2) +
+                 fill = method,
+                 colour = method),
+             shape = 21, size = 3) + 
   facet_grid(rows = vars(trait),
              cols = vars(moment),
              labeller = labeller(
@@ -224,7 +221,7 @@ ggplot(simmeans) +
                     values = pal_df$c,
                     breaks = pal_df$l) +
   scale_colour_manual(guide = guide_legend(title = "Method"),
-                      values = pal_df$c,
+                      values = colorspace::darken(pal_df$c, 0.4),
                       breaks = pal_df$l) +
   scale_size_discrete(guide = guide_legend(title = "Sample Size"),
                       range = c(1, 2.5)) +
@@ -340,6 +337,13 @@ lollipop_all =
   geom_vline(aes(xintercept = 0), 
              color = "grey50",
              size = 1) +
+  geom_segment(data = simmeans,
+               aes(x = 0, 
+                   xend = estimate, 
+                   y = method, 
+                   yend = method), 
+               color = "grey50", 
+               size = 0.5) +
   geom_jitter(data = simdata_lollipop,
               aes(x = deviation, 
                   y = method, 
@@ -348,22 +352,12 @@ lollipop_all =
                   alpha = hit), 
               color = "white", 
               width = 0, height = 0.2, shape = 21) +
-  geom_segment(data = simmeans,
-               aes(x = 0, 
-                   xend = estimate, 
-                   y = method, 
-                   yend = method), 
-               color = "grey50", 
-               size = 0.5) +
-  geom_point(data = simmeans,
-             aes(x = estimate, 
-                 y = method),
-             color = "grey50", size = 3) + 
   geom_point(data = simmeans,
              aes(x = estimate, 
                  y = method,
-                 color = method), 
-             size = 2) +
+                 fill = method,
+                 colour = method),
+             shape = 21, size = 3) + 
   facet_grid(rows = vars(dataset),
              cols = vars(moment),
              labeller = labeller(
@@ -375,7 +369,7 @@ lollipop_all =
                     values = pal_df$c,
                     breaks = pal_df$l) +
   scale_colour_manual(guide = guide_legend(title = "Method"),
-                      values = pal_df$c,
+                      values = colorspace::darken(pal_df$c, 0.4),
                       breaks = pal_df$l) +
   scale_size_discrete(guide = guide_legend(title = "Sample Size"),
                       range = c(1, 2.5)) +
