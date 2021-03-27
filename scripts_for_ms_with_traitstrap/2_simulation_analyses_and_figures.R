@@ -192,9 +192,10 @@ ggplot(simmeans) +
               aes(x = deviation, 
                   y = method, 
                   fill = method,
-                  size = hit), 
+                  size = as.factor(sample_size),
+                  alpha = hit), 
               color = "grey85", 
-              width = 0, height = 0.2, shape = 21, alpha = 0.2) +
+              width = 0, height = 0.2, shape = 21) +
   geom_segment(data = simmeans,
                aes(x = 0, 
                    xend = estimate, 
@@ -225,8 +226,10 @@ ggplot(simmeans) +
   scale_colour_manual(guide = guide_legend(title = "Method"),
                       values = pal_df$c,
                       breaks = pal_df$l) +
-  scale_size_discrete(guide = guide_legend(title = "Value in CI"),
-                      range = c(1, 2)) +
+  scale_size_discrete(guide = guide_legend(title = "Sample Size"),
+                      range = c(1, 2.5)) +
+  scale_alpha_discrete(range = c(0.2, 0.5)) +
+  guides(alpha = 'none') +
   labs(
     x = "Deviation from true value",
     y = NULL
@@ -341,9 +344,10 @@ lollipop_all =
               aes(x = deviation, 
                   y = method, 
                   fill = method,
-                  size = hit), 
+                  size = as.factor(sample_size),
+                  alpha = hit), 
               color = "white", 
-              width = 0, height = 0.2, shape = 21, alpha = 0.2) +
+              width = 0, height = 0.2, shape = 21) +
   geom_segment(data = simmeans,
                aes(x = 0, 
                    xend = estimate, 
@@ -373,8 +377,10 @@ lollipop_all =
   scale_colour_manual(guide = guide_legend(title = "Method"),
                       values = pal_df$c,
                       breaks = pal_df$l) +
-  scale_size_discrete(guide = guide_legend(title = "Value in CI"),
-                      range = c(1, 2)) +
+  scale_size_discrete(guide = guide_legend(title = "Sample Size"),
+                      range = c(1, 2.5)) +
+  scale_alpha_discrete(range = c(0.2, 0.5)) +
+  guides(alpha = 'none') +
   labs(
     x = "Deviation from true value",
     y = NULL
