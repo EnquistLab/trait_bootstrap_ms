@@ -261,7 +261,7 @@ ggplot(simmeans) +
         legend.position = 'bottom')
 
 ggsave(here::here("figures/Lollipops_deviation.png"),
-       height = 7.5, width = 11,
+       height = 7.5, width = 12,
        units = "in", dpi = 300)
 
 
@@ -412,7 +412,7 @@ lollipop_all =
 
 ggsave(here::here("figures/Lollipops_Datsets.png"),
        lollipop_all,
-       height = 8, width = 11,
+       height = 8, width = 12,
        units = "in", dpi = 300)
 
 
