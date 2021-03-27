@@ -882,6 +882,72 @@ ggsave(here::here("figures/restricted_sample_datasets.png"),
 
 ### Bonus Plots----
 
+### a) BumpPlots ----
+
+library(ggbump)
+
+bumps = sim_moon_means %>%
+  group_by(dataset, moment, sample_size) %>%
+  mutate(rank = rank(deviation))
+
+bumps$dataset <- factor(bumps$dataset,
+                        levels = c("Herbs",
+                                   "Tadpoles",
+                                   "Trees", 
+                                   "Rodents"))
+
+ggplot(bumps) +
+  geom_bump(aes(x = sample_size,
+                y = -rank,
+                colour = method),
+            size = 1, smooth = 8) +
+  geom_point(aes(x = sample_size,
+                 y = -rank,
+                 colour = method)) +
+  facet_grid(cols = vars(moment),
+             rows = vars(dataset),
+             labeller = labeller(
+               trait = traits_parsed,
+               .default = capitalize
+             ),
+             switch = 'y') +
+  scale_colour_manual(guide = guide_legend(title = "Method",
+                                           title.position="top"),
+                      values = pal_df$c,
+                      labels = pal_df$l) +
+  labs(x = 'Sample size',
+       y = "Rank") +
+  scale_x_continuous(breaks = c(1,4,9,16,25, 36,49)) +
+  # Theme
+  figure_theme +
+  theme(
+    legend.position = 'right',
+    legend.title = element_text(size = 14, colour = "grey65"),
+    strip.text.y = element_text(margin = margin(0, 0, 10, 0),
+                                size = 14, face = "bold",
+                                colour = "grey65"),
+    strip.text.x.top = element_text(margin = margin(0, 0, 10, 0),
+                                    size = 14,
+                                    colour = "grey65"),
+    panel.grid.major.y = element_blank(),
+    legend.key = element_blank(),
+    legend.text = element_text(colour = "grey65"),
+    axis.title = element_text(colour = "grey65"),
+    axis.text.y = element_blank(),
+    axis.ticks.y = element_blank(),
+    strip.background = element_blank(),
+    axis.line = element_blank(),
+    strip.placement = 'outside',
+    panel.background = element_rect(colour = colorspace::lighten("#141438", 0.1),
+                                    size = 1),
+    plot.title.position = "plot",
+    plot.title = element_text(margin = margin(0, 0, 10, 0),
+                              size = 15, face = "bold",
+                              colour = "grey65")
+  ) 
+
+
+
 #### --- All traits combined----
 
 sim_moon_panama =
