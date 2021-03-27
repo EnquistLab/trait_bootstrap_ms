@@ -885,6 +885,7 @@ ggsave(here::here("figures/restricted_sample_datasets.png"),
 ### a) BumpPlots ----
 
 library(ggbump)
+library(ggfx)
 
 bumps = sim_moon_means %>%
   group_by(dataset, moment, sample_size) %>%
@@ -897,13 +898,15 @@ bumps$dataset <- factor(bumps$dataset,
                                    "Rodents"))
 
 ggplot(bumps) +
-  geom_bump(aes(x = sample_size,
+  with_blur(
+    geom_bump(aes(x = sample_size,
                 y = -rank,
                 colour = method),
-            size = 1, smooth = 8) +
-  geom_point(aes(x = sample_size,
+            size = 1, smooth = 8),
+    sigma = 3) +
+  with_blur(geom_point(aes(x = sample_size,
                  y = -rank,
-                 colour = method)) +
+                 colour = method))) +
   facet_grid(cols = vars(moment),
              rows = vars(dataset),
              labeller = labeller(
