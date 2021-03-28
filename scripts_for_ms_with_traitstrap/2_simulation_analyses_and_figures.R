@@ -208,12 +208,12 @@ ggplot(simmeans) +
                  y = method,
                  fill = method,
                  colour = method),
-             shape = 21, size = 3) + 
+             shape = 23, size = 3.2) + 
   facet_grid(rows = vars(trait),
              cols = vars(moment),
              labeller = labeller(
-               trait = traits_parsed,
-               .default = capitalize
+               .default = capitalize,
+               trait = traits_parsed
              ),
              switch = 'y',
              scales = 'free')  + 
@@ -224,7 +224,7 @@ ggplot(simmeans) +
                       values = colorspace::darken(pal_df$c, 0.4),
                       breaks = pal_df$l) +
   scale_size_discrete(guide = guide_legend(title = "Sample Size"),
-                      range = c(1, 2.5)) +
+                      range = c(1, 2.4)) +
   scale_alpha_discrete(guide = guide_legend(title = "Value in CI",
                                             override.aes = list(shape = 16)),
                        range = c(0.2, 0.5)) +
@@ -248,8 +248,7 @@ ggplot(simmeans) +
         strip.text.x.top = element_text(margin = margin(0, 0, 10, 0),
                                         size = 12, face = "bold",
                                         colour = "grey65"),
-        panel.grid.major.y = element_line(size = 0.05,
-                                          colour = "grey65"),
+        panel.grid.major.y = element_blank(),
         legend.key = element_blank(),
         legend.text = element_text(colour = "grey65"),
         axis.title = element_text(colour = "grey65"),
@@ -358,7 +357,7 @@ lollipop_all =
                  y = method,
                  fill = method,
                  colour = method),
-             shape = 21, size = 3) + 
+             shape = 21, size = 3.2) + 
   facet_grid(rows = vars(dataset),
              cols = vars(moment),
              labeller = labeller(
@@ -373,7 +372,7 @@ lollipop_all =
                       values = colorspace::darken(pal_df$c, 0.4),
                       breaks = pal_df$l) +
   scale_size_discrete(guide = guide_legend(title = "Sample Size"),
-                      range = c(1, 2.5)) +
+                      range = c(1, 2.4)) +
   scale_alpha_discrete(guide = guide_legend(title = "Value in CI",
                                             override.aes = list(shape = 16)),
                        range = c(0.2, 0.5)) +
