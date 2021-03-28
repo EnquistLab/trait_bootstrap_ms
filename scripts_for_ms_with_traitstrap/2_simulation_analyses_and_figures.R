@@ -217,11 +217,13 @@ ggplot(simmeans) +
              ),
              switch = 'y',
              scales = 'free')  + 
-  scale_fill_manual(guide = guide_legend(title = "Method"),
+  scale_fill_manual(guide = guide_legend(title = "Method",
+                                         override.aes = list(shape = 21)),
                     values = pal_df$c,
                     breaks = pal_df$l) +
-  scale_colour_manual(guide = guide_legend(title = "Method"),
-                      values = colorspace::darken(pal_df$c, 0.4),
+  scale_colour_manual(guide = guide_legend(title = "Method",
+                                           override.aes = list(shape = 21)),
+                      values = colorspace::darken(pal_df$c, 0.5),
                       breaks = pal_df$l) +
   scale_size_discrete(guide = guide_legend(title = "Sample Size"),
                       range = c(1, 2.4)) +
@@ -260,7 +262,7 @@ ggplot(simmeans) +
         legend.position = 'bottom')
 
 ggsave(here::here("figures/Lollipops_deviation.png"),
-       height = 7.5, width = 12,
+       height = 8, width = 13,
        units = "in", dpi = 300)
 
 
@@ -357,7 +359,7 @@ lollipop_all =
                  y = method,
                  fill = method,
                  colour = method),
-             shape = 21, size = 3.2) + 
+             shape = 23, size = 3.2) + 
   facet_grid(rows = vars(dataset),
              cols = vars(moment),
              labeller = labeller(
@@ -365,11 +367,13 @@ lollipop_all =
              ),
              switch = 'y',
              scales = 'free')  + 
-  scale_fill_manual(guide = guide_legend(title = "Method"),
+  scale_fill_manual(guide = guide_legend(title = "Method",
+                                         override.aes = list(shape = 21)),
                     values = pal_df$c,
                     breaks = pal_df$l) +
-  scale_colour_manual(guide = guide_legend(title = "Method"),
-                      values = colorspace::darken(pal_df$c, 0.4),
+  scale_colour_manual(guide = guide_legend(title = "Method",
+                                           override.aes = list(shape = 21)),
+                      values = colorspace::darken(pal_df$c, 0.5),
                       breaks = pal_df$l) +
   scale_size_discrete(guide = guide_legend(title = "Sample Size"),
                       range = c(1, 2.4)) +
@@ -411,7 +415,7 @@ lollipop_all =
 
 ggsave(here::here("figures/Lollipops_Datsets.png"),
        lollipop_all,
-       height = 8, width = 12,
+       height = 8.5, width = 13,
        units = "in", dpi = 300)
 
 
