@@ -519,7 +519,6 @@ doughnut_CO =
   # Theme
   theme_void() +
   theme(
-    legend.position = "right",
     legend.title = element_text(size = 14,
                                 colour = "grey65"),
     plot.background = element_rect(fill = "#141438",
@@ -534,7 +533,8 @@ doughnut_CO =
                                      angle = 0,
                                      size = 16),
     legend.text = element_text(colour = "grey65"),
-    plot.margin = margin(15, 15, 10, 15)
+    plot.margin = margin(15, 19, 10, 15),
+    legend.position = 'bottom'
   )
 
 over_under =
@@ -567,8 +567,8 @@ over_under$moment <- factor(over_under$moment,
 
 inset = 
   ggplot(over_under) +
-  geom_col(aes(x = x,
-               y = method,
+  geom_col(aes(y = x,
+               x = method,
                fill = method),
            alpha = 0.5,
            show.legend = FALSE) +
@@ -579,15 +579,15 @@ inset =
                .default = capitalize
              ),
              switch = 'y')  + 
-  geom_segment(aes(x = 0,
-                   yend = 4.5,
-                   y = 0.5, xend = 0),
+  geom_segment(aes(y = 0,
+                   xend = 4.5,
+                   x = 0.5, yend = 0),
                colour = 'grey96',
                size = 0.7) +
   scale_fill_manual(values = pal_df$c,
                     breaks = pal_df$l) +
-  lims(x = c(-5,5)) + 
-  expand_limits(y= c(-9, 11)) +
+  lims(y = c(-5,5)) + 
+  expand_limits(x= c(-9, 11)) +
   # Theme
   theme_void() +
   theme(
@@ -597,14 +597,85 @@ inset =
 
 cowplot::ggdraw(doughnut_CO) +
   cowplot::draw_plot(inset,
-                     width = 0.74,
-                     height = 0.925,
-                     x = 0.185,
-                     y = 0.085)
+                     width = 0.8,
+                     height = 0.87,
+                     x = 0.25,
+                     y = 0.14)
 
 ggsave(here::here("figures/WinnerDoughnuts.png"),
-       height = 9.8, width = 10.4,
+       height = 10.4, width = 8.95,
        units = "in", dpi = 300)
+
+### Over Under - across winners ----
+
+over_under =
+  rbind(simdata %>%
+          mutate(dataset = rep("Herbs", nrow(.))),
+        simdata_frogs %>%
+          mutate(dataset = rep("Tadpoles", nrow(.))),
+        simdata_panama %>%
+          mutate(dataset = rep("Trees", nrow(.))),
+        simdata_rats %>%
+          mutate(dataset = rep("Rodents", nrow(.)))) %>%
+  filter(sample_size < 26 &
+           sample_size > 8) %>%
+  group_by(dataset, moment, method, overunder) %>%
+  summarise(dev = mean(abs(deviation)),
+            tally = n()) %>%
+  group_by(dataset, moment, method) %>%
+  filter(tally == max(tally)) %>%
+  group_by(dataset, moment, overunder) %>%
+  mutate(x = dev/max(dev)) %>%
+  mutate(x = ifelse(overunder == "under",
+                    -1*x,
+                    x))
+
+over_under$method <- factor(over_under$method,
+                            levels = c("Cross-Site CWM",
+                                       "Site-Specific CWM",
+                                       "Parametric BS", 
+                                       "Non-Parametric BS"))
+
+over_under$dataset <- factor(over_under$dataset,
+                             levels = c("Herbs",
+                                        "Tadpoles",
+                                        "Trees", 
+                                        "Rodents"))
+
+over_under$moment <- factor(over_under$moment,
+                            levels = c("mean",
+                                       "variance",
+                                       "skewness",
+                                       "kurtosis"))
+
+inset = 
+  ggplot(over_under) +
+  geom_col(aes(y = x,
+               x = method,
+               fill = method),
+           alpha = 0.5,
+           show.legend = FALSE) +
+  facet_grid(rows = vars(dataset),
+             cols = vars(moment),
+             labeller = labeller(
+               trait = traits_parsed,
+               .default = capitalize
+             ),
+             switch = 'y')  + 
+  geom_segment(aes(y = 0,
+                   xend = 4.5,
+                   x = 0.5, yend = 0),
+               colour = 'grey96',
+               size = 0.7) +
+  scale_fill_manual(values = pal_df$c,
+                    breaks = pal_df$l) +
+  lims(y = c(-5,5)) + 
+  expand_limits(x= c(-9, 11)) +
+  # Theme
+  theme_void() +
+  theme(
+    strip.text = element_blank()
+  )
 
 
 ### Doughnut plots - across winners ----
@@ -741,7 +812,7 @@ doughnut =
   # Theme
   theme_void() +
   theme(
-    legend.position = "right",
+    legend.position = "bottom",
     legend.title = element_text(size = 14,
                                 colour = "grey65"),
     plot.background = element_rect(fill = "#141438",
@@ -756,7 +827,8 @@ doughnut =
                                      angle = 0,
                                      size = 12,
                                      vjust = 0),
-    legend.text = element_text(colour = "grey65")
+    legend.text = element_text(colour = "grey65"),
+    plot.margin = margin(15, 19, 10, 15)
   )
 
 img1 = png::readPNG("images/Colorado.png")
@@ -767,29 +839,29 @@ img4 = png::readPNG("images/AZ.png")
 
   cowplot::ggdraw(doughnut) +
   cowplot::draw_image(
-    img1, x = 0.08, y = 0.89, hjust = 1, vjust = 1, halign = 1, valign = 1,
-    width = 0.06
-  ) +
-  cowplot::draw_image(
-    img2, x = 0.08, y = 0.64, hjust = 1, vjust = 1, halign = 1, valign = 1,
+    img1, x = 0.09, y = 0.89, hjust = 1, vjust = 1, halign = 1, valign = 1,
     width = 0.07
   ) +
   cowplot::draw_image(
-    img3, x = 0.08, y = 0.41, hjust = 1, vjust = 1, halign = 1, valign = 1,
-    width = 0.06
+    img2, x = 0.1, y = 0.67, hjust = 1, vjust = 1, halign = 1, valign = 1,
+    width = 0.08
   ) +
   cowplot::draw_image(
-    img4, x = 0.08, y = 0.145, hjust = 1, vjust = 1, halign = 1, valign = 1,
+    img3, x = 0.1, y = 0.44, hjust = 1, vjust = 1, halign = 1, valign = 1,
     width = 0.07
+  ) +
+  cowplot::draw_image(
+    img4, x = 0.1, y = 0.2, hjust = 1, vjust = 1, halign = 1, valign = 1,
+    width = 0.08
   ) +
   cowplot::draw_plot(inset,
-                     width = 0.75,
-                     height = 0.95,
-                     x = 0.18,
-                     y = 0.1)
+                     width = 0.85,
+                     height = 0.89,
+                     x = 0.2,
+                     y = 0.13)
 
 ggsave(here::here("figures/WinnerDoughnuts_datasets_images.png"),
-       height = 8.3, width = 10.4,
+       height = 10, width = 10.2,
        units = "in", dpi = 300)
 
 ### Fig 2 panel ----
@@ -925,77 +997,6 @@ inset =
 ggsave(here::here("figures/Fig2_panel.png"),
        height = 12, width = 19,
        units = "in", dpi = 300)
-
-### Over Under - across winners ----
-
-over_under =
-  rbind(simdata %>%
-          mutate(dataset = rep("Herbs", nrow(.))),
-        simdata_frogs %>%
-          mutate(dataset = rep("Tadpoles", nrow(.))),
-        simdata_panama %>%
-          mutate(dataset = rep("Trees", nrow(.))),
-        simdata_rats %>%
-          mutate(dataset = rep("Rodents", nrow(.)))) %>%
-  filter(sample_size < 26 &
-           sample_size > 8) %>%
-  group_by(dataset, moment, method, overunder) %>%
-  summarise(dev = mean(abs(deviation)),
-            tally = n()) %>%
-  group_by(dataset, moment, method) %>%
-  filter(tally == max(tally)) %>%
-  group_by(dataset, moment, overunder) %>%
-  mutate(x = dev/max(dev)) %>%
-  mutate(x = ifelse(overunder == "under",
-                    -1*x,
-                    x))
-
-over_under$method <- factor(over_under$method,
-                                   levels = c("Cross-Site CWM",
-                                              "Site-Specific CWM",
-                                              "Parametric BS", 
-                                              "Non-Parametric BS"))
-
-over_under$dataset <- factor(over_under$dataset,
-                                    levels = c("Herbs",
-                                               "Tadpoles",
-                                               "Trees", 
-                                               "Rodents"))
-
-over_under$moment <- factor(over_under$moment,
-                              levels = c("mean",
-                                         "variance",
-                                         "skewness",
-                                         "kurtosis"))
-
-inset = 
-  ggplot(over_under) +
-  geom_col(aes(x = x,
-               y = method,
-               fill = method),
-           alpha = 0.5,
-           show.legend = FALSE) +
-  facet_grid(rows = vars(dataset),
-             cols = vars(moment),
-             labeller = labeller(
-               trait = traits_parsed,
-               .default = capitalize
-             ),
-             switch = 'y')  + 
-  geom_segment(aes(x = 0,
-                   yend = 4.5,
-                   y = 0.5, xend = 0),
-               colour = 'grey96',
-               size = 0.7) +
-  scale_fill_manual(values = pal_df$c,
-                    breaks = pal_df$l) +
-  lims(x = c(-5,5)) + 
-  expand_limits(y= c(-9, 11)) +
-  # Theme
-  theme_void() +
-  theme(
-    strip.text = element_blank()
-  )
 
 ### Doughnut - Panama by trait ----
 
@@ -1159,7 +1160,7 @@ doughnut =
   # Theme
   theme_void() +
   theme(
-    legend.position = "right",
+    legend.position = "bottom",
     legend.title = element_text(size = 14,
                                 colour = "grey65"),
     plot.background = element_rect(fill = "#141438",
@@ -1173,13 +1174,14 @@ doughnut =
                                      margin = margin(0, 10, 10, 10),
                                      angle = 0,
                                      size = 16),
-    legend.text = element_text(colour = "grey65")
+    legend.text = element_text(colour = "grey65"),
+    plot.margin = margin(15, 19, 10, 15)
   )
 
 inset = 
   ggplot(over_under) +
-  geom_col(aes(x = x,
-               y = method,
+  geom_col(aes(y = x,
+               x = method,
                fill = method),
            alpha = 0.5,
            show.legend = FALSE) +
@@ -1190,15 +1192,15 @@ inset =
                .default = capitalize
              ),
              switch = 'y')  + 
-  geom_segment(aes(x = 0,
-                   yend = 4.5,
-                   y = 0.5, xend = 0),
+  geom_segment(aes(y = 0,
+                   xend = 4.5,
+                   x = 0.5, yend = 0),
                colour = 'grey96',
                size = 0.7) +
   scale_fill_manual(values = pal_df$c,
                     breaks = pal_df$l) +
-  lims(x = c(-5,5)) + 
-  expand_limits(y= c(-9, 11)) +
+  lims(y = c(-5,5)) + 
+  expand_limits(x= c(-9, 11)) +
   # Theme
   theme_void() +
   theme(
@@ -1208,11 +1210,11 @@ inset =
 
 cowplot::ggdraw(doughnut) +
   cowplot::draw_plot(inset,
-                     width = 0.7,
-                     height = 0.95,
-                     x = 0.24,
-                     y = 0.05)
+                     width = 0.75,
+                     height = 0.92,
+                     x = 0.285,
+                     y = 0.09)
 
 ggsave(here::here("figures/WinnerDoughnuts_panama.png"),
-       height = 15, width = 10.4,
+       height = 15, width = 9.2,
        units = "in", dpi = 300)
