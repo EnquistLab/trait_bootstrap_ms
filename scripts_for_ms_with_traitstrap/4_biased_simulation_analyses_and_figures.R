@@ -887,9 +887,41 @@ ggsave(here::here("figures/restricted_sample_datasets.png"),
 library(ggbump)
 library(ggfx)
 
-bumps = sim_moon_means %>%
+bumps = 
+  rbind(simdata %>%
+        mutate(dataset = rep("Herbs", nrow(.))),
+      simdata_frogs %>%
+        mutate(dataset = rep("Tadpoles", nrow(.))),
+      simdata_panama %>%
+        mutate(dataset = rep("Trees", nrow(.))),
+      simdata_rats %>%
+        mutate(dataset = rep("Rodents", nrow(.)))) %>%
+  #if true value falls in estimate's CI
+  filter(sample_size < 50) %>%
+  mutate(hit = ifelse(ci_low <= true_value & true_value <= ci_high,
+                      2,
+                      1)) %>%
+  filter(hit == 2) %>%
+  group_by(dataset, method, moment, sample_size) %>%
+  #calcualte proportion of 'hits' per trait, methods, moment
+  summarise(deviation = mean(abs(deviation))) %>%
   group_by(dataset, moment, sample_size) %>%
-  mutate(rank = rank(deviation))
+  mutate(rank = rank(deviation)) %>%
+  full_join(.,
+            rbind(simdata %>%
+                    mutate(dataset = rep("Herbs", nrow(.))),
+                  simdata_frogs %>%
+                    mutate(dataset = rep("Tadpoles", nrow(.))),
+                  simdata_panama %>%
+                    mutate(dataset = rep("Trees", nrow(.))),
+                  simdata_rats %>%
+                    mutate(dataset = rep("Rodents", nrow(.)))) %>%
+              #if true value falls in estimate's CI
+              filter(sample_size < 50) %>%
+              distinct(dataset, method, moment, sample_size)) %>%
+  mutate(rank = ifelse(is.na(rank),
+                       5,
+                       rank))
 
 bumps$dataset <- factor(bumps$dataset,
                         levels = c("Herbs",
@@ -897,16 +929,22 @@ bumps$dataset <- factor(bumps$dataset,
                                    "Trees", 
                                    "Rodents"))
 
+bumps$moment =
+  ordered(bumps$moment,levels = c("mean",
+                                      "variance",
+                                      "skewness",
+                                      "kurtosis"))
+
 ggplot(bumps) +
   with_blur(
     geom_bump(aes(x = sample_size,
                 y = -rank,
                 colour = method),
             size = 1, smooth = 8),
-    sigma = 3) +
-  with_blur(geom_point(aes(x = sample_size,
+    sigma = 2) +
+  geom_point(aes(x = sample_size,
                  y = -rank,
-                 colour = method))) +
+                 colour = method)) +
   facet_grid(cols = vars(moment),
              rows = vars(dataset),
              labeller = labeller(
@@ -920,7 +958,11 @@ ggplot(bumps) +
                       labels = pal_df$l) +
   labs(x = 'Sample size',
        y = "Rank") +
-  scale_x_continuous(breaks = c(1,4,9,16,25, 36,49)) +
+  #scale_x_continuous(breaks = c(1,4,9,16,25, 36,49)) +
+  # geom_hline(aes(yintercept = -4.5),
+  #            colour = "grey69",
+  #            size = 1.5) +
+  lims(y = c(-4.5,-.5)) +
   # Theme
   figure_theme +
   theme(
