@@ -304,6 +304,7 @@ simdata_lollipop =
            sample_size > 8) %>%
   # group_by(dataset, moment) %>%
   # mutate(deviation = scale(deviation)) %>%
+  filter(deviation < 10) %>%
   group_by(dataset, moment, method, sample_size) %>%
   slice_sample(n = 20)
 
@@ -400,8 +401,7 @@ lollipop_all =
         strip.text.x.top = element_text(margin = margin(0, 0, 10, 0),
                                         size = 12, face = "bold",
                                         colour = "grey65"),
-        panel.grid.major.y = element_line(size = 0.05,
-                                          colour = "grey65"),
+        panel.grid.major.y = element_blank(),
         legend.key = element_blank(),
         legend.text = element_text(colour = "grey65"),
         axis.title = element_text(colour = "grey65"),
@@ -418,142 +418,6 @@ ggsave(here::here("figures/Lollipops_Datsets.png"),
        height = 8.5, width = 13,
        units = "in", dpi = 300)
 
-
-### Moon plots - accuracy of moments - 'global' ----
-
-library(gggibbous)
-
-#### All traits combined
-
-sim_moon_means =   
-  simdata %>%
-  #if true value falls in estimate's CI
-  mutate(hit = ifelse(ci_low <= true_value & true_value <= ci_high,
-                      2,
-                      1)) %>%
-  group_by(method, moment, sample_size) %>%
-  #calcualte proportion of 'hits' per trait, methods, moment
-  summarise(percentage = sum(hit - 1)/n()) 
-
-sim_biased_moon_means =   
-  simdata_biased %>%
-  #if true value falls in estimate's CI
-  mutate(hit = ifelse(ci_low <= true_value & true_value <= ci_high,
-                      2,
-                      1)) %>%
-  group_by(method, moment, sample_size) %>%
-  #calcualte proportion of 'hits' per trait, methods, moment
-  summarise(percentage = sum(hit - 1)/n()) 
-
-sim_biased_moon_means$moment = 
-  ordered(sim_biased_moon_means$moment,levels = c("mean","variance","skewness","kurtosis"))
-
-sim_moon_means$moment = 
-  ordered(sim_moon_means$moment,levels = c("mean",
-                                           "variance",
-                                           "skewness",
-                                           "kurtosis"))
-
-moons <-
-  ggplot(sim_moon_means %>%
-           filter(sample_size %in% c(1,9,49,100,196,441))) + 
-  geom_hline(aes(yintercept = 0), 
-             color = "grey50",
-             size = 1.5) +
-  geom_smooth(aes(
-    x = sample_size,
-    y = sim_biased_moon_means %>%
-      filter(sample_size %in% c(1,9,49,100,196,441)) %>%
-      pull(deviation),
-    color = method,
-    linetype = "Biased"),
-    se = FALSE,
-    size = 0.4) +
-  geom_smooth(aes(
-    x = sample_size,
-    y = deviation ,
-    color = method,
-    linetype = "Random"),
-    alpha = 0.5,
-    se = FALSE,
-    size = 0.8) +
-  ggblur::geom_point_blur(
-    aes(
-      x = sample_size,
-      y = deviation,
-      color = method
-    ),
-    color = "transparent",
-    size = 4) +
-  
-  geom_point(aes(
-    x = sample_size,
-    y = deviation,
-    color = method
-  ), 
-  size = 4,
-  alpha = 0.9) +
-  geom_moon(aes(
-    x = sample_size,
-    y = deviation,
-    ratio = percentage, 
-    fill = method
-  ),
-  color = "transparent",
-  size = 4) + 
-  scale_fill_manual(guide = guide_legend(title = "Method",
-                                         title.position="top"),
-                    values = colorspace::darken(pal_df$c, amount = 0.2),
-                    labels = pal_df$l) +
-  scale_colour_manual(guide = guide_legend(title = "Method",
-                                           title.position="top"),
-                      values = colorspace::lighten(pal_df$c, amount = 0.5),
-                      labels = pal_df$l) +  
-  scale_linetype_manual("Sampling",
-                        values=c("Biased" = 2,
-                                 "Random" = 1),
-                        guide = guide_legend(override.aes = list(colour = "grey69"))) +
-  scale_x_continuous(trans = 'sqrt', breaks = c(0,10,50,100,200,500),
-                     limits = c(0, 500)) +
-  facet_grid(rows = vars(moment),
-             cols = vars(method),
-             labeller = labeller(
-               trait = traits_parsed,
-               .default = capitalize
-             ),
-             switch = 'y',
-             scales = 'free') +
-  labs(x = "Sample Size",
-       y = "Average deviation from true moment") +
-  figure_theme +
-  theme(
-    legend.position = 'right',
-    legend.title = element_text(size = 14, colour = "grey65"),
-    strip.text.y = element_text(margin = margin(0, 0, 10, 0),
-                                size = 14, face = "bold",
-                                colour = "grey65"),
-    strip.placement.y = "outside",
-    strip.text.x.top = element_text(margin = margin(0, 0, 10, 0),
-                                    size = 14, face = "bold",
-                                    colour = "grey65"),
-    panel.grid.major.y = element_line(size = 0.05,
-                                      colour = "grey65"),
-    legend.key = element_blank(),
-    legend.text = element_text(colour = "grey65"),
-    axis.title = element_text(colour = "grey65"),
-    strip.background = element_blank(),
-    axis.line = element_blank(),
-    strip.placement = 'outside'
-  )
-
-cowplot::ggdraw(moons) +
-  cowplot::draw_plot(moon_legend,
-                     .795, .12, 
-                     0.2, .23)
-
-ggsave(here::here("figures/moons_biased_AllTraits.png"),
-       height = 8, width = 12.5,
-       units = "in", dpi = 300)
 
 ### Doughnut plots - winners ----
 
