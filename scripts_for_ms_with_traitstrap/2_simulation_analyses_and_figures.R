@@ -684,7 +684,9 @@ simdata %>%
   filter(sample_size < 26 &
            sample_size > 8) %>%
   group_by(moment, sample_size, site, trait) %>%
-  count()
+  count() %>%
+  ungroup()%>%
+  distinct(moment, trait, n)
 
 group_size = 
   rbind(simdata %>%

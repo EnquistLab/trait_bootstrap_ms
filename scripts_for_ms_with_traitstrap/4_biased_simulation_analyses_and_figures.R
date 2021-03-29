@@ -682,7 +682,6 @@ frogs =
   labs(x = "Sample Size",
        y = "Average deviation from true moment",
        title = "B: Tadpoles") +
-  #draw_key_moon(data.frame(x = 1:5, y = 0, ratio = 0:4 * 0.25))
   # Theme
   figure_theme +
   theme(
@@ -889,36 +888,25 @@ library(ggfx)
 
 bumps = 
   rbind(simdata %>%
-        mutate(dataset = rep("Herbs", nrow(.))),
-      simdata_frogs %>%
-        mutate(dataset = rep("Tadpoles", nrow(.))),
-      simdata_panama %>%
-        mutate(dataset = rep("Trees", nrow(.))),
-      simdata_rats %>%
-        mutate(dataset = rep("Rodents", nrow(.)))) %>%
-  #if true value falls in estimate's CI
-  filter(sample_size < 50) %>%
+          mutate(dataset = rep("Herbs", nrow(.))),
+        simdata_frogs %>%
+          mutate(dataset = rep("Tadpoles", nrow(.))),
+        simdata_panama %>%
+          mutate(dataset = rep("Trees", nrow(.))),
+        simdata_rats %>%
+          mutate(dataset = rep("Rodents", nrow(.)))) %>%
   mutate(hit = ifelse(ci_low <= true_value & true_value <= ci_high,
                       2,
-                      1)) %>%
-  filter(hit == 2) %>%
+                      1),
+         deviation = ifelse(abs(estimate) > abs(true_value),
+                            abs(estimate) - abs(true_value),
+                            abs(true_value) - abs(estimate))) %>%
+  # group_by(dataset, moment, sample_size, site, trait) %>%
+  filter(hit == 2)  %>%
   group_by(dataset, method, moment, sample_size) %>%
-  #calcualte proportion of 'hits' per trait, methods, moment
-  summarise(deviation = mean(abs(deviation))) %>%
+  summarise(n = mean(deviation)) %>%
   group_by(dataset, moment, sample_size) %>%
-  mutate(rank = rank(deviation)) %>%
-  full_join(.,
-            rbind(simdata %>%
-                    mutate(dataset = rep("Herbs", nrow(.))),
-                  simdata_frogs %>%
-                    mutate(dataset = rep("Tadpoles", nrow(.))),
-                  simdata_panama %>%
-                    mutate(dataset = rep("Trees", nrow(.))),
-                  simdata_rats %>%
-                    mutate(dataset = rep("Rodents", nrow(.)))) %>%
-              #if true value falls in estimate's CI
-              filter(sample_size < 50) %>%
-              distinct(dataset, method, moment, sample_size)) %>%
+  mutate(rank = rank(n)) %>%
   mutate(rank = ifelse(is.na(rank),
                        5,
                        rank))
@@ -934,17 +922,19 @@ bumps$moment =
                                       "variance",
                                       "skewness",
                                       "kurtosis"))
-
-ggplot(bumps) +
+sub_bump = 
+ggplot(bumps %>%
+         filter(sample_size < 50)) +
   with_blur(
     geom_bump(aes(x = sample_size,
-                y = -rank,
+                y = rank,
                 colour = method),
             size = 1, smooth = 8),
-    sigma = 2) +
+    sigma = 1) +
   geom_point(aes(x = sample_size,
-                 y = -rank,
-                 colour = method)) +
+                 y = rank,
+                 colour = method),
+             size = 2) +
   facet_grid(cols = vars(moment),
              rows = vars(dataset),
              labeller = labeller(
@@ -952,21 +942,19 @@ ggplot(bumps) +
                .default = capitalize
              ),
              switch = 'y') +
-  scale_colour_manual(guide = guide_legend(title = "Method",
-                                           title.position="top"),
+  scale_colour_manual(guide = guide_legend(title = "Method"),
                       values = pal_df$c,
                       labels = pal_df$l) +
   labs(x = 'Sample size',
        y = "Rank") +
+  scale_x_continuous(trans = 'sqrt', breaks = c(1,4,9,16,25, 36,49),
+                     limits = c(1, 50)) +
   #scale_x_continuous(breaks = c(1,4,9,16,25, 36,49)) +
-  # geom_hline(aes(yintercept = -4.5),
-  #            colour = "grey69",
-  #            size = 1.5) +
-  lims(y = c(-4.5,-.5)) +
+  lims(y = c(4.5,.5)) +
   # Theme
   figure_theme +
   theme(
-    legend.position = 'right',
+    legend.position = 'bottom',
     legend.title = element_text(size = 14, colour = "grey65"),
     strip.text.y = element_text(margin = margin(0, 0, 10, 0),
                                 size = 14, face = "bold",
@@ -991,7 +979,75 @@ ggplot(bumps) +
                               colour = "grey65")
   ) 
 
+bump =
+ggplot(bumps %>%
+         filter(sample_size %in% c(1,9,49,100,196,441))) +
+  with_blur(
+    geom_bump(aes(x = sample_size,
+                  y = rank,
+                  colour = method),
+              size = 1, smooth = 8),
+    sigma = 1) +
+  geom_point(aes(x = sample_size,
+                 y = rank,
+                 colour = method),
+             size = 2) +
+  facet_grid(cols = vars(moment),
+             rows = vars(dataset),
+             labeller = labeller(
+               trait = traits_parsed,
+               .default = capitalize
+             ),
+             switch = 'y') +
+  scale_colour_manual(guide = guide_legend(title = "Method"),
+                      values = pal_df$c,
+                      labels = pal_df$l) +
+  labs(x = 'Sample size',
+       y = "Rank") +
+  scale_x_continuous(trans = 'sqrt', breaks = c(0,10,50,100,200,500),
+                     limits = c(0, 500)) +
+  lims(y = c(4.5,.5)) +
+  # Theme
+  figure_theme +
+  theme(
+    legend.position = 'bottom',
+    legend.title = element_text(size = 14, colour = "grey65"),
+    strip.text.y = element_text(margin = margin(0, 0, 10, 0),
+                                size = 14, face = "bold",
+                                colour = "grey65"),
+    strip.text.x.top = element_text(margin = margin(0, 0, 10, 0),
+                                    size = 14,
+                                    colour = "grey65"),
+    panel.grid.major.y = element_blank(),
+    legend.key = element_blank(),
+    legend.text = element_text(colour = "grey65"),
+    axis.title = element_text(colour = "grey65"),
+    axis.text.y = element_blank(),
+    axis.ticks.y = element_blank(),
+    strip.background = element_blank(),
+    axis.line = element_blank(),
+    strip.placement = 'outside',
+    panel.background = element_rect(colour = colorspace::lighten("#141438", 0.1),
+                                    size = 1),
+    plot.title.position = "plot",
+    plot.title = element_text(margin = margin(0, 0, 10, 0),
+                              size = 15, face = "bold",
+                              colour = "grey65")
+  ) 
 
+(bump +
+  sub_bump) +
+  plot_layout(guides = 'collect') +
+  plot_annotation(tag_levels = 'A',
+                  theme = theme(
+                    legend.position = 'bottom',
+                    plot.background = element_rect(fill = "#141438", colour = NA),
+                    panel.background = element_rect(fill = "#141438", colour = NA),
+                    text = element_text(family = "Noto", color = "grey65")))
+
+ggsave(here::here("figures/bumps.png"),
+       height = 8, width = 18,
+       units = "in", dpi = 300)
 
 #### --- All traits combined----
 
