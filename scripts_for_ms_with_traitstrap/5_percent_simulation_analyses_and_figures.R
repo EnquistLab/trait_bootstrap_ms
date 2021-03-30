@@ -59,25 +59,12 @@ sim_moon_means_colorado =
                                     abs(true_value) - abs(estimate)),
                              na.rm = TRUE))
 
-sim_moon_means_panama =
-  panama_percent %>%
-  #if true value falls in estimate's CI
-  filter(estimate != is.na(estimate)) %>%
-  mutate(hit = ifelse(ci_low <= true_value & true_value <= ci_high,
-                      2,
-                      1),
-         pct_abd_sampled = round(pct_abd_sampled, digits = -1)) %>%
-  group_by(method, moment, pct_abd_sampled) %>%
-  #calcualte proportion of 'hits' per trait, methods, moment
-  summarise(percentage = sum(hit - 1)/n(),
-            deviation = mean(ifelse(estimate > true_value,
-                                    estimate - true_value,
-                                    true_value - estimate),
-                             na.rm = TRUE))
+colorado_random =
+  simdata %>%
+  filter(sample_size == 9) %>%
+  group_by(moment, method) %>%
+  summarise(deviation = mean(abs(deviation)))
 
-
-sim_moon_means_panama$moment =
-  ordered(sim_moon_means_panama$moment,levels = c("mean","variance","skewness","kurtosis"))
 
 sim_moon_means_colorado$moment =
   ordered(sim_moon_means_colorado$moment,levels = c("mean",
@@ -97,11 +84,22 @@ overunders$moment =
                                        "skewness",
                                        "kurtosis"))
 
+colorado_random$moment =
+  ordered(colorado_random$moment,levels = c("mean",
+                                       "variance",
+                                       "skewness",
+                                       "kurtosis"))
+
 moons_co <-
   ggplot(sim_moon_means_colorado) +
   geom_hline(aes(yintercept = 0),
              color = "grey50",
              size = 1.5) +
+  geom_hline(data = rodent_random,
+             aes(yintercept = deviation,
+                 linetype = "Random"),
+             color = "grey50",
+             size = 1.2) +
   geom_smooth(
     data = colorado_percent %>%
       filter(estimate != is.na(estimate)) %>%
@@ -111,7 +109,8 @@ moons_co <-
     aes(
       x = pct_abd_sampled,
       y = deviation ,
-      color = method),
+      color = method,
+      linetype = "Biased"),
     alpha = 0.5,
     se = FALSE,
     size = 0.8) +
@@ -130,6 +129,10 @@ moons_co <-
   ),
   color = "transparent",
   size = 4) +
+  scale_linetype_manual("Sampling",
+                        values=c("Biased" = 1,
+                                 "Random" = 2),
+                        guide = guide_legend(override.aes = list(colour = "grey69"))) +
   scale_fill_manual(guide = guide_legend(title = "Method",
                                          title.position="top"),
                     values = colorspace::darken(pal_df$c, amount = 0.25),
@@ -260,6 +263,12 @@ sim_moon_means_rodent =
                                     abs(true_value) - abs(estimate)),
                              na.rm = TRUE))
 
+rodent_random =
+  simdata_rats %>%
+  filter(sample_size == 9) %>%
+  group_by(moment, method) %>%
+  summarise(deviation = mean(abs(deviation)))
+
 sim_moon_means_rodent$moment =
   ordered(sim_moon_means_rodent$moment,levels = c("mean",
                                                   "variance",
@@ -278,11 +287,22 @@ overunders$moment =
                                        "skewness",
                                        "kurtosis"))
 
+rodent_random$moment =
+  ordered(rodent_random$moment,levels = c("mean",
+                                       "variance",
+                                       "skewness",
+                                       "kurtosis"))
+
 moons_az <-
 ggplot(sim_moon_means_rodent) +
   geom_hline(aes(yintercept = 0),
              color = "grey50",
              size = 1.5) +
+  geom_hline(data = rodent_random,
+             aes(yintercept = deviation,
+                 linetype = "Random"),
+             color = "grey50",
+             size = 1.2) +
   geom_smooth(
     data = rodent_percent %>%
       filter(estimate != is.na(estimate)) %>%
@@ -292,7 +312,8 @@ ggplot(sim_moon_means_rodent) +
     aes(
       x = pct_abd_sampled,
       y = deviation ,
-      color = method),
+      color = method,
+      linetype = "Biased"),
     alpha = 0.5,
     se = FALSE,
     size = 0.8) +
@@ -312,6 +333,10 @@ ggplot(sim_moon_means_rodent) +
   ),
   color = "transparent",
   size = 4) +
+  scale_linetype_manual("Sampling",
+                        values=c("Biased" = 1,
+                                 "Random" = 2),
+                        guide = guide_legend(override.aes = list(colour = "grey69"))) +
   scale_fill_manual(guide = guide_legend(title = "Method",
                                          title.position="top"),
                     values = colorspace::darken(pal_df$c, amount = 0.25),
@@ -398,10 +423,6 @@ ggsave(here::here("figures/moons_pct_abund_rodents.png"),
 
 #### Combine CO and AZ ----
 
-ggpubr::ggarrange(moons_co,
-                  moons_az,
-                  common.legend = TRUE)
-
 library(patchwork)
 
 moon_legend = 
@@ -425,36 +446,36 @@ moon_legend =
         text = element_text(colour = "grey65",
                             family = "Noto"))
 
-(moons_co +
+moons_co +
   labs(title = "A: Herbs") + 
   theme(plot.title.position = 'plot',
         plot.title = element_text(size = 16, color = "grey65"),
         plot.margin = margin(25, 0, 10, 25)) +
-    inset_element(inset_co, 
-                  left = 0, 
-                  bottom = 0, 
-                  right = 1, 
-                  top = 1)) +
-  (moons_az  +
+    # inset_element(inset_co, 
+    #               left = 0, 
+    #               bottom = 0, 
+    #               right = 1, 
+    #               top = 1)) +
+  moons_az  +
   labs(title = "B: Rodents") +   
   theme(plot.title.position = 'plot',
         plot.title = element_text(size = 16, color = "grey65"),
         strip.text.y = element_blank(),
         axis.title.y = element_blank()) +
-    inset_element(inset_az, 
-                  left = 0, 
-                  bottom = 0, 
-                  right = 1, 
-                  top = 1)) +
+    # inset_element(inset_az, 
+    #               left = 0, 
+    #               bottom = 0, 
+    #               right = 1, 
+    #               top = 1)) +
   plot_layout(guides = 'collect',
               widths = c(1, 1)) +
   plot_annotation(theme = theme(
     plot.background = element_rect(fill = "#141438", colour = NA))) +
   inset_element(moon_legend, 
                 left = 0.81, 
-                bottom = 0.28, 
+                bottom = 0.21, 
                 right = 0.92, 
-                top = 0.4,
+                top = 0.34,
                 align_to = 'full')
 
 ggsave(here::here("figures/moons_pct_abund_AB.png"),
@@ -465,3 +486,23 @@ ggsave(here::here("figures/moons_pct_abund_AB.png"),
 
 
 # End of script ----
+
+sim_moon_means_panama =
+  panama_percent %>%
+  #if true value falls in estimate's CI
+  filter(estimate != is.na(estimate)) %>%
+  mutate(hit = ifelse(ci_low <= true_value & true_value <= ci_high,
+                      2,
+                      1),
+         pct_abd_sampled = round(pct_abd_sampled, digits = -1)) %>%
+  group_by(method, moment, pct_abd_sampled) %>%
+  #calcualte proportion of 'hits' per trait, methods, moment
+  summarise(percentage = sum(hit - 1)/n(),
+            deviation = mean(ifelse(estimate > true_value,
+                                    estimate - true_value,
+                                    true_value - estimate),
+                             na.rm = TRUE))
+
+
+sim_moon_means_panama$moment =
+  ordered(sim_moon_means_panama$moment,levels = c("mean","variance","skewness","kurtosis"))
