@@ -482,6 +482,165 @@ ggsave(here::here("figures/moons_pct_abund_AB.png"),
        height = 9, width = 20,
        units = "in", dpi = 300)
 
+#### Lollipops ----
+
+co_pct_means = 
+  colorado_percent %>%
+  filter(estimate != is.na(estimate)) %>%
+  mutate(pct_abd_sampled = round(pct_abd_sampled, digits = -1),
+         overunder = ifelse(true_value <= estimate,
+                            "over",
+                            "under"),
+         deviation = ifelse(abs(estimate) > abs(true_value),
+                            abs(estimate) - abs(true_value),
+                            abs(true_value) - abs(estimate)),
+         hit = ifelse(ci_low <= true_value & true_value <= ci_high,
+                      'Yes',
+                      'No')) %>%
+  filter(pct_abd_sampled == 80) %>%
+  mutate(deviation = ifelse(overunder == "under",
+                            -1*deviation,
+                            deviation)) %>%
+  group_by(trait, moment, method) %>%
+  summarise(estimate = mean(deviation),
+            iqr = IQR(deviation))
+
+co_simdata_lollipop =
+  colorado_percent %>%
+  filter(estimate != is.na(estimate)) %>%
+  mutate(pct_abd_sampled = round(pct_abd_sampled, digits = -1),
+         overunder = ifelse(true_value <= estimate,
+                            "over",
+                            "under"),
+         deviation = ifelse(abs(estimate) > abs(true_value),
+                            abs(estimate) - abs(true_value),
+                            abs(true_value) - abs(estimate)),
+         hit = ifelse(ci_low <= true_value & true_value <= ci_high,
+                      'Yes',
+                      'No')) %>%
+  filter(pct_abd_sampled == 80) %>%
+  mutate(deviation = ifelse(overunder == "under",
+                            -1*deviation,
+                            deviation)) %>%
+  group_by(trait, moment, method, pct_abd_sampled) %>%
+  slice_sample(n = 20)
+
+simmeans = 
+  simdata %>%
+  filter(sample_size == 9) %>%
+  group_by(trait, moment, method) %>%
+  summarise(estimate = mean(deviation),
+            std_dev = IQR(deviation))
+
+#re-order to match moment 'numbers'
+co_pct_means$moment <- factor(co_pct_means$moment,
+                          levels = c("mean",
+                                     "variance",
+                                     "skewness",
+                                     "kurtosis"))
+
+
+co_simdata_lollipop$moment <- factor(co_simdata_lollipop$moment,
+                                  levels = c("mean",
+                                             "variance",
+                                             "skewness",
+                                             "kurtosis"))
+
+simmeans$moment <- factor(simmeans$moment,
+                                     levels = c("mean",
+                                                "variance",
+                                                "skewness",
+                                                "kurtosis"))
+
+
+#TODO clean labelling
+
+ggplot(co_pct_means) + 
+  geom_vline(aes(xintercept = 0), 
+             color = "grey50",
+             size = 1) +
+  # geom_segment(data = co_pct_means,
+  #              aes(x = 0, 
+  #                  xend = estimate, 
+  #                  y = method, 
+  #                  yend = method), 
+  #              color = "grey50", 
+  #              size = 0.5) +
+  geom_pointrange(data = simmeans,
+                 aes(x = estimate,
+                     xmax = estimate + std_dev,
+                     xmin = estimate - std_dev,
+                     y = method,
+                     fill = method,
+                     colour = method),
+                 position = position_nudge(y = -0.3)) +
+  geom_jitter(data = co_simdata_lollipop,
+              aes(x = deviation, 
+                  y = method, 
+                  fill = method,
+                  #size = as.factor(pct_abd_sampled),
+                  alpha = hit), 
+              color = "grey85", 
+              width = 0, height = 0.2, shape = 21) +
+  geom_pointrange(data = co_pct_means,
+             aes(x = estimate,
+                 xmin = estimate - iqr,
+                 xmax = estimate + iqr,
+                 y = method,
+                 fill = method,
+                 colour = method),
+             shape = 23, size = 1) + 
+  facet_grid(rows = vars(trait),
+             cols = vars(moment),
+             labeller = labeller(
+               .default = capitalize,
+               trait = traits_parsed
+             ),
+             switch = 'y',
+             scales = 'free')  + 
+  scale_fill_manual(guide = guide_legend(title = "Method",
+                                         override.aes = list(shape = 21)),
+                    values = pal_df$c,
+                    breaks = pal_df$l) +
+  scale_colour_manual(guide = guide_legend(title = "Method",
+                                           override.aes = list(shape = 21)),
+                      values = colorspace::darken(pal_df$c, 0.5),
+                      breaks = pal_df$l) +
+  # scale_size_discrete(guide = guide_legend(title = "Sample Size"),
+  #                     range = c(.7, 2.7)) +
+  scale_alpha_discrete(guide = guide_legend(title = "Value in CI",
+                                            override.aes = list(shape = 16)),
+                       range = c(0.2, 0.4)) +
+  labs(
+    x = "Deviation from true value",
+    y = NULL
+  ) +
+  #guides(size = 'none') +
+  figure_theme +
+  theme(axis.text.y = element_blank(),
+        axis.text.x = element_text(size = 8),
+        plot.background = element_rect(fill = "#141438",
+                                       colour = NA),
+        legend.background = element_rect(fill = "#141438",
+                                         colour = NA),
+        panel.background = element_rect(fill = "#141438",
+                                        colour = 'grey69'),
+        strip.text.y = element_text(margin = margin(0, 0, 10, 0),
+                                    size = 14, face = "bold",
+                                    colour = "grey65"),
+        strip.text.x.top = element_text(margin = margin(0, 0, 10, 0),
+                                        size = 12, face = "bold",
+                                        colour = "grey65"),
+        panel.grid.major.y = element_blank(),
+        legend.key = element_blank(),
+        legend.text = element_text(colour = "grey65"),
+        axis.title = element_text(colour = "grey65"),
+        strip.background = element_blank(),
+        axis.line = element_blank(),
+        strip.placement = 'outside',
+        axis.ticks.y = element_blank(),
+        legend.title = element_text(colour = "grey65"),
+        legend.position = 'bottom')
 
 
 

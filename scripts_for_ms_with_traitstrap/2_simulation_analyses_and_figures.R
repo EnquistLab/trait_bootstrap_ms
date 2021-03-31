@@ -158,7 +158,6 @@ simmeans =
            sample_size > 8) %>%
   group_by(trait, moment, method) %>%
   summarise(estimate = mean(deviation))
-  mutate(facet_lab = paste0(moment,"_",trait))
 
 simdata_lollipop =
   simdata %>%
