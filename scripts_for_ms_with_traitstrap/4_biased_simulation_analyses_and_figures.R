@@ -27,14 +27,8 @@ simdata_rats <-
 overunders = 
   simdata %>%
   filter(sample_size %in% c(1,9,49,100,196,441))  %>%
-  mutate(overunder = ifelse(true_value <= estimate,
-                            "over",
-                            "under"),
-         deviation = ifelse(abs(estimate) > abs(true_value),
-                            abs(estimate) - abs(true_value),
-                            abs(true_value) - abs(estimate))) %>%
   group_by(moment, method, sample_size, overunder) %>%
-  summarise(dev = mean(deviation),
+  summarise(dev = mean(abs(deviation)),
             tally = n()) %>%
   group_by(moment, method, sample_size) %>%
   filter(tally == max(tally)) %>%
@@ -53,9 +47,25 @@ sim_moon_means =
   group_by(method, moment, sample_size) %>%
   #calcualte proportion of 'hits' per trait, methods, moment
   summarise(percentage = sum(hit - 1)/n(),
-            deviation = mean(ifelse(abs(estimate) > abs(true_value),
-                                    abs(estimate) - abs(true_value),
-                                    abs(true_value) - abs(estimate))))
+            deviation = mean(abs(deviation)))
+
+sim_ci =
+  simdata %>%
+  mutate(ci_low_dev = ifelse(ci_low < true_value,
+                             true_value - ci_low,
+                             ci_low - true_value),
+         ci_high_dev = ifelse(ci_high > true_value,
+                              ci_high - true_value,
+                              true_value - ci_high)) %>%
+  mutate(ci_high_dev = ifelse(ci_high < true_value,
+                              ci_high_dev,
+                              abs(ci_high_dev)),
+         ci_low_dev = ifelse(ci_low < true_value & ci_low_dev > 0,
+                             -ci_low_dev,
+                             ci_low_dev)) %>%
+  group_by(moment, method, sample_size) %>%
+  summarise(ci_low_dev = mean(ci_low_dev),
+            ci_high_dev = mean(ci_high_dev))
 
 sim_biased_moon_means =
   simdata_biased %>%
@@ -66,9 +76,7 @@ sim_biased_moon_means =
   group_by(method, moment, sample_size) %>%
   #calcualte proportion of 'hits' per trait, methods, moment
   summarise(percentage = sum(hit - 1)/n(),
-            deviation = mean(ifelse(abs(estimate) > abs(true_value),
-                                    abs(estimate) - abs(true_value),
-                                    abs(true_value) - abs(estimate))))
+            deviation = mean(abs(deviation)))
 
 sim_biased_moon_means$moment =
   ordered(sim_biased_moon_means$moment,levels = c("mean",
@@ -119,20 +127,25 @@ inset <-
 
 
 moons <-
-  ggplot(sim_moon_means %>%
-           filter(sample_size %in% c(1,9,49,100,196,441))) +
+ggplot(sim_moon_means %>%
+         filter(sample_size %in% c(1,9,49,100,196,441))) +
   geom_hline(aes(yintercept = 0),
              color = "grey50",
              size = 1.5) +
-  geom_smooth(aes(
-    x = sample_size,
-    y = sim_biased_moon_means %>%
-      filter(sample_size %in% c(1,9,49,100,196,441)) %>%
-      pull(deviation),
-    color = method,
-    linetype = "Biased"),
-    se = FALSE,
-    size = 0.4) +
+  # geom_ribbon(data = sim_ci,
+  #             aes(x = sample_size,
+  #                 ymax = ci_high_dev,
+  #                 ymin = ci_low_dev,
+  #                 fill = method),
+  #             alpha = 0.2) +
+  geom_smooth(data = sim_biased_moon_means,
+              aes(
+                x = sample_size,
+                y = deviation,
+                color = method,
+                linetype = "Biased"),
+              se = FALSE,
+              size = 0.4) +
   geom_smooth(aes(
     x = sample_size,
     y = deviation ,
@@ -152,18 +165,16 @@ moons <-
     x = sample_size,
     y = deviation,
     ratio = percentage,
-    #right = right,
     fill = method
   ),
   color = "transparent",
   size = 5) +
+  coord_cartesian(clip = 'off') +
   scale_fill_manual(guide = guide_legend(title = "Method",
-                                         #nrow = 1,
                                          title.position="top"),
                     values = colorspace::darken(pal_df$c, amount = 0.2),
                     labels = pal_df$l) +
   scale_colour_manual(guide = guide_legend(title = "Method",
-                                           #nrow = 1,
                                            title.position="top"),
                       values = colorspace::lighten(pal_df$c, amount = 0.6),
                       labels = pal_df$l) +
@@ -210,16 +221,16 @@ moons <-
 
 cowplot::ggdraw(moons) +
   cowplot::draw_plot(moon_legend,
-                     .8, .12,
+                     .79, .12,
                      0.21, .22) +
   cowplot::draw_plot(inset,
-                     width = 0.8,
+                     width = 0.78,
                      height = 0.9,
-                     x = 0.1,
+                     x = 0.11,
                      y = 0.07)
 
 ggsave(here::here("figures/moons_biased_directionality.png"),
-       height = 7.4, width = 12.5,
+       height = 7.4, width = 13.2,
        units = "in", dpi = 300)
 
 ### Transition plots - accuracy & directionality of moments - 'global' ----
@@ -233,15 +244,6 @@ sim_means =
   group_by(method, moment, sample_size) %>%
   mutate(group_size = n()) %>%
   #if true value falls in estimate's CI
-  mutate(hit = ifelse(ci_low <= true_value & true_value <= ci_high,
-                      "yay",
-                      "nay"),
-         deviation = ifelse(estimate > true_value,
-                            abs(estimate - true_value),
-                            abs(true_value - estimate))) %>%
-  mutate(overunder = ifelse(true_value < estimate,
-                            "over",
-                            "under")) %>%
   mutate(deviation = ifelse(overunder == "over",
                             deviation,
                             -1*deviation)) %>%
@@ -524,12 +526,530 @@ ggsave(here::here("figures/transition.png"),
 
 
 
+#### Moons - all datasets resticted ss ----
 
+#limit ss 1- 49
+
+sim_moon_means =
+  rbind(simdata %>%
+          mutate(dataset = rep("Herbs", nrow(.))),
+        simdata_frogs %>%
+          mutate(dataset = rep("Tadpoles", nrow(.))),
+        simdata_panama %>%
+          mutate(dataset = rep("Trees", nrow(.))),
+        simdata_rats %>%
+          mutate(dataset = rep("Rodents", nrow(.)))) %>%
+  #if true value falls in estimate's CI
+  filter(sample_size < 50) %>%
+  mutate(hit = ifelse(ci_low <= true_value & true_value <= ci_high,
+                      2,
+                      1)) %>%
+  group_by(dataset, method, moment, sample_size) %>%
+  #calcualte proportion of 'hits' per trait, methods, moment
+  summarise(percentage = sum(hit - 1)/n(),
+            deviation = mean(abs(deviation)))
+
+sim_moon_means$moment =
+  ordered(sim_moon_means$moment,levels = c("mean",
+                                                  "variance",
+                                                  "skewness",
+                                                 "kurtosis"))
+herbs = 
+ggplot(sim_moon_means %>%
+         filter(dataset == 'Herbs')) +
+  geom_hline(aes(yintercept = 0),
+                       color = "grey50",
+                       size = 1.5) +
+  geom_smooth(aes(
+    x = sample_size,
+    y = deviation ,
+    color = method),
+    alpha = 0.5,
+    se = FALSE,
+    size = 0.8) +
+  geom_point(aes(
+    x = sample_size,
+    y = deviation,
+    color = method
+  ),
+  size = 5,
+  alpha = 0.9) +
+  geom_moon(aes(
+    x = sample_size,
+    y = deviation,
+    ratio = percentage,
+    fill = method
+  ),
+  color = "transparent",
+  size = 5) +
+  coord_cartesian(clip = 'off') +
+  scale_fill_manual(guide = guide_legend(title = "Method",
+                                         title.position="top"),
+                    values = colorspace::darken(pal_df$c, amount = 0.2),
+                    labels = pal_df$l) +
+  scale_colour_manual(guide = guide_legend(title = "Method",
+                                           title.position="top"),
+                      values = colorspace::lighten(pal_df$c, amount = 0.6),
+                      labels = pal_df$l) +
+  # scale_x_continuous(trans = 'sqrt', breaks = c(0,10,50,100,200,500),
+  #                    limits = c(0, 500)) +
+  facet_grid(rows = vars(moment),
+             cols = vars(method),
+             labeller = labeller(
+               trait = traits_parsed,
+               .default = capitalize
+             ),
+             switch = 'y',
+             scales = 'free') +
+  labs(x = "Sample Size",
+       y = "Average deviation from true moment",
+       title = "A: Herbs") +
+  #draw_key_moon(data.frame(x = 1:5, y = 0, ratio = 0:4 * 0.25))
+  # Theme
+  figure_theme +
+  theme(
+    legend.position = 'right',
+    legend.title = element_text(size = 14, colour = "grey65"),
+    strip.text.y = element_text(margin = margin(0, 0, 10, 0),
+                                size = 14, face = "bold",
+                                colour = "grey65"),
+    strip.text.x.top = element_text(margin = margin(0, 0, 10, 0),
+                                    size = 14,
+                                    colour = "grey65"),
+    panel.grid.major.y = element_line(size = 0.05,
+                                      colour = "grey65"),
+    legend.key = element_blank(),
+    legend.text = element_text(colour = "grey65"),
+    axis.title = element_text(colour = "grey65"),
+    strip.background = element_blank(),
+    axis.line = element_blank(),
+    strip.placement = 'outside',
+    panel.background = element_rect(colour = colorspace::lighten("#141438", 0.1),
+                                    size = 1),
+    plot.title.position = "plot",
+    plot.title = element_text(margin = margin(0, 0, 10, 0),
+                              size = 15, face = "bold",
+                              colour = "grey65")
+  ) 
+
+frogs = 
+  ggplot(sim_moon_means %>%
+           filter(dataset == 'Tadpoles')) +
+  geom_hline(aes(yintercept = 0),
+             color = "grey50",
+             size = 1.5) +
+  geom_smooth(aes(
+    x = sample_size,
+    y = deviation ,
+    color = method),
+    alpha = 0.5,
+    se = FALSE,
+    size = 0.8) +
+  geom_point(aes(
+    x = sample_size,
+    y = deviation,
+    color = method
+  ),
+  size = 5,
+  alpha = 0.9) +
+  geom_moon(aes(
+    x = sample_size,
+    y = deviation,
+    ratio = percentage,
+    fill = method
+  ),
+  color = "transparent",
+  size = 5) +
+  coord_cartesian(clip = 'off') +
+  scale_fill_manual(guide = guide_legend(title = "Method",
+                                         title.position="top"),
+                    values = colorspace::darken(pal_df$c, amount = 0.2),
+                    labels = pal_df$l) +
+  scale_colour_manual(guide = guide_legend(title = "Method",
+                                           title.position="top"),
+                      values = colorspace::lighten(pal_df$c, amount = 0.6),
+                      labels = pal_df$l) +
+  # scale_x_continuous(trans = 'sqrt', breaks = c(0,10,50,100,200,500),
+  #                    limits = c(0, 500)) +
+  facet_grid(rows = vars(moment),
+             cols = vars(method),
+             labeller = labeller(
+               trait = traits_parsed,
+               .default = capitalize
+             ),
+             switch = 'y',
+             scales = 'free') +
+  labs(x = "Sample Size",
+       y = "Average deviation from true moment",
+       title = "B: Tadpoles") +
+  # Theme
+  figure_theme +
+  theme(
+    legend.position = 'right',
+    legend.title = element_text(size = 14, colour = "grey65"),
+    strip.text.y = element_text(margin = margin(0, 0, 10, 0),
+                                size = 14, face = "bold",
+                                colour = "grey65"),
+    strip.text.x.top = element_text(margin = margin(0, 0, 10, 0),
+                                    size = 14,
+                                    colour = "grey65"),
+    panel.grid.major.y = element_line(size = 0.05,
+                                      colour = "grey65"),
+    legend.key = element_blank(),
+    legend.text = element_text(colour = "grey65"),
+    axis.title = element_text(colour = "grey65"),
+    strip.background = element_blank(),
+    axis.line = element_blank(),
+    strip.placement = 'outside',
+    panel.background = element_rect(colour = colorspace::lighten("#141438", 0.1),
+                                    size = 1),
+    plot.title.position = "plot",
+    plot.title = element_text(margin = margin(0, 0, 10, 0),
+                              size = 15, face = "bold",
+                              colour = "grey65")
+  ) 
+
+  
+panama = 
+  ggplot(sim_moon_means %>%
+           filter(dataset == 'Trees')) +
+  geom_hline(aes(yintercept = 0),
+             color = "grey50",
+             size = 1.5) +
+  geom_smooth(aes(
+    x = sample_size,
+    y = deviation ,
+    color = method),
+    alpha = 0.5,
+    se = FALSE,
+    size = 0.8) +
+  geom_point(aes(
+    x = sample_size,
+    y = deviation,
+    color = method
+  ),
+  size = 5,
+  alpha = 0.9) +
+  geom_moon(aes(
+    x = sample_size,
+    y = deviation,
+    ratio = percentage,
+    fill = method
+  ),
+  color = "transparent",
+  size = 5) +
+  coord_cartesian(clip = 'off') +
+  scale_fill_manual(guide = guide_legend(title = "Method",
+                                         title.position="top"),
+                    values = colorspace::darken(pal_df$c, amount = 0.2),
+                    labels = pal_df$l) +
+  scale_colour_manual(guide = guide_legend(title = "Method",
+                                           title.position="top"),
+                      values = colorspace::lighten(pal_df$c, amount = 0.6),
+                      labels = pal_df$l) +
+  # scale_x_continuous(trans = 'sqrt', breaks = c(0,10,50,100,200,500),
+  #                    limits = c(0, 500)) +
+  facet_grid(rows = vars(moment),
+             cols = vars(method),
+             labeller = labeller(
+               trait = traits_parsed,
+               .default = capitalize
+             ),
+             switch = 'y',
+             scales = 'free') +
+  labs(x = "Sample Size",
+       y = "Average deviation from true moment",
+       title = "B: Trees") +
+  #draw_key_moon(data.frame(x = 1:5, y = 0, ratio = 0:4 * 0.25))
+  # Theme
+  figure_theme +
+  theme(
+    legend.position = 'right',
+    legend.title = element_text(size = 14, colour = "grey65"),
+    strip.text.y = element_text(margin = margin(0, 0, 10, 0),
+                                size = 14, face = "bold",
+                                colour = "grey65"),
+    strip.text.x.top = element_text(margin = margin(0, 0, 10, 0),
+                                    size = 14,
+                                    colour = "grey65"),
+    panel.grid.major.y = element_line(size = 0.05,
+                                      colour = "grey65"),
+    legend.key = element_blank(),
+    legend.text = element_text(colour = "grey65"),
+    axis.title = element_text(colour = "grey65"),
+    strip.background = element_blank(),
+    axis.line = element_blank(),
+    strip.placement = 'outside',
+    panel.background = element_rect(colour = colorspace::lighten("#141438", 0.1),
+                                    size = 1),
+    plot.title.position = "plot",
+    plot.title = element_text(margin = margin(0, 0, 10, 0),
+                              size = 15, face = "bold",
+                              colour = "grey65")
+  ) 
+
+
+rodents = 
+  ggplot(sim_moon_means %>%
+           filter(dataset == 'Rodents')) +
+  geom_hline(aes(yintercept = 0),
+             color = "grey50",
+             size = 1.5) +
+  geom_smooth(aes(
+    x = sample_size,
+    y = deviation ,
+    color = method),
+    alpha = 0.5,
+    se = FALSE,
+    size = 0.8) +
+  geom_point(aes(
+    x = sample_size,
+    y = deviation,
+    color = method
+  ),
+  size = 5,
+  alpha = 0.9) +
+  geom_moon(aes(
+    x = sample_size,
+    y = deviation,
+    ratio = percentage,
+    fill = method
+  ),
+  color = "transparent",
+  size = 5) +
+  coord_cartesian(clip = 'off') +
+  scale_fill_manual(guide = guide_legend(title = "Method",
+                                         title.position="top"),
+                    values = colorspace::darken(pal_df$c, amount = 0.2),
+                    labels = pal_df$l) +
+  scale_colour_manual(guide = guide_legend(title = "Method",
+                                           title.position="top"),
+                      values = colorspace::lighten(pal_df$c, amount = 0.6),
+                      labels = pal_df$l) +
+  # scale_x_continuous(trans = 'sqrt', breaks = c(0,10,50,100,200,500),
+  #                    limits = c(0, 500)) +
+  facet_grid(rows = vars(moment),
+             cols = vars(method),
+             labeller = labeller(
+               trait = traits_parsed,
+               .default = capitalize
+             ),
+             switch = 'y',
+             scales = 'free') +
+  labs(x = "Sample Size",
+       y = "Average deviation from true moment",
+       title = "D: Rodents") +
+  #draw_key_moon(data.frame(x = 1:5, y = 0, ratio = 0:4 * 0.25))
+  # Theme
+  figure_theme +
+  theme(
+    legend.position = 'right',
+    legend.title = element_text(size = 14, colour = "grey65"),
+    strip.text.y = element_text(margin = margin(0, 0, 10, 0),
+                                size = 14, face = "bold",
+                                colour = "grey65"),
+    strip.text.x.top = element_text(margin = margin(0, 0, 10, 0),
+                                    size = 14,
+                                    colour = "grey65"),
+    panel.grid.major.y = element_line(size = 0.05,
+                                      colour = "grey65"),
+    legend.key = element_blank(),
+    legend.text = element_text(colour = "grey65"),
+    axis.title = element_text(colour = "grey65"),
+    strip.background = element_blank(),
+    axis.line = element_blank(),
+    strip.placement = 'outside',
+    panel.background = element_rect(colour = colorspace::lighten("#141438", 0.1),
+                                    size = 1),
+    plot.title.position = "plot",
+    plot.title = element_text(margin = margin(0, 0, 10, 0),
+                              size = 15, face = "bold",
+                              colour = "grey65")
+  ) 
+
+(herbs + frogs)/
+  (panama + rodents) +
+  plot_layout(guides = 'collect') +
+  plot_annotation(theme = theme(
+                    plot.background = element_rect(fill = "#141438", colour = NA),
+                    panel.background = element_rect(fill = "#141438", colour = NA))) 
+
+ggsave(here::here("figures/restricted_sample_datasets.png"),
+       height = 12, width = 19.5,
+       units = "in", dpi = 300)
 
 
 ### Bonus Plots----
 
-#### All traits combined
+### a) BumpPlots ----
+
+library(ggbump)
+library(ggfx)
+
+bumps = 
+  rbind(simdata %>%
+          mutate(dataset = rep("Herbs", nrow(.))),
+        simdata_frogs %>%
+          mutate(dataset = rep("Tadpoles", nrow(.))),
+        simdata_panama %>%
+          mutate(dataset = rep("Trees", nrow(.))),
+        simdata_rats %>%
+          mutate(dataset = rep("Rodents", nrow(.)))) %>%
+  mutate(hit = ifelse(ci_low <= true_value & true_value <= ci_high,
+                      2,
+                      1),
+         deviation = ifelse(abs(estimate) > abs(true_value),
+                            abs(estimate) - abs(true_value),
+                            abs(true_value) - abs(estimate))) %>%
+  # group_by(dataset, moment, sample_size, site, trait) %>%
+  filter(hit == 2)  %>%
+  group_by(dataset, method, moment, sample_size) %>%
+  summarise(n = mean(deviation)) %>%
+  group_by(dataset, moment, sample_size) %>%
+  mutate(rank = rank(n)) %>%
+  mutate(rank = ifelse(is.na(rank),
+                       5,
+                       rank))
+
+bumps$dataset <- factor(bumps$dataset,
+                        levels = c("Herbs",
+                                   "Tadpoles",
+                                   "Trees", 
+                                   "Rodents"))
+
+bumps$moment =
+  ordered(bumps$moment,levels = c("mean",
+                                      "variance",
+                                      "skewness",
+                                      "kurtosis"))
+sub_bump = 
+ggplot(bumps %>%
+         filter(sample_size < 50)) +
+  with_blur(
+    geom_bump(aes(x = sample_size,
+                y = rank,
+                colour = method),
+            size = 1, smooth = 8),
+    sigma = 1) +
+  geom_point(aes(x = sample_size,
+                 y = rank,
+                 colour = method),
+             size = 2) +
+  facet_grid(cols = vars(moment),
+             rows = vars(dataset),
+             labeller = labeller(
+               trait = traits_parsed,
+               .default = capitalize
+             ),
+             switch = 'y') +
+  scale_colour_manual(guide = guide_legend(title = "Method"),
+                      values = pal_df$c,
+                      labels = pal_df$l) +
+  labs(x = 'Sample size',
+       y = "Rank") +
+  scale_x_continuous(trans = 'sqrt', breaks = c(1,4,9,16,25, 36,49),
+                     limits = c(1, 50)) +
+  #scale_x_continuous(breaks = c(1,4,9,16,25, 36,49)) +
+  lims(y = c(4.5,.5)) +
+  # Theme
+  figure_theme +
+  theme(
+    legend.position = 'bottom',
+    legend.title = element_text(size = 14, colour = "grey65"),
+    strip.text.y = element_text(margin = margin(0, 0, 10, 0),
+                                size = 14, face = "bold",
+                                colour = "grey65"),
+    strip.text.x.top = element_text(margin = margin(0, 0, 10, 0),
+                                    size = 14,
+                                    colour = "grey65"),
+    panel.grid.major.y = element_blank(),
+    legend.key = element_blank(),
+    legend.text = element_text(colour = "grey65"),
+    axis.title = element_text(colour = "grey65"),
+    axis.text.y = element_blank(),
+    axis.ticks.y = element_blank(),
+    strip.background = element_blank(),
+    axis.line = element_blank(),
+    strip.placement = 'outside',
+    panel.background = element_rect(colour = colorspace::lighten("#141438", 0.1),
+                                    size = 1),
+    plot.title.position = "plot",
+    plot.title = element_text(margin = margin(0, 0, 10, 0),
+                              size = 15, face = "bold",
+                              colour = "grey65")
+  ) 
+
+bump =
+ggplot(bumps %>%
+         filter(sample_size %in% c(1,9,49,100,196,441))) +
+  with_blur(
+    geom_bump(aes(x = sample_size,
+                  y = rank,
+                  colour = method),
+              size = 1, smooth = 8),
+    sigma = 1) +
+  geom_point(aes(x = sample_size,
+                 y = rank,
+                 colour = method),
+             size = 2) +
+  facet_grid(cols = vars(moment),
+             rows = vars(dataset),
+             labeller = labeller(
+               trait = traits_parsed,
+               .default = capitalize
+             ),
+             switch = 'y') +
+  scale_colour_manual(guide = guide_legend(title = "Method"),
+                      values = pal_df$c,
+                      labels = pal_df$l) +
+  labs(x = 'Sample size',
+       y = "Rank") +
+  scale_x_continuous(trans = 'sqrt', breaks = c(0,10,50,100,200,500),
+                     limits = c(0, 500)) +
+  lims(y = c(4.5,.5)) +
+  # Theme
+  figure_theme +
+  theme(
+    legend.position = 'bottom',
+    legend.title = element_text(size = 14, colour = "grey65"),
+    strip.text.y = element_text(margin = margin(0, 0, 10, 0),
+                                size = 14, face = "bold",
+                                colour = "grey65"),
+    strip.text.x.top = element_text(margin = margin(0, 0, 10, 0),
+                                    size = 14,
+                                    colour = "grey65"),
+    panel.grid.major.y = element_blank(),
+    legend.key = element_blank(),
+    legend.text = element_text(colour = "grey65"),
+    axis.title = element_text(colour = "grey65"),
+    axis.text.y = element_blank(),
+    axis.ticks.y = element_blank(),
+    strip.background = element_blank(),
+    axis.line = element_blank(),
+    strip.placement = 'outside',
+    panel.background = element_rect(colour = colorspace::lighten("#141438", 0.1),
+                                    size = 1),
+    plot.title.position = "plot",
+    plot.title = element_text(margin = margin(0, 0, 10, 0),
+                              size = 15, face = "bold",
+                              colour = "grey65")
+  ) 
+
+(bump +
+  sub_bump) +
+  plot_layout(guides = 'collect') +
+  plot_annotation(tag_levels = 'A',
+                  theme = theme(
+                    legend.position = 'bottom',
+                    plot.background = element_rect(fill = "#141438", colour = NA),
+                    panel.background = element_rect(fill = "#141438", colour = NA),
+                    text = element_text(family = "Noto", color = "grey65")))
+
+ggsave(here::here("figures/bumps.png"),
+       height = 8, width = 18,
+       units = "in", dpi = 300)
+
+#### --- All traits combined----
 
 sim_moon_panama =
   simdata_panama %>%

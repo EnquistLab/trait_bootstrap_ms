@@ -36,5 +36,17 @@ tidy_simdata <-function(data){
     mutate(method = ordered(method,levels = c("Cross-Site CWM",
                                               "Site-Specific CWM",
                                               "Parametric BS",
-                                              "Non-Parametric BS")))
+                                              "Non-Parametric BS")),
+           overunder = ifelse(true_value <= estimate,
+                              "over",
+                              "under"),
+           deviation = ifelse(abs(estimate) > abs(true_value),
+                              abs(estimate) - abs(true_value),
+                              abs(true_value) - abs(estimate)),
+           hit = ifelse(ci_low <= true_value & true_value <= ci_high,
+                        'Yes',
+                        'No')) %>%
+    mutate(deviation = ifelse(overunder == "under",
+                              -1*deviation,
+                              deviation))
 }
