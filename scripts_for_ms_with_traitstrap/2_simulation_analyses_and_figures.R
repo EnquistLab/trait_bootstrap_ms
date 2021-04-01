@@ -867,80 +867,6 @@ ggsave(here::here("figures/WinnerDoughnuts_datasets_images.png"),
 
 ### Fig 2 panel ----
 
-####table####
-
-library(gt)
-
-library(cowplot)
-
-datasets = tibble(
-  Dataset = factor(rep(c("CO", "PAN", "FROG", "AZ"),6),
-                   levels = c("AZ","FROG","PAN","CO")),
-  label = c(c("Colorado<br>Plants", "Texas<br>Tadpoles", "Panama<br>Trees", "Arizona<br>Rodents"),
-            c(50, 122, 17, 1),
-            c(5, 20, 24, 1),
-            c(5, 8, 1, 1),
-            c(2064, 322, 4341, 992),
-            c("", 
-              "Messier, McGill,<br> & Lechowicz, 2010", 
-              "Ernest, Yenni,<br>Allington, & <br>Bledsoe, 2020", 
-              "Rasmussen, <br>Rudolf, 2016")),
-  x_spp = c(rep("Dataset", 4),
-            rep("Species", 4),
-            rep("Sites", 4),
-            rep("Traits", 4),
-            rep("Individuals", 4),
-            rep("Citation", 4)),
-  x = c(rep(1, 4),
-        rep(1.7, 4),
-        rep(2.2, 4),
-        rep(2.7, 4),
-        rep(3.2, 4),
-        rep(4, 4)))
-
-datasets$x_spp = factor(datasets$x_spp,
-                        levels = c(
-                          "Dataset",
-                          "Number of species",
-                          "Number of sites",
-                          "Number of traits",
-                          "Number of individuals",
-                          "Citation"
-                        ))
-
-p = 
-  ggplot(datasets) +
-  geom_richtext(aes(x = x,
-                    y = Dataset,
-                    label = label),
-                family = "Noto",
-                colour = "grey69",
-                fill = NA,
-                label.color = NA) +
-  theme_void() +
-  scale_x_continuous(position = "top",
-                     breaks = c(1, 1.7, 2.2, 2.7, 3.2, 4),
-                     labels = c("Dataset",
-                                "Species",
-                                "Sites",
-                                "Traits",
-                                "Individuals",
-                                "Citation")) + 
-  expand_limits(x = c(0.5, 4.7)) +
-  coord_cartesian(clip = 'off') +
-  theme(axis.text.x = element_text(size = 12),
-        legend.text = element_text(colour = "grey65"),
-        text = element_text(family = "Noto", color = "grey65"))
-
-
-pimage <- axis_canvas(p, axis = 'y') + 
-  draw_image(img1, y = 3.5, scale = 0.5) +
-  draw_image(img2, y = 2.5, scale = 0.5) +
-  draw_image(img3, y = 1.5, scale = 0.5) +
-  draw_image(img4, y = 0.5, scale = 0.5)
-
-ggdraw(insert_yaxis_grob(p, pimage, position = "left"))
-
 inset = 
   ggplot(over_under) +
   geom_col(aes(x = x,
@@ -971,7 +897,57 @@ inset =
   )
 
 
-(ggdraw(insert_yaxis_grob(p, pimage, position = "left")) + doughnut +
+(ggplot(sim_doughnuts_all) +
+    geom_col(aes(
+      x = 2,
+      y = percentage,
+      fill = method
+    ),
+    colour = 'grey96') +
+    xlim(c(0.5, 2.5)) +
+    ylim(c(0, 1)) +
+    #annotation textboxes
+    geom_text(data = sim_win_text,
+              aes(x = 0.5,
+                  y = 0.25,
+                  colour = method,
+                  label = glue::glue("{percentage}%")),
+              #label = glue::glue("{method} - {percentage}%")),
+              #colour = 'grey90',
+              hjust = 0.5,
+              show.legend = FALSE,
+              size = 4) +
+    coord_polar(theta = 'y') +
+    facet_grid(rows = vars(dataset),
+               cols = vars(moment),
+               labeller = labeller(
+                 trait = traits_parsed,
+                 .default = capitalize
+               ),
+               switch = 'y')  + 
+    scale_colour_manual(values = pal_df$c,
+                        breaks = pal_df$l)  + 
+    scale_fill_manual(guide = guide_legend(title = "Method",
+                                           #nrow = 1,
+                                           title.position="top",
+                                           title.hjust = 0.5),
+                      values = pal_df$c,
+                      breaks = pal_df$l) +
+    # Theme
+    theme_void() +
+    theme(legend.position = 'none',
+          text = element_text(family = "Noto", color = "grey65"),
+          plot.background = element_rect(fill = "#141438", colour = NA),
+          panel.background = element_rect(fill = "#141438", colour = NA),
+          strip.text.y = element_text(margin = margin(0, 0, 10, 0),
+                                      size = 14, face = "bold",
+                                      colour = "grey65",
+                                      angle = 0),
+          strip.text.x.top = element_text(margin = margin(0, 0, 10, 0),
+                                          size = 14,
+                                          colour = "grey65"),
+          strip.placement = 'outside') +
+    sub_bump +
     theme(legend.position = 'none',
           text = element_text(family = "Noto", color = "grey65")))/
   lollipop_all +
@@ -996,7 +972,7 @@ inset =
     text = element_text(family = "Noto", color = "grey65"))) 
 
 ggsave(here::here("figures/Fig2_panel.png"),
-       height = 12, width = 19,
+       height = 12, width = 17,
        units = "in", dpi = 300)
 
 ### Doughnut - Panama by trait ----
