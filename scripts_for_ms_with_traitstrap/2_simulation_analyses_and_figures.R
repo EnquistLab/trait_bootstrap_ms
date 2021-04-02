@@ -952,7 +952,6 @@ inset =
           text = element_text(family = "Noto", color = "grey65")))/
   lollipop_all +
   theme(
-    legend.position = 'right',
     strip.text.x = element_text(margin = margin(0, 0, 10, 0),
                                 size = 16, face = "bold",
                                 colour = "grey70"),
@@ -963,7 +962,7 @@ inset =
                                      vjust = 0),
     legend.text = element_text(colour = "grey65")
   ) +
-  plot_layout(guides = 'collect',
+  plot_layout(#guides = 'collect',
               widths = c(1, 1)) +
   plot_annotation(tag_levels = 'A',
                   theme = theme(
@@ -972,7 +971,7 @@ inset =
     text = element_text(family = "Noto", color = "grey65"))) 
 
 ggsave(here::here("figures/Fig2_panel.png"),
-       height = 12, width = 17,
+       height = 12, width = 16,
        units = "in", dpi = 300)
 
 ### Doughnut - Panama by trait ----

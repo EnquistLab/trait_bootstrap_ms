@@ -95,11 +95,11 @@ moons_co <-
   geom_hline(aes(yintercept = 0),
              color = "grey50",
              size = 1.5) +
-  geom_hline(data = rodent_random,
-             aes(yintercept = deviation,
-                 linetype = "Random"),
-             color = "grey50",
-             size = 1.2) +
+  # geom_hline(data = rodent_random,
+  #            aes(yintercept = deviation,
+  #                linetype = "Random"),
+  #            color = "grey50",
+  #            size = 1.2) +
   geom_smooth(
     data = colorado_percent %>%
       filter(estimate != is.na(estimate)) %>%
@@ -141,7 +141,7 @@ moons_co <-
                                            title.position="top"),
                       values = colorspace::lighten(pal_df$c, amount = 0.6),
                       labels = pal_df$l) +  
-  
+  coord_polar(clip = 'off') +
   facet_grid(rows = vars(moment),
              cols = vars(method),
              labeller = labeller(
@@ -150,7 +150,7 @@ moons_co <-
              ),
              switch = 'y',
              scales = 'free') +
-  labs(x = "Percent abundance sampled",
+  labs(x = "Percent cumulative abundance sampled",
        y = "Average deviation from true moment") +
   # Theme
   figure_theme +
@@ -298,11 +298,11 @@ ggplot(sim_moon_means_rodent) +
   geom_hline(aes(yintercept = 0),
              color = "grey50",
              size = 1.5) +
-  geom_hline(data = rodent_random,
-             aes(yintercept = deviation,
-                 linetype = "Random"),
-             color = "grey50",
-             size = 1.2) +
+  # geom_hline(data = rodent_random,
+  #            aes(yintercept = deviation,
+  #                linetype = "Random"),
+  #            color = "grey50",
+  #            size = 1.2) +
   geom_smooth(
     data = rodent_percent %>%
       filter(estimate != is.na(estimate)) %>%
@@ -353,7 +353,7 @@ ggplot(sim_moon_means_rodent) +
              ),
              switch = 'y',
              scales = 'free') +
-  labs(x = "Percent abundance sampled",
+  labs(x = "Percent cumulative abundance sampled",
        y = "Average deviation from true moment") +
   # Theme
   figure_theme +
@@ -446,27 +446,27 @@ moon_legend =
         text = element_text(colour = "grey65",
                             family = "Noto"))
 
-moons_co +
+(moons_co +
   labs(title = "A: Herbs") + 
   theme(plot.title.position = 'plot',
         plot.title = element_text(size = 16, color = "grey65"),
         plot.margin = margin(25, 0, 10, 25)) +
-    # inset_element(inset_co, 
-    #               left = 0, 
-    #               bottom = 0, 
-    #               right = 1, 
-    #               top = 1)) +
-  moons_az  +
+    inset_element(inset_co,
+                  left = 0,
+                  bottom = 0,
+                  right = 1,
+                  top = 1)) +
+  (moons_az  +
   labs(title = "B: Rodents") +   
   theme(plot.title.position = 'plot',
         plot.title = element_text(size = 16, color = "grey65"),
         strip.text.y = element_blank(),
         axis.title.y = element_blank()) +
-    # inset_element(inset_az, 
-    #               left = 0, 
-    #               bottom = 0, 
-    #               right = 1, 
-    #               top = 1)) +
+    inset_element(inset_az,
+                  left = 0,
+                  bottom = 0,
+                  right = 1,
+                  top = 1)) +
   plot_layout(guides = 'collect',
               widths = c(1, 1)) +
   plot_annotation(theme = theme(
@@ -479,7 +479,7 @@ moons_co +
                 align_to = 'full')
 
 ggsave(here::here("figures/moons_pct_abund_AB.png"),
-       height = 9, width = 20,
+       height = 9, width = 20.5,
        units = "in", dpi = 300)
 
 #### Lollipops CO ----
