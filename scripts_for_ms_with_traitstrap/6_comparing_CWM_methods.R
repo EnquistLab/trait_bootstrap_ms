@@ -84,5 +84,5 @@ ggplot(cwm_methods) +
         legend.position = 'bottom')
 
 ggsave(here::here("figures/CWM_comparison.png"),
-       height = 9, width = 13,
+       height = 9, width = 13.3,
        units = "in", dpi = 300)
