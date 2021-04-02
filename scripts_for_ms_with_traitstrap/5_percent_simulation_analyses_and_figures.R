@@ -141,7 +141,6 @@ moons_co <-
                                            title.position="top"),
                       values = colorspace::lighten(pal_df$c, amount = 0.6),
                       labels = pal_df$l) +  
-  coord_polar(clip = 'off') +
   facet_grid(rows = vars(moment),
              cols = vars(method),
              labeller = labeller(
@@ -448,9 +447,9 @@ moon_legend =
 
 (moons_co +
   labs(title = "A: Herbs") + 
-  theme(plot.title.position = 'plot',
+  theme(plot.title.position = 'panel',
         plot.title = element_text(size = 16, color = "grey65"),
-        plot.margin = margin(25, 0, 10, 25)) +
+        plot.margin = margin(40, 5, 10, 25)) +
     inset_element(inset_co,
                   left = 0,
                   bottom = 0,
@@ -458,7 +457,7 @@ moon_legend =
                   top = 1)) +
   (moons_az  +
   labs(title = "B: Rodents") +   
-  theme(plot.title.position = 'plot',
+  theme(plot.title.position = 'panel',
         plot.title = element_text(size = 16, color = "grey65"),
         strip.text.y = element_blank(),
         axis.title.y = element_blank()) +
@@ -472,9 +471,9 @@ moon_legend =
   plot_annotation(theme = theme(
     plot.background = element_rect(fill = "#141438", colour = NA))) +
   inset_element(moon_legend, 
-                left = 0.81, 
+                left = 0.815, 
                 bottom = 0.21, 
-                right = 0.92, 
+                right = 0.925, 
                 top = 0.34,
                 align_to = 'full')
 
