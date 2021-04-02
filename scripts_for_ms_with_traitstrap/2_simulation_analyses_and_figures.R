@@ -912,8 +912,6 @@ inset =
                   y = 0.25,
                   colour = method,
                   label = glue::glue("{percentage}%")),
-              #label = glue::glue("{method} - {percentage}%")),
-              #colour = 'grey90',
               hjust = 0.5,
               show.legend = FALSE,
               size = 4) +
@@ -939,31 +937,26 @@ inset =
           text = element_text(family = "Noto", color = "grey65"),
           plot.background = element_rect(fill = "#141438", colour = NA),
           panel.background = element_rect(fill = "#141438", colour = NA),
-          strip.text.y = element_text(margin = margin(0, 0, 10, 0),
-                                      size = 14, face = "bold",
-                                      colour = "grey65",
-                                      angle = 0),
+          strip.text.y.left = element_text(colour = "grey69",
+                                      margin = margin(0, 10, 10, 10),
+                                      angle = 0,
+                                      size = 12,
+                                      vjust = 0),
           strip.text.x.top = element_text(margin = margin(0, 0, 10, 0),
                                           size = 14,
-                                          colour = "grey65"),
-          strip.placement = 'outside') +
+                                          colour = "grey65")) +
     sub_bump +
     theme(legend.position = 'none',
-          text = element_text(family = "Noto", color = "grey65")))/
+          text = element_text(family = "Noto", color = "grey65"),
+          strip.text.y = element_blank()) +
+    plot_layout(widths = c(0.5, 1)))/
   lollipop_all +
   theme(
-    strip.text.x = element_text(margin = margin(0, 0, 10, 0),
-                                size = 16, face = "bold",
+    strip.text.x = element_text(size = 16,
                                 colour = "grey70"),
-    strip.text.y.left = element_text(colour = "grey69",
-                                     margin = margin(0, 10, 10, 10),
-                                     angle = 0,
-                                     size = 12,
-                                     vjust = 0),
+    strip.text.y = element_blank(),
     legend.text = element_text(colour = "grey65")
-  ) +
-  plot_layout(#guides = 'collect',
-              widths = c(1, 1)) +
+  )  +
   plot_annotation(tag_levels = 'A',
                   theme = theme(
     plot.background = element_rect(fill = "#141438", colour = NA),
@@ -971,7 +964,7 @@ inset =
     text = element_text(family = "Noto", color = "grey65"))) 
 
 ggsave(here::here("figures/Fig2_panel.png"),
-       height = 12, width = 16,
+       height = 12, width = 15,
        units = "in", dpi = 300)
 
 ### Doughnut - Panama by trait ----
