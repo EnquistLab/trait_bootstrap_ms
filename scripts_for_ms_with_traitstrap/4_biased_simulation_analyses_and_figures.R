@@ -19,6 +19,8 @@ simdata_panama <-
 simdata_rats <- 
   tidy_simdata(readRDS("output_data/simulation_results_rodents.RDS"))
 
+simdata_frogs <- 
+  tidy_simdata(readRDS("output_data/simulation_results_treefrogs.RDS"))
 
 ### Moon plots - accuracy of moments - 'global' ----
 
@@ -626,7 +628,7 @@ ggplot(sim_moon_means %>%
     strip.placement = 'outside',
     panel.background = element_rect(colour = colorspace::lighten("#141438", 0.1),
                                     size = 1),
-    plot.title.position = "plot",
+    plot.title.position = "panel",
     plot.title = element_text(margin = margin(0, 0, 10, 0),
                               size = 15, face = "bold",
                               colour = "grey65")
@@ -703,7 +705,7 @@ frogs =
     strip.placement = 'outside',
     panel.background = element_rect(colour = colorspace::lighten("#141438", 0.1),
                                     size = 1),
-    plot.title.position = "plot",
+    plot.title.position = "panel",
     plot.title = element_text(margin = margin(0, 0, 10, 0),
                               size = 15, face = "bold",
                               colour = "grey65")
@@ -782,7 +784,7 @@ panama =
     strip.placement = 'outside',
     panel.background = element_rect(colour = colorspace::lighten("#141438", 0.1),
                                     size = 1),
-    plot.title.position = "plot",
+    plot.title.position = "panel",
     plot.title = element_text(margin = margin(0, 0, 10, 0),
                               size = 15, face = "bold",
                               colour = "grey65")
@@ -861,7 +863,7 @@ rodents =
     strip.placement = 'outside',
     panel.background = element_rect(colour = colorspace::lighten("#141438", 0.1),
                                     size = 1),
-    plot.title.position = "plot",
+    plot.title.position = "panel",
     plot.title = element_text(margin = margin(0, 0, 10, 0),
                               size = 15, face = "bold",
                               colour = "grey65")
@@ -1076,7 +1078,6 @@ sim_moon_rats =
             deviation = mean(ifelse(estimate > true_value,
                                     estimate - true_value,
                                     true_value - estimate)))
-unique(sim_moon_rats$sample_size)
 sim_moon_panama$moment =
   ordered(sim_moon_panama$moment,levels = c("mean","variance","skewness","kurtosis"))
 
@@ -1094,8 +1095,6 @@ sim_moon_rats$moment =
                                           "variance",
                                           "skewness",
                                           "kurtosis"))
-
-unique(sim_moon_panama$sample_size)
 
 moons <-
   ggplot(sim_moon_means %>%
