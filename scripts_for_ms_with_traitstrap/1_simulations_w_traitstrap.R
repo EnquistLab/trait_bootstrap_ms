@@ -431,6 +431,13 @@ ggplot(data = cwm_comparison,aes(x= traditional_CWM,y=bootstrap_CWM))+
 
 cor.test(cwm_comparison$traditional_CWM,cwm_comparison$bootstrap_CWM)
 
+cwm_comparison %>% group_by(moment) %>% 
+  summarise(correlation =
+              cor.test(.data$traditional_CWM, .data$bootstrap_CWM)$estimate,
+            pval = cor.test(.data$traditional_CWM, .data$bootstrap_CWM)$p.value)
+
+
+
 saveRDS(object = cwm_comparison, file = "output_data/CWM_methods_comparison.RDS")
 
 
@@ -467,120 +474,3 @@ boot_sample_output <-
 
 ############################################################################
 #Global vs local should be a separate simulation 
-
-
-library(BIEN)
-
-  # Using "best guess" means
-  # Using all data (gives wider CIs)
-
-
-#Get global data
-traits <- unique(atraits$trait)
-taxa <- unique(atraits$taxon)
-
-#BIEN_trait_list()
-
-#needed:  
-#"height" #wtf are units? cm I think        
-#"LMA_mg_mm2"     
-
-BIEN_trait_means <- lapply(X = c("whole plant height"),
-                           FUN = function(x){BIEN_trait_mean(species = taxa,trait = x)})
-
-BIEN_trait_means <- do.call(rbind,BIEN_trait_means) 
-
-table(BIEN_trait_means$level_used) #Very little data at species level
-
-
-#get ALL BIEN trait data
-
-families <- unique(BIEN_taxonomy_genus(genus = unlist(lapply(X = taxa,FUN = function(x){strsplit(x = x,split = " ")[[1]][1]} )))$scrubbed_family)
-
-bien_traits <- 
-  BIEN_trait_traitbyfamily(family = families,
-                           trait = c("whole plant height"))
-
-
-#Unit conversion
-
-unique(BIEN_trait_means$unit)
-BIEN_trait_means$mean_value <- as.numeric(BIEN_trait_means$mean_value)
-bien_traits$trait_value <- as.numeric(bien_traits$trait_value)
-
-#m to cm
-BIEN_trait_means$mean_value[which(BIEN_trait_means$unit=="m")] <-
-  BIEN_trait_means$mean_value[which(BIEN_trait_means$unit=="m")]*100
-
-BIEN_trait_means$unit[which(BIEN_trait_means$unit=="m")] <- "cm"
-
-bien_traits$trait_value[which(bien_traits$unit=="m")] <-
-  bien_traits$trait_value[which(bien_traits$unit=="m")]*100
-
-bien_traits$trait_value[which(bien_traits$unit=="m")] <- "cm"
-
-
-#reformat columns
-
-BIEN_trait_means <- BIEN_trait_means %>% mutate(value = mean_value, taxon=species, site = "ALL")
-
-colnames(BIEN_trait_means)
-
-colnames(bien_traits)
-
-bien_traits <- bien_traits %>% 
-  mutate(value = trait_value,
-         site = "ALL",
-         taxon = scrubbed_species_binomial,
-         trait=trait_name)
-
-
-#get raw traits for CO
-colnames(atraits)
-atraits <- readRDS(file = "data/all_traits_unscaled_RMBL.rds")
-atraits <- na.omit(atraits)
-atraits$dry_mass_mg[which(atraits$dry_mass_mg==7000)] <- 7
-atraits$LMA_mg_mm2 <- atraits$dry_mass_mg/atraits$leaf_area_mm2
-atraits <- atraits[grep(pattern = "SLA",x = colnames(atraits),invert = T)]
-atraits$ID <- 1:nrow(atraits)
-atraits <- gather(data = atraits,key = "trait","value",3:7)
-
-atraits$genus <- unlist(lapply(X = atraits$taxon,FUN = function(x){strsplit(x = x,split = " ")[[1]][1]} ))
-
-unique(atraits$genus)
-
-!now add family
-
-
-
-all_traits_imputed <-
-trait_impute(comm = community,
-             traits = atraits,
-             scale_hierarchy = "site",
-             taxon_col = "taxon",
-             trait_col = "trait",
-             value_col = "value",
-             abundance_col = "abundance",
-             min_n_leaves = 1)
-
-bien_mean_traits_imputed <-
-  trait_impute(comm = community,
-               traits = BIEN_trait_means,
-               scale_hierarchy = "site",
-               taxon_col = "taxon",
-               trait_col = "trait",
-               value_col = "value",
-               abundance_col = "abundance",
-               min_n_leaves = 1)
-
-
-bien_mean_traits_imputed <-
-  trait_impute(comm = community,
-               traits = BIEN_trait_means,
-               scale_hierarchy = "site",
-               taxon_col = "taxon",
-               trait_col = "trait",
-               value_col = "value",
-               abundance_col = "abundance",
-               min_n_leaves = 1)
-
