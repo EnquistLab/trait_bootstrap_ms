@@ -48,5 +48,9 @@ tidy_simdata <-function(data){
                         'No')) %>%
     mutate(deviation = ifelse(overunder == "under",
                               -1*deviation,
-                              deviation))
+                              deviation),
+           moment = ordered(moment,levels = c("mean",
+                                              "variance",
+                                              "skewness",
+                                              "kurtosis")))
 }
