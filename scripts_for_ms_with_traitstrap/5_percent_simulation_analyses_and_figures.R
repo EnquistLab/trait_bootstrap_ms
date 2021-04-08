@@ -806,8 +806,7 @@ moons_pa <-
     aes(
       x = pct_abd_sampled,
       y = deviation ,
-      color = method,
-      linetype = "Biased"),
+      color = method),
     alpha = 0.5,
     se = FALSE,
     size = 0.8) +
@@ -827,10 +826,6 @@ moons_pa <-
   ),
   color = "transparent",
   size = 4) +
-  scale_linetype_manual("Sampling",
-                        values=c("Biased" = 1,
-                                 "Random" = 2),
-                        guide = guide_legend(override.aes = list(colour = "grey69"))) +
   scale_fill_manual(guide = guide_legend(title = "Method",
                                          title.position="top"),
                     values = colorspace::darken(pal_df$c, amount = 0.25),
@@ -850,25 +845,7 @@ moons_pa <-
   labs(x = "Percent cumulative abundance sampled",
        y = "Average deviation from true moment") +
   # Theme
-  figure_theme +
-  theme(
-    legend.position = 'right',
-    legend.title = element_text(size = 14, colour = "grey65"),
-    strip.text.y = element_text(margin = margin(0, 0, 10, 0),
-                                size = 14, face = "bold",
-                                colour = "grey65"),
-    strip.text.x.top = element_text(margin = margin(0, 0, 10, 0),
-                                    size = 14, face = "bold",
-                                    colour = "grey65"),
-    panel.grid.major.y = element_line(size = 0.05,
-                                      colour = "grey65"),
-    legend.key = element_blank(),
-    legend.text = element_text(colour = "grey65"),
-    axis.title = element_text(colour = "grey65"),
-    strip.background = element_blank(),
-    axis.line = element_blank(),
-    strip.placement = 'outside'
-  )
+  theme_moon
 
 inset_pa =
   ggplot(overunders) +

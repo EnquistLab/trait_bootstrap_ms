@@ -821,7 +821,7 @@ lollipop_CO =
                   label = glue::glue("{percentage}%")),
               hjust = 0.5,
               show.legend = FALSE,
-              size = 4) +
+              size = 5.4) +
     coord_polar(theta = 'y') +
     facet_grid(rows = vars(dataset),
                cols = vars(moment),
@@ -863,7 +863,7 @@ lollipop_CO =
   plot_layout(heights = c(1, 0.25, 0.25))
 
 ggsave(here::here("figures/Fig2_panel.png"),
-       height = 16, width = 13,
+       height = 16, width = 13.5,
        units = "in", dpi = 300)
 
 ### Doughnut - Panama by trait ----
