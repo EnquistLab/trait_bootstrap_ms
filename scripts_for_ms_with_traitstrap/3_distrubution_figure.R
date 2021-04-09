@@ -230,75 +230,81 @@ all_dists$method <- factor(all_dists$method,
                                       "Non-parametric BS",
                                       "Parametric BS"))
 
-ggplot() +
-  scale_fill_manual(guide = guide_legend(title = "Method",
-                                         #nrow = 1,
-                                         override.aes = list(alpha = 0.7, shape = 2, size = 4),
-                                         title.position="top",
-                                         title.hjust = 0.5),
-                    values = pal_df$c,
-                    labels = pal_df$l) +
-  scale_colour_manual(guide = guide_legend(title = "Method",
+cowplot::ggdraw(
+  ggplot() +
+    scale_fill_manual(guide = guide_legend(title = "Method",
+                                           #nrow = 1,
+                                           override.aes = list(alpha = 0.7, shape = 2, size = 4),
                                            title.position="top",
                                            title.hjust = 0.5),
                       values = pal_df$c,
                       labels = pal_df$l) +
-  stat_density_ridges(data = all_dists %>%
-                        filter(method == "True"),
-                      aes(x = value,
-                          y = factor(paste(mean_elev,"m"))),
-                      rel_min_height = 0.01,
-                      colour = unname(colors)[5],
-                      scale = 0.9,
-                      fill = NA,
-                      linetype = 3,
-                      alpha = 0.3) +
-  stat_density_ridges(data = all_dists %>%
-                        filter(method != "True"),
-                      aes(x = value,
-                          y = factor(paste(mean_elev,"m")),
-                          fill = method,
-                          colour = method),
-                      rel_min_height = 0.01,
-                      scale = 0.9,
-                      alpha = 0.4) +
-  scale_y_discrete(expand = c(0.01, 0)) +
-  scale_x_continuous(expand = c(0.1, 0)) +
-  coord_cartesian(clip = 'off') +
-  facet_wrap(~trait,
-             scales = 'free_x',
-             labeller = labeller(
-               trait = traits_parsed,
-               .default = capitalize
-             )) +
-  theme_classic() +
-  labs(x = NULL,
-       y = NULL) +
-  guides(alpha = 'none')  +
-  figure_theme +
-  theme(axis.text.x = element_blank(),
-        plot.background = element_rect(fill = "#141438",
-                                       colour = NA),
-        legend.background = element_rect(fill = "#141438",
+    scale_colour_manual(guide = guide_legend(title = "Method",
+                                             title.position="top",
+                                             title.hjust = 0.5),
+                        values = pal_df$c,
+                        labels = pal_df$l) +
+    stat_density_ridges(data = all_dists %>%
+                          filter(method == "True"),
+                        aes(x = value,
+                            y = factor(paste(mean_elev,"m"))),
+                        rel_min_height = 0.01,
+                        colour = unname(colors)[5],
+                        scale = 0.9,
+                        fill = NA,
+                        linetype = 3,
+                        alpha = 0.3) +
+    stat_density_ridges(data = all_dists %>%
+                          filter(method != "True"),
+                        aes(x = value,
+                            y = factor(paste(mean_elev,"m")),
+                            fill = method,
+                            colour = method),
+                        rel_min_height = 0.01,
+                        scale = 0.9,
+                        alpha = 0.4) +
+    scale_y_discrete(expand = c(0.01, 0)) +
+    scale_x_continuous(expand = c(0.1, 0)) +
+    coord_cartesian(clip = 'off') +
+    facet_wrap(~trait,
+               scales = 'free_x',
+               labeller = labeller(
+                 trait = traits_parsed,
+                 .default = capitalize
+               )) +
+    theme_classic() +
+    labs(x = NULL,
+         y = NULL) +
+    guides(alpha = 'none')  +
+    figure_theme +
+    theme(axis.text.x = element_blank(),
+          plot.background = element_rect(fill = "#141438",
                                          colour = NA),
-        panel.background = element_rect(fill = "#141438",
-                                        colour = 'grey69'),
-        strip.text.y = element_text(margin = margin(0, 0, 10, 0),
-                                    size = 14, face = "bold",
-                                    colour = "grey65"),
-        strip.text.x.top = element_text(margin = margin(0, 0, 10, 0),
-                                        size = 12, face = "bold",
-                                        colour = "grey65"),
-        #legend.key = element_blank(),
-        legend.key.size = unit(1,"line"),
-        legend.text = element_text(colour = "grey65"),
-        axis.title = element_text(colour = "grey65"),
-        strip.background = element_blank(),
-        axis.line = element_blank(),
-        strip.placement = 'outside',
-        axis.ticks.y = element_blank(),
-        legend.title = element_text(colour = "grey65"),
-        legend.position = 'bottom')
+          legend.background = element_rect(fill = "#141438",
+                                           colour = NA),
+          panel.background = element_rect(fill = "#141438",
+                                          colour = 'grey69'),
+          strip.text.y = element_text(margin = margin(0, 0, 10, 0),
+                                      size = 14, face = "bold",
+                                      colour = "grey65"),
+          strip.text.x.top = element_text(margin = margin(0, 0, 10, 0),
+                                          size = 12, face = "bold",
+                                          colour = "grey65"),
+          #legend.key = element_blank(),
+          legend.key.size = unit(1,"line"),
+          legend.text = element_text(colour = "grey65"),
+          axis.title = element_text(colour = "grey65"),
+          strip.background = element_blank(),
+          axis.line = element_blank(),
+          strip.placement = 'outside',
+          axis.ticks.y = element_blank(),
+          legend.title = element_text(colour = "grey65"),
+          legend.position = 'bottom')
+  )+
+  cowplot::draw_image(
+    img1, x = 0.03, y = 0.93, hjust = 0.5, vjust = 0.5,
+    width = 0.045
+  )
 
 ggsave(here::here("figures/densityestimate_joy.png"),
        height = 9, width = 12.4,
