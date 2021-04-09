@@ -361,7 +361,7 @@ panama =
              scales = 'free') +
   labs(x = "Sample Size",
        y = "Average deviation from true moment",
-       title = "B: Trees") +
+       title = "C: Trees") +
   #draw_key_moon(data.frame(x = 1:5, y = 0, ratio = 0:4 * 0.25))
   # Theme
   theme_moon
@@ -429,7 +429,7 @@ rodents =
                     panel.background = element_rect(fill = "#141438", colour = NA))) 
 
 ggsave(here::here("figures/restricted_sample_datasets.png"),
-       height = 14, width = 21.5,
+       height = 14, width = 23,
        units = "in", dpi = 300)
 
 

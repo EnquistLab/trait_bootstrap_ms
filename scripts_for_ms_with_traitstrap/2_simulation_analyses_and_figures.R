@@ -42,61 +42,67 @@ simdata_lollipop =
   group_by(trait, moment, method, sample_size) %>%
   slice_sample(n = 20)
 
-ggplot(simmeans) + 
-  geom_vline(aes(xintercept = 0), 
-             color = "grey50",
-             size = 1) +
-  geom_segment(data = simmeans,
-               aes(x = 0, 
-                   xend = estimate, 
-                   y = method, 
-                   yend = method), 
-               color = "grey50", 
-               size = 0.5) +
-  geom_jitter(data = simdata_lollipop,
-              aes(x = deviation, 
-                  y = method, 
-                  fill = method,
-                  alpha = hit), 
-              color = "grey85", 
-              width = 0, height = 0.2, shape = 21) +
-  geom_point(data = simmeans,
-             aes(x = estimate, 
-                 y = method,
-                 fill = method,
-                 colour = method),
-             shape = 23, size = 3.2) + 
-  facet_grid(rows = vars(trait),
-             cols = vars(moment),
-             labeller = labeller(
-               .default = capitalize,
-               trait = traits_parsed
-             ),
-             switch = 'y',
-             scales = 'free')  + 
-  scale_fill_manual(values = pal_df$c,
-                    breaks = pal_df$l) +
-  scale_colour_manual(values = colorspace::darken(pal_df$c, 0.5),
+cowplot::ggdraw(
+  ggplot(simmeans) + 
+    geom_vline(aes(xintercept = 0), 
+               color = "grey50",
+               size = 1) +
+    geom_segment(data = simmeans,
+                 aes(x = 0, 
+                     xend = estimate, 
+                     y = method, 
+                     yend = method), 
+                 color = "grey50", 
+                 size = 0.5) +
+    geom_jitter(data = simdata_lollipop,
+                aes(x = deviation, 
+                    y = method, 
+                    fill = method,
+                    alpha = hit), 
+                color = "grey85", 
+                width = 0, height = 0.2, shape = 21) +
+    geom_point(data = simmeans,
+               aes(x = estimate, 
+                   y = method,
+                   fill = method,
+                   colour = method),
+               shape = 23, size = 3.2) + 
+    facet_grid(rows = vars(trait),
+               cols = vars(moment),
+               labeller = labeller(
+                 .default = capitalize,
+                 trait = traits_parsed
+               ),
+               switch = 'y',
+               scales = 'free')  + 
+    scale_fill_manual(values = pal_df$c,
                       breaks = pal_df$l) +
-  scale_alpha_discrete(range = c(0.2, 0.5)) +
-  labs(x = "Deviation from true value",
-       y = NULL) +
-  guides(colour = guide_legend(title = "Method",
+    scale_colour_manual(values = colorspace::darken(pal_df$c, 0.5),
+                        breaks = pal_df$l) +
+    scale_alpha_discrete(range = c(0.2, 0.5)) +
+    labs(x = "Deviation from true value",
+         y = NULL) +
+    guides(colour = guide_legend(title = "Method",
+                                 override.aes = list(shape = 21,
+                                                     size = 3,
+                                                     order = 1)), 
+           fill = guide_legend(title = "Method",
                                override.aes = list(shape = 21,
                                                    size = 3,
                                                    order = 1)), 
-         fill = guide_legend(title = "Method",
-                             override.aes = list(shape = 21,
-                                                 size = 3,
-                                                 order = 1)), 
-         alpha = guide_legend(title = "Value in CI",
-                              override.aes = list(shape = 16,
-                                                  size = 3,
-                                                  order = 2))) +
-  theme_lollipop
+           alpha = guide_legend(title = "Value in CI",
+                                override.aes = list(shape = 16,
+                                                    size = 3,
+                                                    order = 2))) +
+    theme_lollipop
+  ) +
+  cowplot::draw_image(
+    img1, x = 0.03, y = 0.94, hjust = 0.5, vjust = 0.5,
+    width = 0.03
+  )
 
 ggsave(here::here("figures/Lollipops_deviation.png"),
-       height = 8, width = 15,
+       height = 7.5, width = 15,
        units = "in", dpi = 300)
 
 ### Accuracy Across datasets (creative) ----
@@ -134,7 +140,8 @@ simdata_lollipop =
            sample_size > 8) %>%
   # group_by(dataset, moment) %>%
   # mutate(deviation = scale(deviation)) %>%
-  filter(deviation < 10) %>%
+  filter(deviation < 10 &&
+           deviation > -10 ) %>%
   group_by(dataset, moment, method, sample_size) %>%
   slice_sample(n = 20)
 
@@ -201,7 +208,10 @@ lollipop_all =
     y = NULL
   ) +
   #guides(size = 'none') +
-  theme_lollipop
+  theme_lollipop +
+  theme(strip.text.y.left = element_text(margin = margin(0, 0, 10, 0),
+                                         size = rel(1.2), face = "bold", vjust = 0,
+                                         colour = "grey65", angle = 0))
 
 ggsave(here::here("figures/Lollipops_Datsets.png"),
        lollipop_all,
@@ -372,10 +382,14 @@ cowplot::ggdraw(doughnut_CO) +
                      width = 0.8,
                      height = 0.87,
                      x = 0.25,
-                     y = 0.14)
+                     y = 0.14) +
+  cowplot::draw_image(
+    img1, x = 0.04, y = 0.95, hjust = 0.5, vjust = 0.5,
+    width = 0.05
+  )
 
 ggsave(here::here("figures/WinnerDoughnuts.png"),
-       height = 10.4, width = 8.95,
+       height = 10.4, width = 8.6,
        units = "in", dpi = 300)
 
 ### Over Under - across winners ----
@@ -1081,7 +1095,11 @@ cowplot::ggdraw(doughnut) +
                      width = 0.75,
                      height = 0.92,
                      x = 0.285,
-                     y = 0.09)
+                     y = 0.09) +
+  cowplot::draw_image(
+    img3, x = 0.06, y = 0.965, hjust = 0.5, vjust = 0.5,
+    width = 0.07
+  )
 
 ggsave(here::here("figures/WinnerDoughnuts_panama.png"),
        height = 15, width = 9.2,

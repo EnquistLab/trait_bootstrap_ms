@@ -141,7 +141,7 @@ traits_parsed <- c(
 traits_panama <- c(
   Area = "Area",
   Dry.weight = "Dry weight",
-  Fresh.weight = "Fresh.weight",
+  Fresh.weight = "Fresh weight",
   LDMC = "LDMC",
   LMA = "LMA",
   LCC = "Carbon content",

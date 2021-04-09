@@ -30,7 +30,8 @@ cwm_corr$moment <- factor(cwm_corr$moment,
                                      "skewness",
                                      "kurtosis"))
 
-ggplot(cwm_methods) +
+cowplot::ggdraw(
+  ggplot(cwm_methods) +
   geom_abline(aes(slope = 1, 
                   intercept = 0),
               colour = "grey69") +
@@ -57,40 +58,22 @@ ggplot(cwm_methods) +
              switch = 'y') +
   labs(x = "Traditional CWM; log-transformed",
        y = "Bootstrapped CWM; log-transformed") +
-  figure_theme +
-  theme(axis.text.y = element_text(size = 9),
-        axis.text.x = element_text(size = 9),
-        plot.background = element_rect(fill = "#141438",
-                                       colour = NA),
-        legend.background = element_rect(fill = "#141438",
-                                         colour = NA),
-        panel.background = element_rect(fill = "#141438",
-                                        colour = 'grey69'),
-        strip.text.y = element_text(margin = margin(0, 0, 10, 0),
-                                    size = 14, face = "bold",
-                                    colour = "grey65"),
-        strip.text.x.top = element_text(margin = margin(0, 0, 10, 0),
-                                        size = 12, face = "bold",
-                                        colour = "grey65"),
-        panel.grid.major.y = element_line(size = 0.05,
-                                          colour = "grey65"),
-        legend.key = element_blank(),
-        legend.text = element_text(colour = "grey65"),
-        axis.title = element_text(colour = "grey65"),
-        strip.background = element_blank(),
-        axis.line = element_blank(),
-        strip.placement = 'outside',
-        legend.title = element_text(colour = "grey65"),
-        legend.position = 'bottom')
+  scale_x_continuous(breaks = c(-1,0,1)) +
+  theme_moon
+  ) +
+  cowplot::draw_image(
+    img1, x = 0.03, y = 0.93, hjust = 0.5, vjust = 0.5,
+    width = 0.045
+  )
 
 ggsave(here::here("figures/CWM_comparison.png"),
-       height = 9, width = 13.3,
+       height = 9, width = 14,
        units = "in", dpi = 300)
 
 #### Bootstrap sample sizes ####
 
 bs_methods =
-  readRDS("output_data/bootstrap_sample_size_and_method_sims.RDS") 
+  tidy_simdata(readRDS("output_data/bootstrap_sample_size_and_method_sims.RDS")) 
 
 moon_means =   
   bs_methods %>%
@@ -110,35 +93,6 @@ moon_means$moment =
                                        "variance",
                                        "skewness",
                                        "kurtosis"))
-
-#theme
-
-bs_ss_theme =
-figure_theme +
-  theme(
-    legend.position = 'right',
-    legend.title = element_text(size = 14, colour = "grey65"),
-    strip.text.y = element_text(margin = margin(0, 0, 10, 0),
-                                size = 14, face = "bold",
-                                colour = "grey65"),
-    strip.text.x.top = element_text(margin = margin(0, 0, 10, 0),
-                                    size = 14,
-                                    colour = "grey65"),
-    panel.grid.major.y = element_line(size = 0.05,
-                                      colour = "grey65"),
-    legend.key = element_blank(),
-    legend.text = element_text(colour = "grey65"),
-    axis.title = element_text(colour = "grey65"),
-    strip.background = element_blank(),
-    axis.line = element_blank(),
-    strip.placement = 'outside',
-    panel.background = element_rect(colour = colorspace::lighten("#141438", 0.1),
-                                    size = 1),
-    plot.title.position = "plot",
-    plot.title = element_text(margin = margin(0, 0, 10, 0),
-                              size = 15, face = "bold",
-                              colour = "grey65")
-  )
 
 #BSS + 200
 
@@ -194,7 +148,7 @@ ggplot(moon_means %>%
        title = "A: Bootstrap sample size = 200") +
   #draw_key_moon(data.frame(x = 1:5, y = 0, ratio = 0:4 * 0.25))
   # Theme
-  bs_ss_theme
+  theme_moon
 
 #BSS = 400
 
@@ -250,7 +204,7 @@ p400 =
        title = "B: Bootstrap sample size = 400") +
   #draw_key_moon(data.frame(x = 1:5, y = 0, ratio = 0:4 * 0.25))
   # Theme
-  bs_ss_theme
+  theme_moon
 
 #BSS = 800
 
@@ -304,7 +258,7 @@ p800 =
   labs(x = "Trait sample size",
        y = "Average deviation from true moment",
        title = "C: Bootstrap sample size = 800") +
-  bs_ss_theme
+  theme_moon
 
 #BSS = 1600
 
@@ -358,9 +312,8 @@ p1600 =
   labs(x = "Trait sample size",
        y = "Average deviation from true moment",
        title = "D: Bootstrap sample size = 1 600") +
-  #draw_key_moon(data.frame(x = 1:5, y = 0, ratio = 0:4 * 0.25))
   # Theme
-  bs_ss_theme
+  theme_moon
 
 (p200 + p400)/
   (p800 + p1600) +
@@ -370,5 +323,5 @@ p1600 =
     panel.background = element_rect(fill = "#141438", colour = NA))) 
 
 ggsave(here::here("figures/bs_samplesize.png"),
-       height = 12, width = 19.5,
+       height = 15.5, width = 25,
        units = "in", dpi = 300)
