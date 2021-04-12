@@ -888,13 +888,17 @@ inset_pa =
 
 cowplot::ggdraw(moons_pa) +
   cowplot::draw_plot(moon_legend,
-                     .79, .15,
-                     0.21, .175) +
+                     .78, .17,
+                     0.21, .22) +
   cowplot::draw_plot(inset_pa,
                      width = 0.75,
                      height = 0.85,
                      x = 0.07,
-                     y = 0.07)
+                     y = 0.07) +
+  cowplot::draw_image(
+    img3, x = 0.03, y = 0.93, hjust = 0.5, vjust = 0.5,
+    width = 0.045
+  )
 
 ggsave(here::here("figures/moons_pct_abund_panama.png"),
        height = 7.4, width = 12.5,
