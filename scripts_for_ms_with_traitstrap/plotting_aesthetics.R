@@ -4,6 +4,8 @@ library(sysfonts)
 library(showtext)
 library(gggibbous)
 library(ggtext)
+library(patchwork)
+library(ggridges)
 
 ##Fonts----
 
@@ -112,8 +114,8 @@ theme_lollipop =
         legend.title = element_text(color = "grey65", size = rel(1.5)))
 
 ##Colour palete----
-colors <- c("Cross-Site CWM" = "#F235B0",
-            "Site-Specific CWM" = "#65B4E6",
+colors <- c("Cross-Site CW" = "#F235B0",
+            "Site-Specific CW" = "#65B4E6",
             "Parametric BS" = "#D4F294",
             "Non-Parametric BS" = "#F29472",
             "True" = "#ACBAF5")

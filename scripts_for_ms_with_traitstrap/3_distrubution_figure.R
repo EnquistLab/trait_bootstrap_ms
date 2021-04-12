@@ -127,8 +127,8 @@ np_dist <- get_distributions(imputed_traits = imputed_full,nrep = n_distribution
 
 np_dist$method <- "Non-parametric BS"
 pbs_dist$method <- "Parametric BS"
-cwm_dist$method <- "Cross-Site CWM"
-cwm_site_dist$method <- "Site-Specific CWM"
+cwm_dist$method <- "Cross-Site WM"
+cwm_site_dist$method <- "Site-Specific WM"
 
 all_dists <- rbind(as_tibble(np_dist),as_tibble(pbs_dist),as_tibble(cwm_dist),as_tibble(cwm_site_dist))
 
@@ -160,7 +160,7 @@ ggplot(data = all_dists[which(all_dists$trait=="height"),],
   geom_density() +
   facet_wrap(~site,scales = "free_y")
 
-library(ggridges)
+
 
 ggplot(all_dists[which(all_dists$trait=="height"),],
        aes(x = value,
@@ -225,8 +225,8 @@ ggplot(all_dists[which(all_dists$trait=="leaf_area_mm2"),],
 
 all_dists$method <- factor(all_dists$method,
                            levels = c("True",
-                                      "Cross-Site CWM",
-                                      "Site-Specific CWM",
+                                      "Cross-Site WM",
+                                      "Site-Specific WM",
                                       "Non-parametric BS",
                                       "Parametric BS"))
 

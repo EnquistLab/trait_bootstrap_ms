@@ -251,30 +251,6 @@ sim_win_text =
   filter(percentage == max(percentage)) %>%
   mutate(percentage = round(percentage*100))
 
-sim_radar$moment <- factor(sim_radar$moment,
-                           levels = c("mean",
-                                      "variance",
-                                      "skewness",
-                                      "kurtosis"))
-
-sim_radar$method <- factor(sim_radar$method,
-                           levels = c("Cross-Site CWM",
-                                      "Site-Specific CWM",
-                                      "Parametric BS", 
-                                      "Non-Parametric BS"))
-
-sim_win_text$moment <- factor(sim_win_text$moment,
-                              levels = c("mean",
-                                         "variance",
-                                         "skewness",
-                                         "kurtosis"))
-
-sim_win_text$method <- factor(sim_win_text$method,
-                              levels = c("Cross-Site CWM",
-                                         "Site-Specific CWM",
-                                         "Parametric BS", 
-                                         "Non-Parametric BS"))
-
 doughnut_CO = 
   ggplot(sim_radar) +
   geom_col(aes(
@@ -334,12 +310,6 @@ over_under =
                     -1*x,
                     x))
 
-
-over_under$method <- factor(over_under$method,
-                            levels = c("Cross-Site CWM",
-                                       "Site-Specific CWM",
-                                       "Parametric BS", 
-                                       "Non-Parametric BS"))
 
 over_under$moment <- factor(over_under$moment,
                             levels = c("mean",
@@ -524,35 +494,11 @@ sim_win_text =
   filter(percentage == max(percentage)) %>%
   mutate(percentage = round(percentage*100))
 
-sim_doughnuts_all$moment <- factor(sim_doughnuts_all$moment,
-                                   levels = c("mean",
-                                              "variance",
-                                              "skewness",
-                                              "kurtosis"))
-
-sim_doughnuts_all$method <- factor(sim_doughnuts_all$method,
-                                   levels = c("Cross-Site CWM",
-                                              "Site-Specific CWM",
-                                              "Parametric BS", 
-                                              "Non-Parametric BS"))
-
 sim_doughnuts_all$dataset <- factor(sim_doughnuts_all$dataset,
                                     levels = c("Herbs",
                                                "Tadpoles",
                                                "Trees", 
                                                "Rodents"))
-
-sim_win_text$moment <- factor(sim_win_text$moment,
-                              levels = c("mean",
-                                         "variance",
-                                         "skewness",
-                                         "kurtosis"))
-
-sim_win_text$method <- factor(sim_win_text$method,
-                              levels = c("Cross-Site CWM",
-                                         "Site-Specific CWM",
-                                         "Parametric BS", 
-                                         "Non-Parametric BS"))
 
 sim_win_text$dataset <- factor(sim_win_text$dataset,
                                levels = c("Herbs",
@@ -662,11 +608,6 @@ bumps$dataset <- factor(bumps$dataset,
                                    "Trees", 
                                    "Rodents"))
 
-bumps$moment =
-  ordered(bumps$moment,levels = c("mean",
-                                  "variance",
-                                  "skewness",
-                                  "kurtosis"))
 sub_bump = 
   ggplot(bumps %>%
            filter(sample_size < 50 &&
@@ -911,11 +852,6 @@ sim_win_text =
   filter(percentage == max(percentage)) %>%
   mutate(percentage = round(percentage*100))
 
-sim_radar$moment <- factor(sim_radar$moment,
-                           levels = c("mean",
-                                      "variance",
-                                      "skewness",
-                                      "kurtosis"))
 sim_radar$trait <- factor(sim_radar$trait,
                           levels = c("Area",
                                      "Dry.weight",
@@ -926,18 +862,6 @@ sim_radar$trait <- factor(sim_radar$trait,
                                      "LNC",
                                      "N.C"))
 
-sim_radar$method <- factor(sim_radar$method,
-                           levels = c("Cross-Site CWM",
-                                      "Site-Specific CWM",
-                                      "Parametric BS", 
-                                      "Non-Parametric BS"))
-
-sim_win_text$moment <- factor(sim_win_text$moment,
-                              levels = c("mean",
-                                         "variance",
-                                         "skewness",
-                                         "kurtosis"))
-
 sim_win_text$trait <- factor(sim_win_text$trait,
                              levels = c("Area",
                                         "Dry.weight",
@@ -947,12 +871,6 @@ sim_win_text$trait <- factor(sim_win_text$trait,
                                         "LCC",
                                         "LNC",
                                         "N.C"))
-
-sim_win_text$method <- factor(sim_win_text$method,
-                              levels = c("Cross-Site CWM",
-                                         "Site-Specific CWM",
-                                         "Parametric BS", 
-                                         "Non-Parametric BS"))
 
 over_under =
   simdata_panama %>%
@@ -975,12 +893,6 @@ over_under =
                     -1*x,
                     x))
 
-over_under$moment <- factor(over_under$moment,
-                            levels = c("mean",
-                                       "variance",
-                                       "skewness",
-                                       "kurtosis"))
-
 over_under$trait <- factor(over_under$trait,
                            levels = c("Area",
                                       "Dry.weight",
@@ -990,12 +902,6 @@ over_under$trait <- factor(over_under$trait,
                                       "LCC",
                                       "LNC",
                                       "N.C"))
-
-over_under$method <- factor(over_under$method,
-                            levels = c("Cross-Site CWM",
-                                       "Site-Specific CWM",
-                                       "Parametric BS", 
-                                       "Non-Parametric BS"))
 
 
 doughnut = 

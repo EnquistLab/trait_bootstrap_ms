@@ -26,15 +26,15 @@ tidy_simdata <-function(data){
                               moment == 'kurt' ~ 'kurtosis',
                               moment == 'skew' ~ 'skewness',
                               TRUE ~ moment),
-           method = case_when(method == 'global cwm' ~ 'Cross-Site CWM',
-                              method == 'site-specic CWM' ~ 'Site-Specific CWM',
+           method = case_when(method == 'global cwm' ~ 'Cross-Site CW',
+                              method == 'site-specic CWM' ~ 'Site-Specific CW',
                               method == 'nonparametric bs' ~ 'Non-Parametric BS',
                               method == 'parametric bs' ~ 'Parametric BS',
                               TRUE ~ method)) %>%
     filter(true_moment == moment) %>%
     select(-c(global, true_moment, ci_low_moment, ci_high_moment)) %>%
-    mutate(method = ordered(method,levels = c("Cross-Site CWM",
-                                              "Site-Specific CWM",
+    mutate(method = ordered(method,levels = c("Cross-Site CW",
+                                              "Site-Specific CW",
                                               "Parametric BS",
                                               "Non-Parametric BS")),
            overunder = ifelse(true_value <= estimate,

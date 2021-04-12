@@ -9,14 +9,20 @@ source("scripts_for_ms_with_traitstrap/plotting_aesthetics.R")
 #read in data
 colorado_percent <- readRDS("output_data/Colorado_percent_community_sims.RDS")
 
+colorado_percent$method = fct_recode(colorado_percent$method, `Cross-Site CW` = "Cross-Site CWM", 
+           `Site-Specific CW` = "Site-Specific CWM")
+
 panama_percent <- readRDS("output_data/Panama_percent_community_sims.RDS")
 
-colorado_percent$method <- ordered(colorado_percent$method,levels = c("Cross-Site CWM","Site-Specific CWM","Parametric BS","Non-Parametric BS"))
-panama_percent$method <- ordered(panama_percent$method,levels = c("Cross-Site CWM","Site-Specific CWM","Parametric BS","Non-Parametric BS"))
+panama_percent$method = fct_recode(panama_percent$method, `Cross-Site CW` = "Cross-Site CWM", 
+                                     `Site-Specific CW` = "Site-Specific CWM")
+
+colorado_percent$method <- ordered(colorado_percent$method,levels = c("Cross-Site CW","Site-Specific CW","Parametric BS","Non-Parametric BS"))
+panama_percent$method <- ordered(panama_percent$method,levels = c("Cross-Site CW","Site-Specific CW","Parametric BS","Non-Parametric BS"))
 
 ### Moon plots - accuracy of moments - 'global' ----
 
-library(gggibbous)
+
 
 #### All traits combined
 
@@ -195,7 +201,11 @@ ggsave(here::here("figures/moons_pct_abund.png"),
 
 rodent_percent <- readRDS("output_data/Rodent_percent_community_sims.RDS")
 
-rodent_percent$method <- ordered(rodent_percent$method,levels = c("Cross-Site CWM","Site-Specific CWM","Parametric BS","Non-Parametric BS"))
+rodent_percent$method = fct_recode(rodent_percent$method, `Cross-Site CW` = "Cross-Site CWM", 
+                                   `Site-Specific CW` = "Site-Specific CWM")
+
+
+rodent_percent$method <- ordered(rodent_percent$method,levels = c("Cross-Site CW","Site-Specific CW","Parametric BS","Non-Parametric BS"))
 
 overunders = 
   rodent_percent %>%
@@ -363,8 +373,6 @@ ggsave(here::here("figures/moons_pct_abund_rodents.png"),
        units = "in", dpi = 300)
 
 #### Combine CO and AZ ----
-
-library(patchwork)
 
 moon_legend2 = 
   ggplot(data.frame(y = c(1,2.7,4.4,6.1), 
