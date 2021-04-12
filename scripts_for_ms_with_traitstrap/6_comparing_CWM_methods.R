@@ -126,11 +126,13 @@ ggplot(moon_means %>%
   size = 5) +
   coord_cartesian(clip = 'off') +
   scale_fill_manual(guide = guide_legend(title = "Method",
-                                         title.position="top"),
+                                         title.position="top",
+                                         title.hjust = 0.5),
                     values = colorspace::darken(pal_df$c, amount = 0.2),
                     labels = pal_df$l) +
   scale_colour_manual(guide = guide_legend(title = "Method",
-                                           title.position="top"),
+                                           title.position="top",
+                                           title.hjust = 0.5),
                       values = colorspace::lighten(pal_df$c, amount = 0.6),
                       labels = pal_df$l) +
   scale_x_continuous(trans = 'sqrt', breaks = c(0,10,50,100,200,500),
@@ -182,11 +184,13 @@ p400 =
   size = 5) +
   coord_cartesian(clip = 'off') +
   scale_fill_manual(guide = guide_legend(title = "Method",
-                                         title.position="top"),
+                                         title.position="top",
+                                         title.hjust = 0.5),
                     values = colorspace::darken(pal_df$c, amount = 0.2),
                     labels = pal_df$l) +
   scale_colour_manual(guide = guide_legend(title = "Method",
-                                           title.position="top"),
+                                           title.position="top",
+                                           title.hjust = 0.5),
                       values = colorspace::lighten(pal_df$c, amount = 0.6),
                       labels = pal_df$l) +
   scale_x_continuous(trans = 'sqrt', breaks = c(0,10,50,100,200,500),
@@ -238,11 +242,13 @@ p800 =
   size = 5) +
   coord_cartesian(clip = 'off') +
   scale_fill_manual(guide = guide_legend(title = "Method",
-                                         title.position="top"),
+                                         title.position="top",
+                                         title.hjust = 0.5),
                     values = colorspace::darken(pal_df$c, amount = 0.2),
                     labels = pal_df$l) +
   scale_colour_manual(guide = guide_legend(title = "Method",
-                                           title.position="top"),
+                                           title.position="top",
+                                           title.hjust = 0.5),
                       values = colorspace::lighten(pal_df$c, amount = 0.6),
                       labels = pal_df$l) +
   scale_x_continuous(trans = 'sqrt', breaks = c(0,10,50,100,200,500),
@@ -292,11 +298,13 @@ p1600 =
   size = 5) +
   coord_cartesian(clip = 'off') +
   scale_fill_manual(guide = guide_legend(title = "Method",
-                                         title.position="top"),
+                                         title.position="top",
+                                         title.hjust = 0.5),
                     values = colorspace::darken(pal_df$c, amount = 0.2),
                     labels = pal_df$l) +
   scale_colour_manual(guide = guide_legend(title = "Method",
-                                           title.position="top"),
+                                           title.position = "top",
+                                           title.hjust = 0.5),
                       values = colorspace::lighten(pal_df$c, amount = 0.6),
                       labels = pal_df$l) +
   scale_x_continuous(trans = 'sqrt', breaks = c(0,10,50,100,200,500),
@@ -315,13 +323,19 @@ p1600 =
   # Theme
   theme_moon
 
-(p200 + p400)/
-  (p800 + p1600) +
+(p200 + theme(legend.position = 'bottom') + 
+    p400 + theme(legend.position = 'bottom'))/
+  (p800 + theme(legend.position = 'bottom') + 
+     p1600 + theme(legend.position = 'bottom')) +
   plot_layout(guides = 'collect') +
   plot_annotation(theme = theme(
     plot.background = element_rect(fill = "#141438", colour = NA),
-    panel.background = element_rect(fill = "#141438", colour = NA))) 
+    panel.background = element_rect(fill = "#141438", colour = NA),
+    legend.text = element_text(color = "grey65", size = 12),
+    legend.title = element_text(color = "grey65", size = 13),
+    legend.position = 'bottom',
+  )) 
 
 ggsave(here::here("figures/bs_samplesize.png"),
-       height = 15.5, width = 25,
+       height = 14, width = 22,
        units = "in", dpi = 300)

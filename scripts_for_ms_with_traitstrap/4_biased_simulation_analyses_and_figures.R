@@ -234,11 +234,13 @@ ggplot(sim_moon_means %>%
   size = 5) +
   coord_cartesian(clip = 'off') +
   scale_fill_manual(guide = guide_legend(title = "Method",
-                                         title.position="top"),
+                                         title.position="top",
+                                         title.hjust = 0.5),
                     values = colorspace::darken(pal_df$c, amount = 0.2),
                     labels = pal_df$l) +
   scale_colour_manual(guide = guide_legend(title = "Method",
-                                           title.position="top"),
+                                           title.position="top",
+                                           title.hjust = 0.5),
                       values = colorspace::lighten(pal_df$c, amount = 0.6),
                       labels = pal_df$l) +
   # scale_x_continuous(trans = 'sqrt', breaks = c(0,10,50,100,200,500),
@@ -288,11 +290,13 @@ frogs =
   size = 5) +
   coord_cartesian(clip = 'off') +
   scale_fill_manual(guide = guide_legend(title = "Method",
-                                         title.position="top"),
+                                         title.position="top",
+                                         title.hjust = 0.5),
                     values = colorspace::darken(pal_df$c, amount = 0.2),
                     labels = pal_df$l) +
   scale_colour_manual(guide = guide_legend(title = "Method",
-                                           title.position="top"),
+                                           title.position="top",
+                                           title.hjust = 0.5),
                       values = colorspace::lighten(pal_df$c, amount = 0.6),
                       labels = pal_df$l) +
   # scale_x_continuous(trans = 'sqrt', breaks = c(0,10,50,100,200,500),
@@ -342,11 +346,13 @@ panama =
   size = 5) +
   coord_cartesian(clip = 'off') +
   scale_fill_manual(guide = guide_legend(title = "Method",
-                                         title.position="top"),
+                                         title.position="top",
+                                         title.hjust = 0.5),
                     values = colorspace::darken(pal_df$c, amount = 0.2),
                     labels = pal_df$l) +
   scale_colour_manual(guide = guide_legend(title = "Method",
-                                           title.position="top"),
+                                           title.position="top",
+                                           title.hjust = 0.5),
                       values = colorspace::lighten(pal_df$c, amount = 0.6),
                       labels = pal_df$l) +
   # scale_x_continuous(trans = 'sqrt', breaks = c(0,10,50,100,200,500),
@@ -397,11 +403,13 @@ rodents =
   size = 5) +
   coord_cartesian(clip = 'off') +
   scale_fill_manual(guide = guide_legend(title = "Method",
-                                         title.position="top"),
+                                         title.position="top",
+                                         title.hjust = 0.5),
                     values = colorspace::darken(pal_df$c, amount = 0.2),
                     labels = pal_df$l) +
   scale_colour_manual(guide = guide_legend(title = "Method",
-                                           title.position="top"),
+                                           title.position="top",
+                                           title.hjust = 0.5),
                       values = colorspace::lighten(pal_df$c, amount = 0.6),
                       labels = pal_df$l) +
   # scale_x_continuous(trans = 'sqrt', breaks = c(0,10,50,100,200,500),
@@ -421,15 +429,18 @@ rodents =
   # Theme
   theme_moon
 
-(herbs + frogs)/
-  (panama + rodents) +
+(herbs + theme(legend.position = 'bottom') + 
+    frogs + theme(legend.position = 'bottom'))/
+  (panama + theme(legend.position = 'bottom') + 
+     rodents + theme(legend.position = 'bottom')) +
   plot_layout(guides = 'collect') +
   plot_annotation(theme = theme(
                     plot.background = element_rect(fill = "#141438", colour = NA),
-                    panel.background = element_rect(fill = "#141438", colour = NA))) 
+                    panel.background = element_rect(fill = "#141438", colour = NA),
+                    legend.position = 'bottom')) 
 
 ggsave(here::here("figures/restricted_sample_datasets.png"),
-       height = 14, width = 23,
+       height = 14, width = 2,
        units = "in", dpi = 300)
 
 
