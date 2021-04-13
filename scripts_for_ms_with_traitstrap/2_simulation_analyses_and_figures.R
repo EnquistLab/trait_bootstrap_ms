@@ -946,25 +946,7 @@ doughnut =
                       values = pal_df$c,
                       breaks = pal_df$l) +
   # Theme
-  theme_void() +
-  theme(
-    legend.position = "bottom",
-    legend.title = element_text(size = 14,
-                                colour = "grey65"),
-    plot.background = element_rect(fill = "#141438",
-                                   colour = NA),
-    panel.background = element_rect(fill = "#141438",
-                                    colour = NA),
-    strip.text.x = element_text(margin = margin(0, 0, 10, 0),
-                                size = 16, face = "bold",
-                                colour = "grey70"),
-    strip.text.y.left = element_text(colour = "grey69",
-                                     margin = margin(0, 10, 10, 10),
-                                     angle = 0,
-                                     size = 16),
-    legend.text = element_text(colour = "grey65"),
-    plot.margin = margin(15, 19, 10, 15)
-  )
+  theme_doughnut
 
 inset = 
   ggplot(over_under) +
@@ -1008,5 +990,5 @@ cowplot::ggdraw(doughnut) +
   )
 
 ggsave(here::here("figures/WinnerDoughnuts_panama.png"),
-       height = 15, width = 9.2,
+       height = 15, width = 8.9,
        units = "in", dpi = 300)
