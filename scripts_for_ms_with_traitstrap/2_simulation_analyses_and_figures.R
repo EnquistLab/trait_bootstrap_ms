@@ -349,13 +349,13 @@ inset =
 
 cowplot::ggdraw(doughnut_CO) +
   cowplot::draw_plot(inset,
-                     width = 0.8,
+                     width = 0.81,
                      height = 0.87,
-                     x = 0.25,
+                     x = 0.22,
                      y = 0.14) +
   cowplot::draw_image(
-    img1, x = 0.04, y = 0.95, hjust = 0.5, vjust = 0.5,
-    width = 0.05
+    img1, x = 0.05, y = 0.94, hjust = 0.5, vjust = 0.5,
+    width = 0.08
   )
 
 ggsave(here::here("figures/WinnerDoughnuts.png"),
