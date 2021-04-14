@@ -655,17 +655,16 @@ sub_bump =
         legend.text = element_text(color = "grey65", size = rel(1)),
         legend.title = element_text(color = "grey65", size = rel(1.5)))
 
-bump =
-  ggplot(bumps %>%
-           filter(sample_size %in% c(1,9,49,100,196,441))) +
+ggplot(bumps %>%
+           filter(sample_size < 50)) +
   with_blur(
     geom_bump(aes(x = sample_size,
-                  y = rank,
+                  y = -rank,
                   colour = method),
               size = 1, smooth = 8),
     sigma = 1) +
   geom_point(aes(x = sample_size,
-                 y = rank,
+                 y = -rank,
                  colour = method),
              size = 2) +
   facet_grid(cols = vars(moment),
@@ -675,29 +674,40 @@ bump =
                .default = capitalize
              ),
              switch = 'y') +
-  scale_colour_manual(guide = guide_legend(title = "Method"),
+  scale_colour_manual(guide = guide_legend(title = "Method",
+                                           #nrow = 1,
+                                           title.position="top",
+                                           title.hjust = 0.5),
                       values = pal_df$c,
                       labels = pal_df$l) +
   labs(x = 'Sample size',
        y = "Rank") +
-  scale_x_continuous(trans = 'sqrt', breaks = c(0,10,50,100,200,500),
-                     limits = c(0, 500)) +
-  lims(y = c(4.5,.5)) +
+  scale_x_continuous(trans = 'sqrt', breaks = c(1,4,9,16,25,36,49),
+                     limits = c(0, 50)) +
+  scale_y_continuous(breaks = c(-1,-4),
+                     labels = c("Best", "Worst")) +
   # Theme
-  theme_lollipop
-
-(bump +
-    sub_bump) +
-  plot_layout(guides = 'collect') +
-  plot_annotation(tag_levels = 'A',
-                  theme = theme(
-                    legend.position = 'bottom',
-                    plot.background = element_rect(fill = "#141438", colour = NA),
-                    panel.background = element_rect(fill = "#141438", colour = NA),
-                    text = element_text(family = "Noto", color = "grey65")))
+  figure_theme +
+  theme(panel.background = element_rect(colour = colorspace::lighten("#141438", 0.1),
+                                        size = 1),
+        strip.text.y.left = element_text(margin = margin(0, 0, 10, 0),
+                                         size = rel(1.7), face = "bold", vjust = 0,
+                                         colour = "grey65", angle = 0),
+        strip.text.x.top = element_text(margin = margin(0, 0, 10, 0),
+                                        size = rel(1.7),
+                                        colour = "grey65", face = "bold"),
+        panel.grid.major.y = element_blank(),
+        strip.background = element_blank(),
+        axis.line = element_blank(),
+        strip.placement = 'outside',
+        axis.ticks.y = element_blank(),
+        axis.title.y = element_blank(),
+        legend.position = 'bottom',
+        legend.text = element_text(color = "grey65", size = rel(1)),
+        legend.title = element_text(color = "grey65", size = rel(1.5)))
 
 ggsave(here::here("figures/bumps.png"),
-       height = 8, width = 18,
+       height = 8, width = 15,
        units = "in", dpi = 300)
 
 ### b) Lollipop CO ----
