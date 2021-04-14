@@ -9,14 +9,20 @@ source("scripts_for_ms_with_traitstrap/plotting_aesthetics.R")
 #read in data
 colorado_percent <- readRDS("output_data/Colorado_percent_community_sims.RDS")
 
+colorado_percent$method = fct_recode(colorado_percent$method, `Cross-Site CW` = "Cross-Site CWM", 
+           `Site-Specific CW` = "Site-Specific CWM")
+
 panama_percent <- readRDS("output_data/Panama_percent_community_sims.RDS")
 
-colorado_percent$method <- ordered(colorado_percent$method,levels = c("Cross-Site CWM","Site-Specific CWM","Parametric BS","Non-Parametric BS"))
-panama_percent$method <- ordered(panama_percent$method,levels = c("Cross-Site CWM","Site-Specific CWM","Parametric BS","Non-Parametric BS"))
+panama_percent$method = fct_recode(panama_percent$method, `Cross-Site CW` = "Cross-Site CWM", 
+                                     `Site-Specific CW` = "Site-Specific CWM")
+
+colorado_percent$method <- ordered(colorado_percent$method,levels = c("Cross-Site CW","Site-Specific CW","Parametric BS","Non-Parametric BS"))
+panama_percent$method <- ordered(panama_percent$method,levels = c("Cross-Site CW","Site-Specific CW","Parametric BS","Non-Parametric BS"))
 
 ### Moon plots - accuracy of moments - 'global' ----
 
-library(gggibbous)
+
 
 #### All traits combined
 
@@ -95,11 +101,6 @@ moons_co <-
   geom_hline(aes(yintercept = 0),
              color = "grey50",
              size = 1.5) +
-  # geom_hline(data = rodent_random,
-  #            aes(yintercept = deviation,
-  #                linetype = "Random"),
-  #            color = "grey50",
-  #            size = 1.2) +
   geom_smooth(
     data = colorado_percent %>%
       filter(estimate != is.na(estimate)) %>%
@@ -109,8 +110,7 @@ moons_co <-
     aes(
       x = pct_abd_sampled,
       y = deviation ,
-      color = method,
-      linetype = "Biased"),
+      color = method),
     alpha = 0.5,
     se = FALSE,
     size = 0.8) +
@@ -129,10 +129,6 @@ moons_co <-
   ),
   color = "transparent",
   size = 4) +
-  scale_linetype_manual("Sampling",
-                        values=c("Biased" = 1,
-                                 "Random" = 2),
-                        guide = guide_legend(override.aes = list(colour = "grey69"))) +
   scale_fill_manual(guide = guide_legend(title = "Method",
                                          title.position="top"),
                     values = colorspace::darken(pal_df$c, amount = 0.25),
@@ -152,25 +148,7 @@ moons_co <-
   labs(x = "Percent cumulative abundance sampled",
        y = "Average deviation from true moment") +
   # Theme
-  figure_theme +
-  theme(
-    legend.position = 'right',
-    legend.title = element_text(size = 14, colour = "grey65"),
-    strip.text.y = element_text(margin = margin(0, 0, 10, 0),
-                                size = 14, face = "bold",
-                                colour = "grey65"),
-    strip.text.x.top = element_text(margin = margin(0, 0, 10, 0),
-                                    size = 14, face = "bold",
-                                    colour = "grey65"),
-    panel.grid.major.y = element_line(size = 0.05,
-                                      colour = "grey65"),
-    legend.key = element_blank(),
-    legend.text = element_text(colour = "grey65"),
-    axis.title = element_text(colour = "grey65"),
-    strip.background = element_blank(),
-    axis.line = element_blank(),
-    strip.placement = 'outside'
-  )
+  theme_moon
 
 inset_co =
   ggplot(overunders) +
@@ -223,7 +201,11 @@ ggsave(here::here("figures/moons_pct_abund.png"),
 
 rodent_percent <- readRDS("output_data/Rodent_percent_community_sims.RDS")
 
-rodent_percent$method <- ordered(rodent_percent$method,levels = c("Cross-Site CWM","Site-Specific CWM","Parametric BS","Non-Parametric BS"))
+rodent_percent$method = fct_recode(rodent_percent$method, `Cross-Site CW` = "Cross-Site CWM", 
+                                   `Site-Specific CW` = "Site-Specific CWM")
+
+
+rodent_percent$method <- ordered(rodent_percent$method,levels = c("Cross-Site CW","Site-Specific CW","Parametric BS","Non-Parametric BS"))
 
 overunders = 
   rodent_percent %>%
@@ -291,11 +273,6 @@ ggplot(sim_moon_means_rodent) +
   geom_hline(aes(yintercept = 0),
              color = "grey50",
              size = 1.5) +
-  # geom_hline(data = rodent_random,
-  #            aes(yintercept = deviation,
-  #                linetype = "Random"),
-  #            color = "grey50",
-  #            size = 1.2) +
   geom_smooth(
     data = rodent_percent %>%
       filter(estimate != is.na(estimate)) %>%
@@ -305,8 +282,7 @@ ggplot(sim_moon_means_rodent) +
     aes(
       x = pct_abd_sampled,
       y = deviation ,
-      color = method,
-      linetype = "Biased"),
+      color = method),
     alpha = 0.5,
     se = FALSE,
     size = 0.8) +
@@ -349,25 +325,7 @@ ggplot(sim_moon_means_rodent) +
   labs(x = "Percent cumulative abundance sampled",
        y = "Average deviation from true moment") +
   # Theme
-  figure_theme +
-  theme(
-    legend.position = 'right',
-    legend.title = element_text(size = 14, colour = "grey65"),
-    strip.text.y = element_text(margin = margin(0, 0, 10, 0),
-                                size = 14, face = "bold",
-                                colour = "grey65"),
-    strip.text.x.top = element_text(margin = margin(0, 0, 10, 0),
-                                    size = 14, face = "bold",
-                                    colour = "grey65"),
-    panel.grid.major.y = element_line(size = 0.05,
-                                      colour = "grey65"),
-    legend.key = element_blank(),
-    legend.text = element_text(colour = "grey65"),
-    axis.title = element_text(colour = "grey65"),
-    strip.background = element_blank(),
-    axis.line = element_blank(),
-    strip.placement = 'outside'
-  )
+  theme_moon
 
 inset_az =
   ggplot(overunders) +
@@ -416,25 +374,23 @@ ggsave(here::here("figures/moons_pct_abund_rodents.png"),
 
 #### Combine CO and AZ ----
 
-library(patchwork)
-
-moon_legend = 
-  ggplot(data.frame(y = c(1,2.5,4,5.5), 
+moon_legend2 = 
+  ggplot(data.frame(y = c(1,2.7,4.4,6.1), 
                     x = 0, ratio = 1:4 * 0.25),
          aes(x = x, y = y)) +
   geom_moon(aes(ratio = ratio), size = 5, fill = "grey69", colour = "grey69") +
-  geom_text(aes(x = x + 2,
+  geom_text(aes(x = x + 3,
                 label = paste0(ratio*100,"%")),
-            size = 3,
+            size = 4,
             colour = "grey65",
             family = "Noto") +
   coord_fixed() +
   ggtitle("Value in CI") +
-  lims(y = c(0.5, 6), x = c(-2, 6)) +
+  lims(y = c(0.5, 7), x = c(-1, 8)) +
   theme_void() +
   theme(plot.title = element_markdown(hjust = 0.5,
                                       halign = 0,
-                                      size = rel(1.05)),
+                                      size = rel(1.7)),
         plot.title.position = "panel",
         text = element_text(colour = "grey65",
                             family = "Noto"))
@@ -464,15 +420,15 @@ moon_legend =
               widths = c(1, 1)) +
   plot_annotation(theme = theme(
     plot.background = element_rect(fill = "#141438", colour = NA))) +
-  inset_element(moon_legend, 
-                left = 0.815, 
-                bottom = 0.21, 
+  inset_element(moon_legend2, 
+                left = 0.785, 
+                bottom = 0.12, 
                 right = 0.925, 
-                top = 0.34,
+                top = 0.5,
                 align_to = 'full')
 
 ggsave(here::here("figures/moons_pct_abund_AB.png"),
-       height = 9, width = 20.5,
+       height = 9.2, width = 20.5,
        units = "in", dpi = 300)
 
 #### Lollipops CO ----
@@ -858,8 +814,7 @@ moons_pa <-
     aes(
       x = pct_abd_sampled,
       y = deviation ,
-      color = method,
-      linetype = "Biased"),
+      color = method),
     alpha = 0.5,
     se = FALSE,
     size = 0.8) +
@@ -879,10 +834,6 @@ moons_pa <-
   ),
   color = "transparent",
   size = 4) +
-  scale_linetype_manual("Sampling",
-                        values=c("Biased" = 1,
-                                 "Random" = 2),
-                        guide = guide_legend(override.aes = list(colour = "grey69"))) +
   scale_fill_manual(guide = guide_legend(title = "Method",
                                          title.position="top"),
                     values = colorspace::darken(pal_df$c, amount = 0.25),
@@ -902,25 +853,7 @@ moons_pa <-
   labs(x = "Percent cumulative abundance sampled",
        y = "Average deviation from true moment") +
   # Theme
-  figure_theme +
-  theme(
-    legend.position = 'right',
-    legend.title = element_text(size = 14, colour = "grey65"),
-    strip.text.y = element_text(margin = margin(0, 0, 10, 0),
-                                size = 14, face = "bold",
-                                colour = "grey65"),
-    strip.text.x.top = element_text(margin = margin(0, 0, 10, 0),
-                                    size = 14, face = "bold",
-                                    colour = "grey65"),
-    panel.grid.major.y = element_line(size = 0.05,
-                                      colour = "grey65"),
-    legend.key = element_blank(),
-    legend.text = element_text(colour = "grey65"),
-    axis.title = element_text(colour = "grey65"),
-    strip.background = element_blank(),
-    axis.line = element_blank(),
-    strip.placement = 'outside'
-  )
+  theme_moon
 
 inset_pa =
   ggplot(overunders) +
@@ -955,13 +888,17 @@ inset_pa =
 
 cowplot::ggdraw(moons_pa) +
   cowplot::draw_plot(moon_legend,
-                     .79, .15,
-                     0.21, .175) +
+                     .78, .17,
+                     0.21, .22) +
   cowplot::draw_plot(inset_pa,
-                     width = 0.75,
-                     height = 0.85,
-                     x = 0.07,
-                     y = 0.07)
+                     width = 0.72,
+                     height = 0.81,
+                     x = 0.08,
+                     y = 0.09) +
+  cowplot::draw_image(
+    img3, x = 0.03, y = 0.93, hjust = 0.5, vjust = 0.5,
+    width = 0.045
+  )
 
 ggsave(here::here("figures/moons_pct_abund_panama.png"),
        height = 7.4, width = 12.5,
