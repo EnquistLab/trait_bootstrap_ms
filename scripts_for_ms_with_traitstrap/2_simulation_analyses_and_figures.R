@@ -23,6 +23,10 @@ simdata_rats <-
 simdata_frogs <- 
   tidy_simdata(readRDS("output_data/simulation_results_treefrogs.RDS"))
 
+##TODO
+simdata_plankton <- 
+  tidy_simdata(readRDS("output_data/simulation_results_treefrogs.RDS"))
+
 
 ### Accuracy but using absolutes ----
 
@@ -60,13 +64,14 @@ cowplot::ggdraw(
                     fill = method,
                     alpha = hit), 
                 color = "grey85", 
+                size = 0.8,
                 width = 0, height = 0.2, shape = 21) +
     geom_point(data = simmeans,
                aes(x = estimate, 
                    y = method,
                    fill = method,
                    colour = method),
-               shape = 23, size = 3.2) + 
+               shape = 23, size = 2.7) + 
     facet_grid(rows = vars(trait),
                cols = vars(moment),
                labeller = labeller(
@@ -83,27 +88,33 @@ cowplot::ggdraw(
     labs(x = "Deviation from true value",
          y = NULL) +
     guides(colour = guide_legend(title = "Method",
+                                 title.position="top",
+                                 title.hjust = 0.5,
                                  override.aes = list(shape = 21,
                                                      size = 3,
                                                      order = 1)), 
            fill = guide_legend(title = "Method",
+                               title.position="top",
+                               title.hjust = 0.5,
                                override.aes = list(shape = 21,
                                                    size = 3,
                                                    order = 1)), 
            alpha = guide_legend(title = "Value in CI",
+                                title.position="top",
+                                title.hjust = 0.5,
                                 override.aes = list(shape = 16,
                                                     size = 3,
                                                     order = 2))) +
     theme_lollipop
-  ) +
+) +
   cowplot::draw_image(
-    img1, x = 0.03, y = 0.94, hjust = 0.5, vjust = 0.5,
-    width = 0.03
+    img1, x = 0.04, y = 0.94, hjust = 0.5, vjust = 0.5,
+    width = 0.05
   )
 
 ggsave(here::here("figures/Lollipops_deviation.png"),
-       height = 7.5, width = 15,
-       units = "in", dpi = 300)
+       height = 150, width = 180,
+       units = "mm", dpi = 600)
 
 ### Accuracy Across datasets (creative) ----
 
@@ -117,7 +128,9 @@ simmeans =
         simdata_panama %>%
           mutate(dataset = rep("Trees", nrow(.))),
         simdata_rats %>%
-          mutate(dataset = rep("Rodents", nrow(.)))) %>%
+          mutate(dataset = rep("Rodents", nrow(.))),
+        simdata_plankton %>%
+          mutate(dataset = rep("Plankton", nrow(.)))) %>%
   filter(sample_size < 26 &
            sample_size > 8) %>%
   group_by(dataset, moment) %>%
@@ -135,7 +148,9 @@ simdata_lollipop =
         simdata_panama %>%
           mutate(dataset = rep("Trees", nrow(.))),
         simdata_rats %>%
-          mutate(dataset = rep("Rodents", nrow(.)))) %>%
+          mutate(dataset = rep("Rodents", nrow(.))),
+        simdata_plankton %>%
+          mutate(dataset = rep("Plankton", nrow(.)))) %>%
   filter(sample_size < 26 &
            sample_size > 8) %>%
   # group_by(dataset, moment) %>%
@@ -151,13 +166,15 @@ simdata_lollipop$dataset <- factor(simdata_lollipop$dataset,
                                    levels = c("Herbs",
                                               "Tadpoles",
                                               "Trees", 
-                                              "Rodents"))
+                                              "Rodents",
+                                              "Plankton"))
 
 simmeans$dataset <- factor(simmeans$dataset,
                            levels = c("Herbs",
                                       "Tadpoles",
                                       "Trees", 
-                                      "Rodents"))
+                                      "Rodents",
+                                      "Plankton"))
 
 lollipop_all = 
   ggplot(simmeans) + 
@@ -176,14 +193,15 @@ lollipop_all =
                   y = method, 
                   fill = method,
                   alpha = hit), 
-              color = "white", 
+              color = "grey85", 
+              size = 0.8, 
               width = 0, height = 0.2, shape = 21) +
   geom_point(data = simmeans,
              aes(x = estimate, 
                  y = method,
                  fill = method,
                  colour = method),
-             shape = 23, size = 3.2) + 
+             shape = 23, size = 2.7) + 
   facet_grid(rows = vars(dataset),
              cols = vars(moment),
              labeller = labeller(
@@ -192,14 +210,20 @@ lollipop_all =
              switch = 'y',
              scales = 'free')  + 
   scale_fill_manual(guide = guide_legend(title = "Method",
+                                         title.position="top",
+                                         title.hjust = 0.5,
                                          override.aes = list(shape = 21)),
                     values = pal_df$c,
                     breaks = pal_df$l) +
   scale_colour_manual(guide = guide_legend(title = "Method",
+                                           title.position="top",
+                                           title.hjust = 0.5,
                                            override.aes = list(shape = 21)),
                       values = colorspace::darken(pal_df$c, 0.5),
                       breaks = pal_df$l) +
   scale_alpha_discrete(guide = guide_legend(title = "Value in CI",
+                                            title.position="top",
+                                            title.hjust = 0.5,
                                             override.aes = list(shape = 16,
                                                                 size = 3)),
                        range = c(0.2, 0.5)) +
@@ -209,14 +233,15 @@ lollipop_all =
   ) +
   #guides(size = 'none') +
   theme_lollipop +
-  theme(strip.text.y.left = element_text(margin = margin(0, 0, 10, 0),
-                                         size = rel(1.2), face = "bold", vjust = 0,
+  theme(strip.text.y.left = element_text(margin = margin(0, 0, 2, 0),
+                                         size = rel(0.8), vjust = 0,
                                          colour = "grey65", angle = 0))
+
 
 ggsave(here::here("figures/Lollipops_Datsets.png"),
        lollipop_all,
-       height = 9, width = 15,
-       units = "in", dpi = 300)
+       height = 160, width = 180,
+       units = "mm", dpi = 600)
 
 
 ### Doughnut plots - winners ----
@@ -359,8 +384,8 @@ cowplot::ggdraw(doughnut_CO) +
   )
 
 ggsave(here::here("figures/WinnerDoughnuts.png"),
-       height = 10.4, width = 8.6,
-       units = "in", dpi = 300)
+       height = 180, width = 180,
+       units = "mm", dpi = 600)
 
 ### Over Under - across winners ----
 
@@ -436,14 +461,6 @@ inset =
 
 ### Doughnut plots - across winners ----
 
-simdata %>%
-  filter(sample_size < 26 &
-           sample_size > 8) %>%
-  group_by(moment, sample_size, site, trait) %>%
-  count() %>%
-  ungroup()%>%
-  distinct(moment, trait, n)
-
 group_size = 
   rbind(simdata %>%
           mutate(dataset = rep("Herbs", nrow(.))),
@@ -452,15 +469,15 @@ group_size =
         simdata_panama %>%
           mutate(dataset = rep("Trees", nrow(.))),
         simdata_rats %>%
-          mutate(dataset = rep("Rodents", nrow(.)))) %>%
+          mutate(dataset = rep("Rodents", nrow(.))),
+        simdata_plankton %>%
+          mutate(dataset = rep("Plankton", nrow(.)))) %>%
   filter(sample_size < 26 &
            sample_size > 8) %>%
   distinct(dataset, moment, sample_size, site, trait) %>%
   group_by(dataset, moment) %>%
   count() %>%
   rename(grp_mn = n)
-
-abs(sim_doughnuts_all$deviation)
 
 sim_doughnuts_all = 
   rbind(simdata %>%
@@ -470,7 +487,9 @@ sim_doughnuts_all =
         simdata_panama %>%
           mutate(dataset = rep("Trees", nrow(.))),
         simdata_rats %>%
-          mutate(dataset = rep("Rodents", nrow(.)))) %>%
+          mutate(dataset = rep("Rodents", nrow(.))),
+        simdata_plankton %>%
+          mutate(dataset = rep("Plankton", nrow(.)))) %>%
   filter(sample_size < 26 &
            sample_size > 8) %>%
   mutate(hit = ifelse(ci_low <= true_value & true_value <= ci_high,
@@ -498,13 +517,15 @@ sim_doughnuts_all$dataset <- factor(sim_doughnuts_all$dataset,
                                     levels = c("Herbs",
                                                "Tadpoles",
                                                "Trees", 
-                                               "Rodents"))
+                                               "Rodents",
+                                               "Plankton"))
 
 sim_win_text$dataset <- factor(sim_win_text$dataset,
                                levels = c("Herbs",
                                           "Tadpoles",
                                           "Trees", 
-                                          "Rodents"))
+                                          "Rodents",
+                                          "Plankton"))
 
 doughnut = 
   ggplot(sim_doughnuts_all) +
@@ -562,6 +583,10 @@ cowplot::ggdraw(doughnut) +
     img4, x = 0.1, y = 0.2, hjust = 1, vjust = 1, halign = 1, valign = 1,
     width = 0.08
   ) +
+  cowplot::draw_image(
+    img5, x = 0.1, y = 0.2, hjust = 1, vjust = 1, halign = 1, valign = 1,
+    width = 0.08
+  ) +
   cowplot::draw_plot(inset,
                      width = 0.85,
                      height = 0.89,
@@ -570,12 +595,9 @@ cowplot::ggdraw(doughnut) +
 
 ggsave(here::here("figures/WinnerDoughnuts_datasets_images.png"),
        height = 10, width = 10.2,
-       units = "in", dpi = 300)
+       units = "mm", dpi = 600)
 
 ### a) BumpPlots ----
-
-library(ggbump)
-library(ggfx)
 
 bumps = 
   rbind(simdata %>%
@@ -585,7 +607,9 @@ bumps =
         simdata_panama %>%
           mutate(dataset = rep("Trees", nrow(.))),
         simdata_rats %>%
-          mutate(dataset = rep("Rodents", nrow(.)))) %>%
+          mutate(dataset = rep("Rodents", nrow(.))),
+        simdata_plankton %>%
+          mutate(dataset = rep("Plankton", nrow(.)))) %>%
   mutate(hit = ifelse(ci_low <= true_value & true_value <= ci_high,
                       2,
                       1),
@@ -606,12 +630,13 @@ bumps$dataset <- factor(bumps$dataset,
                         levels = c("Herbs",
                                    "Tadpoles",
                                    "Trees", 
-                                   "Rodents"))
+                                   "Rodents",
+                                   "Plankton"))
 
 sub_bump = 
   ggplot(bumps %>%
            filter(sample_size < 50 &&
-                  dataset == "Herbs")) +
+                    dataset == "Herbs")) +
   with_blur(
     geom_bump(aes(x = sample_size,
                   y = -rank,
@@ -637,36 +662,34 @@ sub_bump =
   scale_x_continuous(trans = 'sqrt', breaks = c(1,4,9,16,25, 36,49),
                      limits = c(1, 50)) +
   scale_y_continuous(breaks = c(-1,-4),
-                   labels = c("Best", "Worst")) +
+                     labels = c("Best", "Worst")) +
   # Theme
   figure_theme +
   theme(panel.background = element_rect(colour = colorspace::lighten("#141438", 0.1),
                                         size = 1),
-        strip.text.y = element_blank(),
         strip.text.x.top = element_text(margin = margin(0, 0, 10, 0),
-                                        size = rel(1.7),
+                                        size = rel(1),
                                         colour = "grey65", face = "bold"),
         panel.grid.major.y = element_blank(),
         strip.background = element_blank(),
         axis.line = element_blank(),
         strip.placement = 'outside',
         axis.ticks.y = element_blank(),
-        legend.position = 'bottom',
-        legend.text = element_text(color = "grey65", size = rel(1)),
-        legend.title = element_text(color = "grey65", size = rel(1.5)))
+        axis.title.y = element_blank(),
+        legend.position = 'bottom')
 
 ggplot(bumps %>%
-           filter(sample_size < 50)) +
+         filter(sample_size < 50)) +
   with_blur(
     geom_bump(aes(x = sample_size,
                   y = -rank,
                   colour = method),
-              size = 1, smooth = 8),
+              size = 0.7, smooth = 8),
     sigma = 1) +
   geom_point(aes(x = sample_size,
                  y = -rank,
                  colour = method),
-             size = 2) +
+             size = 1) +
   facet_grid(cols = vars(moment),
              rows = vars(dataset),
              labeller = labeller(
@@ -683,18 +706,19 @@ ggplot(bumps %>%
   labs(x = 'Sample size',
        y = "Rank") +
   scale_x_continuous(trans = 'sqrt', breaks = c(1,4,9,16,25,36,49),
-                     limits = c(0, 50)) +
+                     limits = c(1, 50)) +
   scale_y_continuous(breaks = c(-1,-4),
                      labels = c("Best", "Worst")) +
+  #coord_cartesian(clip = 'off') +
   # Theme
   figure_theme +
   theme(panel.background = element_rect(colour = colorspace::lighten("#141438", 0.1),
                                         size = 1),
-        strip.text.y.left = element_text(margin = margin(0, 0, 10, 0),
-                                         size = rel(1.7), face = "bold", vjust = 0,
+        strip.text.y.left = element_text(margin = margin(0, 2, 2, 0),
+                                         size = rel(1), vjust = 0,
                                          colour = "grey65", angle = 0),
         strip.text.x.top = element_text(margin = margin(0, 0, 10, 0),
-                                        size = rel(1.7),
+                                        size = rel(1),
                                         colour = "grey65", face = "bold"),
         panel.grid.major.y = element_blank(),
         strip.background = element_blank(),
@@ -702,13 +726,11 @@ ggplot(bumps %>%
         strip.placement = 'outside',
         axis.ticks.y = element_blank(),
         axis.title.y = element_blank(),
-        legend.position = 'bottom',
-        legend.text = element_text(color = "grey65", size = rel(1)),
-        legend.title = element_text(color = "grey65", size = rel(1.5)))
+        legend.position = 'bottom')
 
 ggsave(here::here("figures/bumps.png"),
-       height = 8, width = 15,
-       units = "in", dpi = 300)
+       height = 140, width = 180,
+       units = "mm", dpi = 1200)
 
 ### b) Lollipop CO ----
 
@@ -732,7 +754,8 @@ lollipop_CO =
                   y = method, 
                   fill = method,
                   alpha = hit), 
-              color = "white", 
+              color = "grey85", 
+              size = 0,8,
               width = 0, height = 0.2, shape = 21) +
   geom_point(data = simmeans %>%
                filter(dataset == "Herbs"),
@@ -740,7 +763,7 @@ lollipop_CO =
                  y = method,
                  fill = method,
                  colour = method),
-             shape = 23, size = 3.2) + 
+             shape = 23, size = 2.7) + 
   facet_grid(rows = vars(dataset),
              cols = vars(moment),
              labeller = labeller(
@@ -749,14 +772,20 @@ lollipop_CO =
              switch = 'y',
              scales = 'free')  + 
   scale_fill_manual(guide = guide_legend(title = "Method",
+                                         title.position="top",
+                                         title.hjust = 0.5,
                                          override.aes = list(shape = 21)),
                     values = pal_df$c,
                     breaks = pal_df$l) +
   scale_colour_manual(guide = guide_legend(title = "Method",
+                                           title.position="top",
+                                           title.hjust = 0.5,
                                            override.aes = list(shape = 21)),
                       values = colorspace::darken(pal_df$c, 0.5),
                       breaks = pal_df$l) +
   scale_alpha_discrete(guide = guide_legend(title = "Value in CI",
+                                            title.position="top",
+                                            title.hjust = 0.5,
                                             override.aes = list(shape = 16,
                                                                 size = 3)),
                        range = c(0.2, 0.5)) +
@@ -770,50 +799,52 @@ lollipop_CO =
 ### Fig 2 panel ----
 
 (ggplot(sim_doughnuts_all) +
-    geom_col(aes(
-      x = 2,
-      y = percentage,
-      fill = method
-    ),
-    colour = 'grey96') +
-    xlim(c(0.5, 2.5)) +
-    ylim(c(0, 1)) +
-    #annotation textboxes
-    geom_text(data = sim_win_text,
-              aes(x = 0.5,
-                  y = 0.25,
-                  colour = method,
-                  label = glue::glue("{percentage}%")),
-              hjust = 0.5,
-              show.legend = FALSE,
-              size = 5.4) +
-    coord_polar(theta = 'y') +
-    facet_grid(rows = vars(dataset),
-               cols = vars(moment),
-               labeller = labeller(
-                 trait = traits_parsed,
-                 .default = capitalize
-               ),
-               switch = 'y')  + 
-    scale_colour_manual(values = pal_df$c,
-                        breaks = pal_df$l)  + 
-    scale_fill_manual(guide = guide_legend(title = "Method",
-                                           #nrow = 1,
-                                           title.position="top",
-                                           title.hjust = 0.5),
-                      values = pal_df$c,
-                      breaks = pal_df$l) +
-    # Theme
-    theme_doughnut +
-    theme(
-      legend.position = 'none',
-      text = element_text(family = "Noto", color = "grey65"))
-    ) /
-    (sub_bump +
-    theme(legend.position = 'none',
-          text = element_text(family = "Noto", color = "grey65"),
-          strip.text.y = element_blank(),
-          axis.title.y = element_text(size = rel(0.9))))/
+   geom_col(aes(
+     x = 2,
+     y = percentage,
+     fill = method
+   ),
+   colour = 'grey96') +
+   xlim(c(0.5, 2.5)) +
+   ylim(c(0, 1)) +
+   #annotation textboxes
+   geom_text(data = sim_win_text,
+             aes(x = 0.5,
+                 y = 0.25,
+                 colour = method,
+                 label = glue::glue("{percentage}%")),
+             hjust = 0.5,
+             show.legend = FALSE,
+             size = 3.3) +
+   coord_polar(theta = 'y') +
+   facet_grid(rows = vars(dataset),
+              cols = vars(moment),
+              labeller = labeller(
+                trait = traits_parsed,
+                .default = capitalize
+              ),
+              switch = 'y')  + 
+   scale_colour_manual(values = pal_df$c,
+                       breaks = pal_df$l)  + 
+   scale_fill_manual(guide = guide_legend(title = "Method",
+                                          #nrow = 1,
+                                          title.position="top",
+                                          title.hjust = 0.5),
+                     values = pal_df$c,
+                     breaks = pal_df$l) +
+   # Theme
+   theme_doughnut +
+   theme(strip.text.y.left = element_text(margin = margin(0, 0, 5, 0),
+                                          size = rel(0.8), vjust = 0,
+                                          colour = "grey65", angle = 0),
+         legend.position = 'none',
+         text = element_text(family = "Noto", color = "grey65"))
+) /
+  (sub_bump +
+     theme(legend.position = 'none',
+           text = element_text(family = "Noto", color = "grey65"),
+           strip.text.y = element_blank(),
+           axis.title.y = element_text(size = rel(0.9))))/
   lollipop_CO +
   theme(
     strip.text.y = element_blank(),
@@ -828,8 +859,8 @@ lollipop_CO =
   plot_layout(heights = c(1, 0.25, 0.25))
 
 ggsave(here::here("figures/Fig2_panel.png"),
-       height = 16, width = 13.5,
-       units = "in", dpi = 300)
+       height = 290, width = 180,
+       units = "mm", dpi = 600)
 
 ### Doughnut - Panama by trait ----
 

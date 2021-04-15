@@ -6,6 +6,8 @@ library(gggibbous)
 library(ggtext)
 library(patchwork)
 library(ggridges)
+library(ggbump)
+library(ggfx)
 
 ##Fonts----
 
@@ -28,18 +30,18 @@ figure_theme =
     panel.grid.minor = element_blank(),
     panel.grid.major.x = element_blank(),
     panel.grid.major.y = element_line(size = 0.1),
-    axis.text.x = element_text(color = "grey65", size = rel(1.5)),
-    axis.text.y = element_text(color = "grey65", size = rel(1.3)),
-    axis.title.x = element_text(color = "grey65", size = rel(1.7)),
-    axis.title.y = element_text(color = "grey65", size = rel(1.5)),
+    axis.text.x = element_text(color = "grey65", size = rel(.7)),
+    axis.text.y = element_text(color = "grey65", size = rel(.7)),
+    axis.title.x = element_text(color = "grey65", size = rel(.9)),
+    axis.title.y = element_text(color = "grey65", size = rel(.9)),
     axis.line = element_blank(),
     plot.background = element_rect(fill = "#141438", colour = NA),
     panel.background = element_rect(fill = "#141438", colour = NA),
     legend.background = element_rect(fill = "#141438", colour = NA),
     legend.position = 'bottom',
     legend.key = element_blank(),
-    legend.text = element_text(color = "grey65", size = rel(1.1)),
-    legend.title = element_text(color = "grey65", size = rel(1.6)),
+    legend.text = element_text(color = "grey65", size = rel(.7)),
+    legend.title = element_text(color = "grey65", size = rel(.9)),
     text = element_text(family = "Noto", color = "grey65"), #font change
     plot.margin = margin(25, 25, 10, 25)
     )
@@ -55,13 +57,13 @@ theme_doughnut =
     panel.background = element_rect(fill = "#141438",
                                     colour = NA),
     strip.text.y.left = element_text(margin = margin(0, 0, 10, 0),
-                                size = rel(1.7), face = "bold", vjust = 0,
+                                size = rel(1), face = "bold", vjust = 0,
                                 colour = "grey65", angle = 0),
     strip.text.x.top = element_text(margin = margin(0, 0, 10, 0),
-                                    size = rel(1.7),
+                                    size = rel(1),
                                     colour = "grey65", face = "bold"),
-    legend.text = element_text(color = "grey65", size = rel(1.1)),
-    legend.title = element_text(color = "grey65", size = rel(1.6)),
+    legend.text = element_text(color = "grey65", size = rel(.7)),
+    legend.title = element_text(color = "grey65", size = rel(.9)),
     plot.margin = margin(15, 19, 10, 15),
     legend.position = 'bottom'
   )
@@ -73,10 +75,10 @@ theme_moon =
   theme(
     legend.position = 'right',
     strip.text.y = element_text(margin = margin(0, 0, 10, 0),
-                                size = rel(1.7), face = "bold",
+                                size = rel(1), face = "bold",
                                 colour = "grey65"),
     strip.text.x.top = element_text(margin = margin(0, 0, 10, 0),
-                                    size = rel(1.7),
+                                    size = rel(1),
                                     colour = "grey65", face = "bold"),
     panel.grid.major.y = element_line(size = 0.05,
                                       colour = "grey65"),
@@ -99,10 +101,10 @@ theme_lollipop =
         panel.background = element_rect(colour = colorspace::lighten("#141438", 0.1),
                                         size = 1),
         strip.text.y = element_text(margin = margin(0, 10, 0, 0),
-                                    size = rel(1.7), face = "bold",
+                                    size = rel(1), face = "bold",
                                     colour = "grey65"),
         strip.text.x.top = element_text(margin = margin(0, 0, 10, 0),
-                                        size = rel(1.7),
+                                        size = rel(1),
                                         colour = "grey65", face = "bold"),
         panel.grid.major.y = element_blank(),
         strip.background = element_blank(),
@@ -110,8 +112,8 @@ theme_lollipop =
         strip.placement = 'outside',
         axis.ticks.y = element_blank(),
         legend.position = 'bottom',
-        legend.text = element_text(color = "grey65", size = rel(1)),
-        legend.title = element_text(color = "grey65", size = rel(1.5)))
+        legend.text = element_text(color = "grey65", size = rel(.7)),
+        legend.title = element_text(color = "grey65", size = rel(.9)))
 
 ##Colour palete----
 colors <- c("Cross-Site CW" = "#F235B0",
@@ -178,3 +180,4 @@ img1 = png::readPNG("images/Colorado.png")
 img2 = png::readPNG("images/Frogs.png")
 img3 = png::readPNG("images/Panama.png")
 img4 = png::readPNG("images/AZ.png")
+img5 = png::readPNG("images/Phyto.png")
