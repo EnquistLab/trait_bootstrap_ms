@@ -284,17 +284,17 @@ doughnut_CO =
     fill = method
   ),
   colour = 'grey96') +
-  xlim(c(0.7, 2.5)) +
-  ylim(c(0, 1))  +
+  xlim(c(0.5, 2.5)) +
+  ylim(c(0, 1)) +
   #annotation textboxes
   geom_text(data = sim_win_text,
-            aes(x = 1.1,
+            aes(x = 0.5,
                 y = 0.25,
                 colour = method,
                 label = glue::glue("{percentage}%")),
             #label = glue::glue("{method} - {percentage}%")),
             #colour = 'grey90',
-            hjust = 1,
+            hjust = 0.5,
             show.legend = FALSE,
             size = 4) +
   coord_polar(theta = 'y') +
@@ -384,7 +384,7 @@ cowplot::ggdraw(doughnut_CO) +
   )
 
 ggsave(here::here("figures/WinnerDoughnuts.png"),
-       height = 180, width = 180,
+       height = 180, width = 147,
        units = "mm", dpi = 600)
 
 ### Over Under - across winners ----
@@ -730,7 +730,7 @@ ggplot(bumps %>%
 
 ggsave(here::here("figures/bumps.png"),
        height = 140, width = 180,
-       units = "mm", dpi = 1200)
+       units = "mm", dpi = 600)
 
 ### b) Lollipop CO ----
 
@@ -953,17 +953,17 @@ doughnut =
     fill = method
   ),
   colour = 'grey96') +
-  xlim(c(0.7, 2.5)) +
-  ylim(c(0, 1))  +
+  xlim(c(0.5, 2.5)) +
+  ylim(c(0, 1)) +
   #annotation textboxes
   geom_text(data = sim_win_text,
-            aes(x = 1.1,
+            aes(x = 0.5,
                 y = 0.25,
                 colour = method,
                 label = glue::glue("{percentage}%")),
             #label = glue::glue("{method} - {percentage}%")),
             #colour = 'grey90',
-            hjust = 1,
+            hjust = 0.5,
             show.legend = FALSE,
             size = 4) +
   coord_polar(theta = 'y') +
@@ -1031,5 +1031,5 @@ cowplot::ggdraw(doughnut) +
   )
 
 ggsave(here::here("figures/WinnerDoughnuts_panama.png"),
-       height = 15, width = 8.9,
-       units = "in", dpi = 300)
+       height = 314, width = 180,
+       units = "mm", dpi = 600)

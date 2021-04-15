@@ -163,9 +163,6 @@ ggplot(sim_moon_means %>%
 
 
 cowplot::ggdraw(moons) +
-  # cowplot::draw_plot(moon_legend,
-  #                    x = .77, y = .1,
-  #                    width = 0.18, height = .22) +
   cowplot::draw_plot(inset,
                      width = 0.7,
                      height = 0.8,
@@ -310,7 +307,7 @@ for (i in 1:5) {
 (plots[[2]] +
     labs(title = "A: Tadpoles") + 
     plots[[3]] +
-    labs(title = "B: Panama"))/
+    labs(title = "B: Trees"))/
   (plots[[4]] +
      labs(title = "C: Rodents") + 
      plots[[5]] +
