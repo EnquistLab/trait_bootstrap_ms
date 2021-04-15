@@ -27,34 +27,19 @@ figure_theme =
   theme(
     panel.grid.minor = element_blank(),
     panel.grid.major.x = element_blank(),
-<<<<<<< Updated upstream
-    panel.grid.major.y = element_line(size = 0.1),
-    axis.text.x = element_text(color = "grey65", size = rel(1.5)),
-    axis.text.y = element_text(color = "grey65", size = rel(1.3)),
-    axis.title.x = element_text(color = "grey65", size = rel(1.7)),
-    axis.title.y = element_text(color = "grey65", size = rel(1.5)),
-=======
     panel.grid.major.y = element_line(size = 0.1, color = "#5e5e5e"),
     axis.text = element_text(size = rel(.7)),
     axis.title= element_text(size = rel(.9)),
->>>>>>> Stashed changes
     axis.line = element_blank(),
     plot.background = element_rect(fill = "white", colour = NA),
     panel.background = element_rect(fill = "white", colour = NA),
     legend.background = element_rect(fill = "white", colour = NA),
     legend.position = 'bottom',
     legend.key = element_blank(),
-<<<<<<< Updated upstream
-    legend.text = element_text(color = "grey65", size = rel(1.1)),
-    legend.title = element_text(color = "grey65", size = rel(1.6)),
-    text = element_text(family = "Noto", color = "grey65"), #font change
-    plot.margin = margin(25, 25, 10, 25)
-=======
     legend.text = element_text(size = rel(.6)),
     legend.title = element_text(size = rel(.7)),
     text = element_text(family = "Noto", color = "#5e5e5e"), #font change
     plot.margin = margin(15, 5, 10, 15)
->>>>>>> Stashed changes
     )
 
 
@@ -68,22 +53,12 @@ theme_doughnut =
     panel.background = element_rect(fill = "white",
                                     colour = NA),
     strip.text.y.left = element_text(margin = margin(0, 0, 10, 0),
-<<<<<<< Updated upstream
-                                size = rel(1.7), face = "bold", vjust = 0,
-                                colour = "grey65", angle = 0),
-    strip.text.x.top = element_text(margin = margin(0, 0, 10, 0),
-                                    size = rel(1.7),
-                                    colour = "grey65", face = "bold"),
-    legend.text = element_text(color = "grey65", size = rel(1.1)),
-    legend.title = element_text(color = "grey65", size = rel(1.6)),
-=======
                                 size = rel(1), face = "bold", vjust = 0,
                                 angle = 0),
     strip.text.x.top = element_text(margin = margin(0, 0, 10, 0),
                                     size = rel(1),face = "bold"),
     legend.text = element_text(size = rel(.7)),
     legend.title = element_text(size = rel(.9)),
->>>>>>> Stashed changes
     plot.margin = margin(15, 19, 10, 15),
     legend.position = 'bottom',
     text = element_text(family = "Noto", color = "#5e5e5e")
@@ -96,20 +71,6 @@ theme_moon =
   theme(
     legend.position = 'right',
     strip.text.y = element_text(margin = margin(0, 0, 10, 0),
-<<<<<<< Updated upstream
-                                size = rel(1.7), face = "bold",
-                                colour = "grey65"),
-    strip.text.x.top = element_text(margin = margin(0, 0, 10, 0),
-                                    size = rel(1.7),
-                                    colour = "grey65", face = "bold"),
-    panel.grid.major.y = element_line(size = 0.05,
-                                      colour = "grey65"),
-    strip.background = element_blank(),
-    axis.line = element_blank(),
-    strip.placement = 'outside',
-    panel.background = element_rect(colour = colorspace::lighten("#141438", 0.1),
-                                    size = 1),
-=======
                                 size = rel(.9), face = "bold"),
     strip.text.x.top = element_text(margin = margin(0, 0, 5, 0),
                                     size = rel(.9),
@@ -120,7 +81,6 @@ theme_moon =
     strip.placement = 'outside',
     panel.background = element_rect(colour = colorspace::darken("#dddddd", 0.1),
                                     size = 0.6),
->>>>>>> Stashed changes
     plot.title.position = "panel",
     plot.title = element_text(margin = margin(0, 0, 10, 0),
                               size = 15, face = "bold")
@@ -131,36 +91,20 @@ theme_moon =
 theme_lollipop = 
   figure_theme +
   theme(axis.text.y = element_blank(),
-<<<<<<< Updated upstream
-        panel.background = element_rect(colour = colorspace::lighten("#141438", 0.1),
-                                        size = 1),
-        strip.text.y = element_text(margin = margin(0, 10, 0, 0),
-                                    size = rel(1.7), face = "bold",
-                                    colour = "grey65"),
-        strip.text.x.top = element_text(margin = margin(0, 0, 10, 0),
-                                        size = rel(1.7),
-                                        colour = "grey65", face = "bold"),
-=======
         panel.background = element_rect(colour = colorspace::darken("#dddddd", 0.1),
                                         size = 0.6),
         strip.text.y = element_text(margin = margin(0, 10, 0, 0),
                                     size = rel(1), face = "bold"),
         strip.text.x.top = element_text(margin = margin(0, 0, 10, 0),
                                         size = rel(1), face = "bold"),
->>>>>>> Stashed changes
         panel.grid.major.y = element_blank(),
         strip.background = element_blank(),
         axis.line = element_blank(),
         strip.placement = 'outside',
         axis.ticks.y = element_blank(),
         legend.position = 'bottom',
-<<<<<<< Updated upstream
-        legend.text = element_text(color = "grey65", size = rel(1)),
-        legend.title = element_text(color = "grey65", size = rel(1.5)))
-=======
         legend.text = element_text(size = rel(.7)),
         legend.title = element_text(size = rel(.9)))
->>>>>>> Stashed changes
 
 ##Colour palete----
 colors <- c("Cross-Site CW" = "#ff4ccc",
@@ -223,15 +167,8 @@ moon_legend =
                             family = "Noto"))
 
 ## Inset images ----
-<<<<<<< Updated upstream
-img1 = png::readPNG("images/Colorado.png")
-img2 = png::readPNG("images/Frogs.png")
-img3 = png::readPNG("images/Panama.png")
-img4 = png::readPNG("images/AZ.png")
-=======
 img1 = png::readPNG("images/Colorado_dark.png")
 img2 = png::readPNG("images/Frogs_dark.png")
 img3 = png::readPNG("images/Panama_dark.png")
 img4 = png::readPNG("images/AZ_dark.png")
 img5 = png::readPNG("images/Phyto_dark.png")
->>>>>>> Stashed changes

@@ -280,35 +280,18 @@ cowplot::ggdraw(
     theme(axis.text.x = element_blank(),
           panel.background = element_rect(colour = '#5e5e5e'),
           strip.text.y = element_text(margin = margin(0, 0, 10, 0),
-<<<<<<< Updated upstream
-                                      size = 14, face = "bold",
-                                      colour = "grey65"),
-          strip.text.x.top = element_text(margin = margin(0, 0, 10, 0),
-                                          size = 12, face = "bold",
-                                          colour = "grey65"),
-          #legend.key = element_blank(),
-          legend.key.size = unit(1,"line"),
-          legend.text = element_text(colour = "grey65"),
-          axis.title = element_text(colour = "grey65"),
-=======
                                       size = rel(.9), face = "bold",
                                       colour = "#5e5e5e"),
           strip.text.x.top = element_text(margin = margin(0, 0, 10, 0),
                                           size = rel(.9), face = "bold",
                                           colour = "#5e5e5e"),
->>>>>>> Stashed changes
           strip.background = element_blank(),
           axis.line = element_blank(),
           strip.placement = 'outside',
           axis.ticks.y = element_blank(),
-<<<<<<< Updated upstream
-          legend.title = element_text(colour = "grey65"),
-          legend.position = 'bottom')
-=======
           legend.position = 'bottom',
           legend.key.size = unit(3, "mm"),
           axis.ticks = element_blank())
->>>>>>> Stashed changes
   )+
   cowplot::draw_image(
     img1, x = 0.03, y = 0.93, hjust = 0.5, vjust = 0.5,
@@ -316,8 +299,8 @@ cowplot::ggdraw(
   )
 
 ggsave(here::here("figures/densityestimate_joy.png"),
-       height = 9, width = 12.4,
-       units = "in", dpi = 300)
+       height = 120, width = 180,
+       units = "mm", dpi = 600)
 
 
 ###################################################################################

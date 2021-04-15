@@ -195,8 +195,6 @@ for (i in 1:4) {
   plot_annotation(theme = theme(
     plot.background = element_rect(fill = "white", colour = NA),
     panel.background = element_rect(fill = "white", colour = NA),
-    legend.text = element_text(color = "grey65", size = 12),
-    legend.title = element_text(color = "grey65", size = 13),
     legend.position = 'none',
   )) 
 
