@@ -10,12 +10,12 @@ source("scripts_for_ms_with_traitstrap/plotting_aesthetics.R")
 colorado_percent <- readRDS("output_data/Colorado_percent_community_sims.RDS")
 
 colorado_percent$method = fct_recode(colorado_percent$method, `Cross-Site CW` = "Cross-Site CWM", 
-           `Site-Specific CW` = "Site-Specific CWM")
+                                     `Site-Specific CW` = "Site-Specific CWM")
 
 panama_percent <- readRDS("output_data/Panama_percent_community_sims.RDS")
 
 panama_percent$method = fct_recode(panama_percent$method, `Cross-Site CW` = "Cross-Site CWM", 
-                                     `Site-Specific CW` = "Site-Specific CWM")
+                                   `Site-Specific CW` = "Site-Specific CWM")
 
 colorado_percent$method <- ordered(colorado_percent$method,levels = c("Cross-Site CW","Site-Specific CW","Parametric BS","Non-Parametric BS"))
 panama_percent$method <- ordered(panama_percent$method,levels = c("Cross-Site CW","Site-Specific CW","Parametric BS","Non-Parametric BS"))
@@ -92,15 +92,15 @@ overunders$moment =
 
 colorado_random$moment =
   ordered(colorado_random$moment,levels = c("mean",
-                                       "variance",
-                                       "skewness",
-                                       "kurtosis"))
+                                            "variance",
+                                            "skewness",
+                                            "kurtosis"))
 
 moons_co <-
   ggplot(sim_moon_means_colorado) +
   geom_hline(aes(yintercept = 0),
              color = "grey50",
-             size = 1.5) +
+             size = 0.3) +
   geom_smooth(
     data = colorado_percent %>%
       filter(estimate != is.na(estimate)) %>%
@@ -113,13 +113,13 @@ moons_co <-
       color = method),
     alpha = 0.5,
     se = FALSE,
-    size = 0.8) +
+    size = 0.2) +
   geom_point(aes(
     x = pct_abd_sampled,
     y = deviation,
     color = method
   ),
-  size = 4,
+  size = 1.2,
   alpha = 0.9) +
   geom_moon(aes(
     x = pct_abd_sampled,
@@ -128,7 +128,7 @@ moons_co <-
     fill = method
   ),
   color = "transparent",
-  size = 4) +
+  size = 1.2) +
   scale_fill_manual(guide = guide_legend(title = "Method",
                                          title.position="top"),
                     values = colorspace::darken(pal_df$c, amount = 0.25),
@@ -170,7 +170,7 @@ inset_co =
                    xend = 7.5,
                    x = 0.5, yend = 0),
                colour = '#4e5368',
-               size = 0.5) +
+               size = 0.2) +
   scale_fill_manual(values = pal_df$c,
                     breaks = pal_df$l) +
   lims(y = c(-1.3,10)) + 
@@ -180,20 +180,6 @@ inset_co =
   theme(
     strip.text = element_blank()
   )
-
-cowplot::ggdraw(moons_co) +
-  cowplot::draw_plot(moon_legend,
-                     .79, .17,
-                     0.21, .22) +
-  cowplot::draw_plot(inset_co,
-                     width = 0.8,
-                     height = 0.9,
-                     x = 0.05,
-                     y = 0.06)
-
-ggsave(here::here("figures/moons_pct_abund.png"),
-       height = 7.4, width = 12.5,
-       units = "in", dpi = 300)
 
 ### Moon plots - rodents - 'global' ----
 
@@ -264,15 +250,15 @@ overunders$moment =
 
 rodent_random$moment =
   ordered(rodent_random$moment,levels = c("mean",
-                                       "variance",
-                                       "skewness",
-                                       "kurtosis"))
+                                          "variance",
+                                          "skewness",
+                                          "kurtosis"))
 
 moons_az <-
-ggplot(sim_moon_means_rodent) +
+  ggplot(sim_moon_means_rodent) +
   geom_hline(aes(yintercept = 0),
              color = "grey50",
-             size = 1.5) +
+             size = .3) +
   geom_smooth(
     data = rodent_percent %>%
       filter(estimate != is.na(estimate)) %>%
@@ -285,13 +271,13 @@ ggplot(sim_moon_means_rodent) +
       color = method),
     alpha = 0.5,
     se = FALSE,
-    size = 0.8) +
+    size = 0.2) +
   geom_point(aes(
     x = pct_abd_sampled,
     y = deviation,
     color = method
   ),
-  size = 4,
+  size = 1.2,
   alpha = 0.9) +
   geom_moon(aes(
     x = pct_abd_sampled,
@@ -301,7 +287,7 @@ ggplot(sim_moon_means_rodent) +
     fill = method
   ),
   color = "transparent",
-  size = 4) +
+  size = 1.2) +
   scale_linetype_manual("Sampling",
                         values=c("Biased" = 1,
                                  "Random" = 2),
@@ -347,7 +333,7 @@ inset_az =
                    xend = 9.5,
                    x = 0.5, yend = 0),
                colour = '#4e5368',
-               size = 0.5) +
+               size = 0.2) +
   scale_fill_manual(values = pal_df$c,
                     breaks = pal_df$l) +
   lims(y = c(-1.3,10)) + 
@@ -357,20 +343,6 @@ inset_az =
   theme(
     strip.text = element_blank()
   )
-
-cowplot::ggdraw(moons_az) +
-  cowplot::draw_plot(moon_legend,
-                     .79, .17,
-                     0.21, .22) +
-  cowplot::draw_plot(inset_az,
-                     width = 0.8,
-                     height = 0.9,
-                     x = 0.05,
-                     y = 0.06)
-
-ggsave(here::here("figures/moons_pct_abund_rodents.png"),
-       height = 7.4, width = 12.5,
-       units = "in", dpi = 300)
 
 #### Combine CO and AZ ----
 
@@ -396,356 +368,85 @@ moon_legend2 =
                             family = "Noto"))
 
 (moons_co +
-  labs(title = "A: Herbs") + 
-  theme(plot.title.position = 'panel',
-        plot.title = element_text(size = 16, color = "grey65"),
-        plot.margin = margin(40, 5, 10, 25)) +
+    labs(title = "A: Herbs") +
+    theme(
+      axis.ticks = element_line(size = 0.03),
+      axis.text.x = element_text(color = "grey65", size = rel(.4)),
+      axis.text.y = element_text(color = "grey65", size = rel(.4)),
+      axis.title.x = element_text(color = "grey65", size = rel(.5)),
+      axis.title.y = element_text(color = "grey65", size = rel(.5)),
+      legend.text = element_text(color = "grey65", size = rel(.3)),
+      legend.title = element_text(color = "grey65", size = rel(.5)),
+      strip.text.y = element_text(margin = margin(0, 0, 3, 0),
+                                  size = rel(.5), face = "bold",
+                                  colour = "grey65"),
+      strip.text.x.top = element_text(margin = margin(0, 0, 3, 0),
+                                      size = rel(.5),
+                                      colour = "grey65", face = "bold"),
+      panel.grid.major.y = element_line(size = 0.03,
+                                        colour = "grey65"),
+      strip.background = element_blank(),
+      axis.line = element_blank(),
+      strip.placement = 'outside',
+      panel.background = element_rect(colour = colorspace::lighten("#141438", 0.1),
+                                      size = 0.7),
+      plot.title.position = "panel",
+      plot.title = element_text(margin = margin(0, 0, 10, 0),
+                                size = rel(.7), face = "bold",
+                                colour = "grey65"),
+      legend.position = 'right',
+      plot.margin = margin(2, 2, 2, 2),
+      legend.key.size = unit(3, "mm")
+    ) +
     inset_element(inset_co,
                   left = 0,
                   bottom = 0,
                   right = 1,
                   top = 1)) +
   (moons_az  +
-  labs(title = "B: Rodents") +   
-  theme(plot.title.position = 'panel',
-        plot.title = element_text(size = 16, color = "grey65"),
-        strip.text.y = element_blank(),
-        axis.title.y = element_blank()) +
-    inset_element(inset_az,
-                  left = 0,
-                  bottom = 0,
-                  right = 1,
-                  top = 1)) +
+     labs(title = "B: Rodents") +
+     theme(
+       axis.ticks = element_line(size = 0.03),
+       axis.text.x = element_text(color = "grey65", size = rel(.4)),
+       axis.text.y = element_text(color = "grey65", size = rel(.4)),
+       axis.title.x = element_text(color = "grey65", size = rel(.5)),
+       axis.title.y = element_text(color = "grey65", size = rel(.5)),
+       legend.text = element_text(color = "grey65", size = rel(.3)),
+       legend.title = element_text(color = "grey65", size = rel(.5)),
+       strip.text.y = element_text(margin = margin(0, 0, 3, 0),
+                                   size = rel(.5), face = "bold",
+                                   colour = "grey65"),
+       strip.text.x.top = element_text(margin = margin(0, 0, 3, 0),
+                                       size = rel(.5),
+                                       colour = "grey65", face = "bold"),
+       panel.grid.major.y = element_line(size = 0.03,
+                                         colour = "grey65"),
+       strip.background = element_blank(),
+       axis.line = element_blank(),
+       strip.placement = 'outside',
+       panel.background = element_rect(colour = colorspace::lighten("#141438", 0.1),
+                                       size = 0.7),
+       plot.title.position = "panel",
+       plot.title = element_text(margin = margin(0, 0, 10, 0),
+                                 size = rel(.7), face = "bold",
+                                 colour = "grey65"),
+       legend.position = 'right',
+       plot.margin = margin(2, 2, 2, 2),
+       legend.key.size = unit(3, "mm")
+     ) +
+     inset_element(inset_az,
+                   left = 0,
+                   bottom = 0,
+                   right = 1,
+                   top = 1)) +
   plot_layout(guides = 'collect',
               widths = c(1, 1)) +
   plot_annotation(theme = theme(
-    plot.background = element_rect(fill = "#141438", colour = NA))) +
-  inset_element(moon_legend2, 
-                left = 0.785, 
-                bottom = 0.12, 
-                right = 0.925, 
-                top = 0.5,
-                align_to = 'full')
+    plot.background = element_rect(fill = "#141438", colour = NA)))
 
 ggsave(here::here("figures/moons_pct_abund_AB.png"),
-       height = 9.2, width = 20.5,
-       units = "in", dpi = 300)
-
-#### Lollipops CO ----
-
-co_pct_means = 
-  colorado_percent %>%
-  filter(estimate != is.na(estimate)) %>%
-  mutate(pct_abd_sampled = round(pct_abd_sampled, digits = -1),
-         overunder = ifelse(true_value <= estimate,
-                            "over",
-                            "under"),
-         deviation = ifelse(abs(estimate) > abs(true_value),
-                            abs(estimate) - abs(true_value),
-                            abs(true_value) - abs(estimate)),
-         hit = ifelse(ci_low <= true_value & true_value <= ci_high,
-                      'Yes',
-                      'No')) %>%
-  filter(pct_abd_sampled == 80) %>%
-  mutate(deviation = ifelse(overunder == "under",
-                            -1*deviation,
-                            deviation)) %>%
-  group_by(trait, moment, method) %>%
-  summarise(estimate = mean(deviation),
-            iqr = IQR(deviation))
-
-co_simdata_lollipop =
-  colorado_percent %>%
-  filter(estimate != is.na(estimate)) %>%
-  mutate(pct_abd_sampled = round(pct_abd_sampled, digits = -1),
-         overunder = ifelse(true_value <= estimate,
-                            "over",
-                            "under"),
-         deviation = ifelse(abs(estimate) > abs(true_value),
-                            abs(estimate) - abs(true_value),
-                            abs(true_value) - abs(estimate)),
-         hit = ifelse(ci_low <= true_value & true_value <= ci_high,
-                      'Yes',
-                      'No')) %>%
-  filter(pct_abd_sampled == 80) %>%
-  mutate(deviation = ifelse(overunder == "under",
-                            -1*deviation,
-                            deviation)) %>%
-  group_by(trait, moment, method, pct_abd_sampled) %>%
-  slice_sample(n = 20)
-
-simmeans = 
-  simdata %>%
-  filter(sample_size == 9) %>%
-  group_by(trait, moment, method) %>%
-  summarise(estimate = mean(deviation),
-            std_dev = IQR(deviation))
-
-#re-order to match moment 'numbers'
-co_pct_means$moment <- factor(co_pct_means$moment,
-                          levels = c("mean",
-                                     "variance",
-                                     "skewness",
-                                     "kurtosis"))
-
-
-co_simdata_lollipop$moment <- factor(co_simdata_lollipop$moment,
-                                  levels = c("mean",
-                                             "variance",
-                                             "skewness",
-                                             "kurtosis"))
-
-simmeans$moment <- factor(simmeans$moment,
-                                     levels = c("mean",
-                                                "variance",
-                                                "skewness",
-                                                "kurtosis"))
-
-
-#TODO clean labelling
-
-ggplot(co_pct_means) + 
-  geom_vline(aes(xintercept = 0), 
-             color = "grey50",
-             size = 1) +
-  geom_pointrange(data = simmeans,
-                 aes(x = estimate,
-                     xmax = estimate + std_dev,
-                     xmin = estimate - std_dev,
-                     y = method,
-                     fill = method,
-                     colour = method),
-                 position = position_nudge(y = -0.3)) +
-  geom_jitter(data = co_simdata_lollipop,
-              aes(x = deviation, 
-                  y = method, 
-                  fill = method,
-                  #size = as.factor(pct_abd_sampled),
-                  alpha = hit), 
-              color = "grey85", 
-              width = 0, height = 0.2, shape = 21) +
-  geom_pointrange(data = co_pct_means,
-             aes(x = estimate,
-                 xmin = estimate - iqr,
-                 xmax = estimate + iqr,
-                 y = method,
-                 fill = method,
-                 colour = method),
-             shape = 23, size = 1) + 
-  facet_grid(rows = vars(trait),
-             cols = vars(moment),
-             labeller = labeller(
-               .default = capitalize,
-               trait = traits_parsed
-             ),
-             switch = 'y',
-             scales = 'free')  + 
-  scale_fill_manual(guide = guide_legend(title = "Method",
-                                         override.aes = list(shape = 21)),
-                    values = pal_df$c,
-                    breaks = pal_df$l) +
-  scale_colour_manual(guide = guide_legend(title = "Method",
-                                           override.aes = list(shape = 21)),
-                      values = colorspace::darken(pal_df$c, 0.5),
-                      breaks = pal_df$l) +
-  # scale_size_discrete(guide = guide_legend(title = "Sample Size"),
-  #                     range = c(.7, 2.7)) +
-  scale_alpha_discrete(guide = guide_legend(title = "Value in CI",
-                                            override.aes = list(shape = 16)),
-                       range = c(0.2, 0.4)) +
-  labs(
-    x = "Deviation from true value",
-    y = NULL
-  ) +
-  #guides(size = 'none') +
-  figure_theme +
-  theme(axis.text.y = element_blank(),
-        axis.text.x = element_text(size = 8),
-        plot.background = element_rect(fill = "#141438",
-                                       colour = NA),
-        legend.background = element_rect(fill = "#141438",
-                                         colour = NA),
-        panel.background = element_rect(fill = "#141438",
-                                        colour = 'grey69'),
-        strip.text.y = element_text(margin = margin(0, 0, 10, 0),
-                                    size = 14, face = "bold",
-                                    colour = "grey65"),
-        strip.text.x.top = element_text(margin = margin(0, 0, 10, 0),
-                                        size = 12, face = "bold",
-                                        colour = "grey65"),
-        panel.grid.major.y = element_blank(),
-        legend.key = element_blank(),
-        legend.text = element_text(colour = "grey65"),
-        axis.title = element_text(colour = "grey65"),
-        strip.background = element_blank(),
-        axis.line = element_blank(),
-        strip.placement = 'outside',
-        axis.ticks.y = element_blank(),
-        legend.title = element_text(colour = "grey65"),
-        legend.position = 'bottom')
-
-
-
-
-#### Lollipops AZ ----
-
-az_pct_means = 
-  rodent_percent %>%
-  filter(estimate != is.na(estimate)) %>%
-  mutate(pct_abd_sampled = round(pct_abd_sampled, digits = -1),
-         overunder = ifelse(true_value <= estimate,
-                            "over",
-                            "under"),
-         deviation = ifelse(abs(estimate) > abs(true_value),
-                            abs(estimate) - abs(true_value),
-                            abs(true_value) - abs(estimate)),
-         hit = ifelse(ci_low <= true_value & true_value <= ci_high,
-                      'Yes',
-                      'No')) %>%
-  filter(pct_abd_sampled == 80) %>%
-  mutate(deviation = ifelse(overunder == "under",
-                            -1*deviation,
-                            deviation)) %>%
-  group_by(trait, moment, method) %>%
-  summarise(estimate = mean(deviation),
-            iqr = IQR(deviation))
-
-az_simdata_lollipop =
-  rodent_percent %>%
-  filter(estimate != is.na(estimate)) %>%
-  mutate(pct_abd_sampled = round(pct_abd_sampled, digits = -1),
-         overunder = ifelse(true_value <= estimate,
-                            "over",
-                            "under"),
-         deviation = ifelse(abs(estimate) > abs(true_value),
-                            abs(estimate) - abs(true_value),
-                            abs(true_value) - abs(estimate)),
-         hit = ifelse(ci_low <= true_value & true_value <= ci_high,
-                      'Yes',
-                      'No')) %>%
-  filter(pct_abd_sampled == 80) %>%
-  mutate(deviation = ifelse(overunder == "under",
-                            -1*deviation,
-                            deviation)) %>%
-  group_by(trait, moment, method, pct_abd_sampled) %>%
-  slice_sample(n = 20)
-
-az_simmeans = 
-  simdata_rats %>%
-  filter(sample_size == 9) %>%
-  group_by(trait, moment, method) %>%
-  summarise(estimate = mean(deviation),
-            std_dev = IQR(deviation))
-
-#re-order to match moment 'numbers'
-az_pct_means$moment <- factor(az_pct_means$moment,
-                              levels = c("mean",
-                                         "variance",
-                                         "skewness",
-                                         "kurtosis"))
-
-
-az_simdata_lollipop$moment <- factor(az_simdata_lollipop$moment,
-                                     levels = c("mean",
-                                                "variance",
-                                                "skewness",
-                                                "kurtosis"))
-
-az_simmeans$moment <- factor(az_simmeans$moment,
-                          levels = c("mean",
-                                     "variance",
-                                     "skewness",
-                                     "kurtosis"))
-
-
-ggplot(az_pct_means) + 
-  geom_vline(aes(xintercept = 0), 
-             color = "grey50",
-             size = 1) +
-  # geom_segment(data = co_pct_means,
-  #              aes(x = 0, 
-  #                  xend = estimate, 
-  #                  y = method, 
-  #                  yend = method), 
-  #              color = "grey50", 
-  #              size = 0.5) +
-  geom_pointrange(data = az_simmeans,
-                  aes(x = estimate,
-                      xmax = estimate + std_dev,
-                      xmin = estimate - std_dev,
-                      y = method,
-                      fill = method,
-                      colour = method),
-                  position = position_nudge(y = -0.3)) +
-  geom_jitter(data = az_simdata_lollipop,
-              aes(x = deviation, 
-                  y = method, 
-                  fill = method,
-                  #size = as.factor(pct_abd_sampled),
-                  alpha = hit), 
-              color = "grey85", 
-              width = 0, height = 0.2, shape = 21) +
-  geom_pointrange(data = az_pct_means,
-                  aes(x = estimate,
-                      xmin = estimate - iqr,
-                      xmax = estimate + iqr,
-                      y = method,
-                      fill = method,
-                      colour = method),
-                  shape = 23, size = 1) + 
-  facet_grid(rows = vars(trait),
-             cols = vars(moment),
-             labeller = labeller(
-               .default = capitalize
-             ),
-             switch = 'y',
-             scales = 'free')  + 
-  scale_fill_manual(guide = guide_legend(title = "Method",
-                                         override.aes = list(shape = 21)),
-                    values = pal_df$c,
-                    breaks = pal_df$l) +
-  scale_colour_manual(guide = guide_legend(title = "Method",
-                                           override.aes = list(shape = 21)),
-                      values = colorspace::darken(pal_df$c, 0.5),
-                      breaks = pal_df$l) +
-  # scale_size_discrete(guide = guide_legend(title = "Sample Size"),
-  #                     range = c(.7, 2.7)) +
-  scale_alpha_discrete(guide = guide_legend(title = "Value in CI",
-                                            override.aes = list(shape = 16)),
-                       range = c(0.2, 0.4)) +
-  labs(
-    x = "Deviation from true value",
-    y = NULL
-  ) +
-  #guides(size = 'none') +
-  figure_theme +
-  theme(axis.text.y = element_blank(),
-        axis.text.x = element_text(size = 8),
-        plot.background = element_rect(fill = "#141438",
-                                       colour = NA),
-        legend.background = element_rect(fill = "#141438",
-                                         colour = NA),
-        panel.background = element_rect(fill = "#141438",
-                                        colour = 'grey69'),
-        strip.text.y = element_text(margin = margin(0, 0, 10, 0),
-                                    size = 14, face = "bold",
-                                    colour = "grey65"),
-        strip.text.x.top = element_text(margin = margin(0, 0, 10, 0),
-                                        size = 12, face = "bold",
-                                        colour = "grey65"),
-        panel.grid.major.y = element_blank(),
-        legend.key = element_blank(),
-        legend.text = element_text(colour = "grey65"),
-        axis.title = element_text(colour = "grey65"),
-        strip.background = element_blank(),
-        axis.line = element_blank(),
-        strip.placement = 'outside',
-        axis.ticks.y = element_blank(),
-        legend.title = element_text(colour = "grey65"),
-        legend.position = 'bottom')
-
-
-
+       height = 80, width =180,
+       units = "mm", dpi = 600)
 
 # Moon Panama ----
 
@@ -800,15 +501,15 @@ overunders$moment =
 
 panama_percent$moment =
   ordered(panama_percent$moment,levels = c("mean",
-                                       "variance",
-                                       "skewness",
-                                       "kurtosis"))
+                                           "variance",
+                                           "skewness",
+                                           "kurtosis"))
 
 moons_pa <-
   ggplot(sim_moon_means_panama) +
   geom_hline(aes(yintercept = 0),
              color = "grey50",
-             size = 1.5) +
+             size = .7) +
   geom_smooth(
     data = sim_moon_means_panama,
     aes(
@@ -817,13 +518,13 @@ moons_pa <-
       color = method),
     alpha = 0.5,
     se = FALSE,
-    size = 0.8) +
+    size = 0.6) +
   geom_point(aes(
     x = pct_abd_sampled,
     y = deviation,
     color = method
   ),
-  size = 4,
+  size = 2,
   alpha = 0.9) +
   geom_moon(aes(
     x = pct_abd_sampled,
@@ -833,7 +534,7 @@ moons_pa <-
     fill = method
   ),
   color = "transparent",
-  size = 4) +
+  size = 2) +
   scale_fill_manual(guide = guide_legend(title = "Method",
                                          title.position="top"),
                     values = colorspace::darken(pal_df$c, amount = 0.25),
@@ -853,7 +554,34 @@ moons_pa <-
   labs(x = "Percent cumulative abundance sampled",
        y = "Average deviation from true moment") +
   # Theme
-  theme_moon
+  theme_moon +
+  theme(
+    strip.background = element_blank(),
+    panel.grid.major.y = element_line(size = 0.03,
+                                      colour = "grey65"),
+    axis.line = element_blank(),
+    strip.placement = 'outside',
+    panel.background = element_rect(colour = colorspace::lighten("#141438", 0.1),
+                                    size = 0.7),
+    plot.title.position = "panel",
+    legend.position = 'none',
+    legend.key.size = unit(3, "mm"),
+    plot.margin = margin(7, 19, 10, 15),
+    axis.ticks = element_line(size = 0.03),
+    axis.text.x = element_text(color = "grey65", size = rel(.5)),
+    axis.text.y = element_text(color = "grey65", size = rel(.5)),
+    axis.title.x = element_text(color = "grey65", size = rel(.6)),
+    axis.title.y = element_text(color = "grey65", size = rel(.6)),
+    legend.text = element_text(color = "grey65", size = rel(.4)),
+    legend.title = element_text(color = "grey65", size = rel(.6)),
+    strip.text.y = element_text(margin = margin(0, 0, 3, 0),
+                                size = rel(.6), face = "bold",
+                                colour = "grey65"),
+    strip.text.x.top = element_text(margin = margin(0, 0, 3, 0),
+                                    size = rel(.6),
+                                    colour = "grey65", face = "bold"),
+    
+  )
 
 inset_pa =
   ggplot(overunders) +
@@ -875,7 +603,7 @@ inset_pa =
                    xend = 9.5,
                    x = 0.5, yend = 0),
                colour = '#4e5368',
-               size = 0.5) +
+               size = 0.3) +
   scale_fill_manual(values = pal_df$c,
                     breaks = pal_df$l) +
   lims(y = c(-1.3,10)) + 
@@ -887,173 +615,18 @@ inset_pa =
   )
 
 cowplot::ggdraw(moons_pa) +
-  cowplot::draw_plot(moon_legend,
-                     .78, .17,
-                     0.21, .22) +
   cowplot::draw_plot(inset_pa,
-                     width = 0.72,
-                     height = 0.81,
-                     x = 0.08,
-                     y = 0.09) +
+                     width = 0.88,
+                     height = 0.85,
+                     x = 0.07,
+                     y = 0.087) +
   cowplot::draw_image(
     img3, x = 0.03, y = 0.93, hjust = 0.5, vjust = 0.5,
     width = 0.045
   )
 
 ggsave(here::here("figures/moons_pct_abund_panama.png"),
-       height = 7.4, width = 12.5,
-       units = "in", dpi = 300)
-
-#### Lollipops panama ----
-
-az_pct_means = 
-  panama_percent %>%
-  filter(estimate != is.na(estimate)) %>%
-  mutate(pct_abd_sampled = round(pct_abd_sampled, digits = -1),
-         overunder = ifelse(true_value <= estimate,
-                            "over",
-                            "under"),
-         deviation = ifelse(abs(estimate) > abs(true_value),
-                            abs(estimate) - abs(true_value),
-                            abs(true_value) - abs(estimate)),
-         hit = ifelse(ci_low <= true_value & true_value <= ci_high,
-                      'Yes',
-                      'No')) %>%
-  filter(pct_abd_sampled == 80) %>%
-  mutate(deviation = ifelse(overunder == "under",
-                            -1*deviation,
-                            deviation)) %>%
-  group_by(trait, moment, method) %>%
-  summarise(estimate = mean(deviation),
-            iqr = IQR(deviation))
-
-az_simdata_lollipop =
-  panama_percent %>%
-  filter(estimate != is.na(estimate)) %>%
-  mutate(pct_abd_sampled = round(pct_abd_sampled, digits = -1),
-         overunder = ifelse(true_value <= estimate,
-                            "over",
-                            "under"),
-         deviation = ifelse(abs(estimate) > abs(true_value),
-                            abs(estimate) - abs(true_value),
-                            abs(true_value) - abs(estimate)),
-         hit = ifelse(ci_low <= true_value & true_value <= ci_high,
-                      'Yes',
-                      'No')) %>%
-  filter(pct_abd_sampled == 80) %>%
-  mutate(deviation = ifelse(overunder == "under",
-                            -1*deviation,
-                            deviation)) %>%
-  group_by(trait, moment, method, pct_abd_sampled) %>%
-  slice_sample(n = 20)
-
-az_simmeans = 
-  simdata_panama %>%
-  filter(sample_size == 9) %>%
-  group_by(trait, moment, method) %>%
-  summarise(estimate = mean(deviation),
-            std_dev = IQR(deviation))
-
-#re-order to match moment 'numbers'
-az_pct_means$moment <- factor(az_pct_means$moment,
-                              levels = c("mean",
-                                         "variance",
-                                         "skewness",
-                                         "kurtosis"))
-
-
-az_simdata_lollipop$moment <- factor(az_simdata_lollipop$moment,
-                                     levels = c("mean",
-                                                "variance",
-                                                "skewness",
-                                                "kurtosis"))
-
-az_simmeans$moment <- factor(az_simmeans$moment,
-                             levels = c("mean",
-                                        "variance",
-                                        "skewness",
-                                        "kurtosis"))
-
-
-ggplot(az_pct_means) + 
-  geom_vline(aes(xintercept = 0), 
-             color = "grey50",
-             size = 1) +
-  geom_pointrange(data = az_simmeans,
-                  aes(x = estimate,
-                      xmax = estimate + std_dev,
-                      xmin = estimate - std_dev,
-                      y = method,
-                      fill = method,
-                      colour = method),
-                  position = position_nudge(y = -0.3)) +
-  geom_jitter(data = az_simdata_lollipop,
-              aes(x = deviation, 
-                  y = method, 
-                  fill = method,
-                  #size = as.factor(pct_abd_sampled),
-                  alpha = hit), 
-              color = "grey85", 
-              width = 0, height = 0.2, shape = 21) +
-  geom_pointrange(data = az_pct_means,
-                  aes(x = estimate,
-                      xmin = estimate - iqr,
-                      xmax = estimate + iqr,
-                      y = method,
-                      fill = method,
-                      colour = method),
-                  shape = 23, size = 1) + 
-  facet_grid(rows = vars(trait),
-             cols = vars(moment),
-             labeller = labeller(
-               .default = capitalize
-             ),
-             switch = 'y',
-             scales = 'free')  + 
-  scale_fill_manual(guide = guide_legend(title = "Method",
-                                         override.aes = list(shape = 21)),
-                    values = pal_df$c,
-                    breaks = pal_df$l) +
-  scale_colour_manual(guide = guide_legend(title = "Method",
-                                           override.aes = list(shape = 21)),
-                      values = colorspace::darken(pal_df$c, 0.5),
-                      breaks = pal_df$l) +
-  # scale_size_discrete(guide = guide_legend(title = "Sample Size"),
-  #                     range = c(.7, 2.7)) +
-  scale_alpha_discrete(guide = guide_legend(title = "Value in CI",
-                                            override.aes = list(shape = 16)),
-                       range = c(0.2, 0.4)) +
-  labs(
-    x = "Deviation from true value",
-    y = NULL
-  ) +
-  #guides(size = 'none') +
-  figure_theme +
-  theme(axis.text.y = element_blank(),
-        axis.text.x = element_text(size = 8),
-        plot.background = element_rect(fill = "#141438",
-                                       colour = NA),
-        legend.background = element_rect(fill = "#141438",
-                                         colour = NA),
-        panel.background = element_rect(fill = "#141438",
-                                        colour = 'grey69'),
-        strip.text.y = element_text(margin = margin(0, 0, 10, 0),
-                                    size = 14, face = "bold",
-                                    colour = "grey65"),
-        strip.text.x.top = element_text(margin = margin(0, 0, 10, 0),
-                                        size = 12, face = "bold",
-                                        colour = "grey65"),
-        panel.grid.major.y = element_blank(),
-        legend.key = element_blank(),
-        legend.text = element_text(colour = "grey65"),
-        axis.title = element_text(colour = "grey65"),
-        strip.background = element_blank(),
-        axis.line = element_blank(),
-        strip.placement = 'outside',
-        axis.ticks.y = element_blank(),
-        legend.title = element_text(colour = "grey65"),
-        legend.position = 'bottom')
-
-
+       height = 120, width = 180,
+       units = "mm", dpi = 600)
 
 # End of script ----

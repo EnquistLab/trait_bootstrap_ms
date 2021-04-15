@@ -84,7 +84,7 @@ inset <-
                    xend = 6.5,
                    x = 0.5, yend = 0),
                colour = '#4e5368',
-               size = 0.5) +
+               size = 0.3) +
   scale_fill_manual(values = pal_df$c,
                     breaks = pal_df$l) +
   lims(y = c(-5,5)) + 
@@ -101,7 +101,7 @@ ggplot(sim_moon_means %>%
          filter(sample_size %in% c(1,9,49,100,196,441))) +
   geom_hline(aes(yintercept = 0),
              color = "grey50",
-             size = 1.5) +
+             size = 0.7) +
   geom_smooth(data = sim_biased_moon_means,
               aes(
                 x = sample_size,
@@ -109,7 +109,7 @@ ggplot(sim_moon_means %>%
                 color = method,
                 linetype = "Biased"),
               se = FALSE,
-              size = 0.4) +
+              size = 0.5) +
   geom_smooth(aes(
     x = sample_size,
     y = deviation ,
@@ -117,13 +117,13 @@ ggplot(sim_moon_means %>%
     linetype = "Random"),
     alpha = 0.5,
     se = FALSE,
-    size = 0.8) +
+    size = 0.5) +
   geom_point(aes(
     x = sample_size,
     y = deviation,
     color = method
   ),
-  size = 5,
+  size = 3,
   alpha = 0.9) +
   geom_moon(aes(
     x = sample_size,
@@ -132,7 +132,7 @@ ggplot(sim_moon_means %>%
     fill = method
   ),
   color = "transparent",
-  size = 5) +
+  size = 3) +
   coord_cartesian(clip = 'off') +
   scale_fill_manual(guide = guide_legend(title = "Method",
                                          title.position="top"),
@@ -163,22 +163,22 @@ ggplot(sim_moon_means %>%
 
 
 cowplot::ggdraw(moons) +
-  cowplot::draw_plot(moon_legend,
-                     x = .78, y = .11,
-                     width = 0.22, height = .22) +
+  # cowplot::draw_plot(moon_legend,
+  #                    x = .77, y = .1,
+  #                    width = 0.18, height = .22) +
   cowplot::draw_plot(inset,
-                     width = 0.74,
-                     height = 0.9,
-                     x = 0.12,
-                     y = 0.07) +
+                     width = 0.7,
+                     height = 0.8,
+                     x = 0.13,
+                     y = 0.10) +
   cowplot::draw_image(
-    img1, x = 0.03, y = 0.93, hjust = 0.5, vjust = 0.5,
-    width = 0.045
+    img1, x = 0.04, y = 0.93, hjust = 0.5, vjust = 0.5,
+    width = 0.047
   )
 
 ggsave(here::here("figures/moons_biased_directionality.png"),
-       height = 7.4, width = 13.2,
-       units = "in", dpi = 300)
+       height = 120, width = 180,
+       units = "mm", dpi = 600)
 
 #### Moons - all datasets resticted ss ----
 

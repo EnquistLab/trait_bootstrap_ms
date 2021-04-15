@@ -251,6 +251,7 @@ cowplot::ggdraw(
                         rel_min_height = 0.01,
                         colour = unname(colors)[5],
                         scale = 0.9,
+                        size = 0.3,
                         fill = NA,
                         linetype = 3,
                         alpha = 0.3) +
@@ -262,6 +263,7 @@ cowplot::ggdraw(
                             colour = method),
                         rel_min_height = 0.01,
                         scale = 0.9,
+                        size = 0.3,
                         alpha = 0.4) +
     scale_y_discrete(expand = c(0.01, 0)) +
     scale_x_continuous(expand = c(0.1, 0)) +
@@ -285,13 +287,11 @@ cowplot::ggdraw(
           panel.background = element_rect(fill = "#141438",
                                           colour = 'grey69'),
           strip.text.y = element_text(margin = margin(0, 0, 10, 0),
-                                      size = 14, face = "bold",
+                                      size = rel(.9), face = "bold",
                                       colour = "grey65"),
           strip.text.x.top = element_text(margin = margin(0, 0, 10, 0),
-                                          size = 12, face = "bold",
+                                          size = rel(.9), face = "bold",
                                           colour = "grey65"),
-          #legend.key = element_blank(),
-          legend.key.size = unit(1,"line"),
           legend.text = element_text(colour = "grey65"),
           axis.title = element_text(colour = "grey65"),
           strip.background = element_blank(),
@@ -299,7 +299,9 @@ cowplot::ggdraw(
           strip.placement = 'outside',
           axis.ticks.y = element_blank(),
           legend.title = element_text(colour = "grey65"),
-          legend.position = 'bottom')
+          legend.position = 'bottom',
+          legend.key.size = unit(3, "mm"),
+          axis.ticks = element_blank())
   )+
   cowplot::draw_image(
     img1, x = 0.03, y = 0.93, hjust = 0.5, vjust = 0.5,
@@ -307,8 +309,8 @@ cowplot::ggdraw(
   )
 
 ggsave(here::here("figures/densityestimate_joy.png"),
-       height = 9, width = 12.4,
-       units = "in", dpi = 300)
+       height = 120, width = 180,
+       units = "mm", dpi = 600)
 
 
 ### Halfeye plots ----
