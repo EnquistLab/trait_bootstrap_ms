@@ -6,6 +6,8 @@ library(gggibbous)
 library(ggtext)
 library(patchwork)
 library(ggridges)
+library(ggbump)
+library(ggfx)
 
 ##Fonts----
 
@@ -31,6 +33,8 @@ figure_theme =
     axis.text = element_text(size = rel(.7)),
     axis.title= element_text(size = rel(.9)),
     axis.line = element_blank(),
+    axis.ticks = element_line(colour = colorspace::darken("#dddddd", 0.1),
+                              size = 0.3),
     plot.background = element_rect(fill = "white", colour = NA),
     panel.background = element_rect(fill = "white", colour = NA),
     legend.background = element_rect(fill = "white", colour = NA),

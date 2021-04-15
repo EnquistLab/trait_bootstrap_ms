@@ -468,9 +468,6 @@ sim_win_text$dataset <- factor(sim_win_text$dataset,
 
 ### a) BumpPlots ----
 
-library(ggbump)
-library(ggfx)
-
 bumps =
   rbind(simdata %>%
           mutate(dataset = rep("Herbs", nrow(.))),
@@ -479,7 +476,9 @@ bumps =
         simdata_panama %>%
           mutate(dataset = rep("Trees", nrow(.))),
         simdata_rats %>%
-          mutate(dataset = rep("Rodents", nrow(.)))) %>%
+          mutate(dataset = rep("Rodents", nrow(.))),
+        simdata_plankton %>%
+          mutate(dataset = rep("Plankton", nrow(.)))) %>%
   mutate(hit = ifelse(ci_low <= true_value & true_value <= ci_high,
                       2,
                       1),
@@ -500,7 +499,8 @@ bumps$dataset <- factor(bumps$dataset,
                         levels = c("Herbs",
                                    "Tadpoles",
                                    "Trees",
-                                   "Rodents"))
+                                   "Rodents",
+                                   "Plankton"))
 
 sub_bump =
   ggplot(bumps %>%
@@ -534,20 +534,19 @@ sub_bump =
                    labels = c("Best", "Worst")) +
   # Theme
   figure_theme +
-  theme(panel.background = element_rect(colour = colorspace::lighten("#141438", 0.1),
-                                        size = 1),
+  theme(panel.background = element_rect(colour = colorspace::darken("#dddddd", 0.1),
+                                        size = 0.6),
         strip.text.y = element_blank(),
         strip.text.x.top = element_text(margin = margin(0, 0, 10, 0),
-                                        size = rel(1.7),
-                                        colour = "grey65", face = "bold"),
+                                        size = rel(1.7), face = "bold"),
         panel.grid.major.y = element_blank(),
         strip.background = element_blank(),
         axis.line = element_blank(),
         strip.placement = 'outside',
         axis.ticks.y = element_blank(),
         legend.position = 'bottom',
-        legend.text = element_text(color = "grey65", size = rel(1)),
-        legend.title = element_text(color = "grey65", size = rel(1.5)))
+        legend.text = element_text(size = rel(1)),
+        legend.title = element_text(size = rel(1.5)))
 
 ggplot(bumps %>%
            filter(sample_size < 50)) +
@@ -826,7 +825,7 @@ doughnut =
                 label = glue::glue("{percentage}%")),
             #label = glue::glue("{method} - {percentage}%")),
             #colour = 'grey90',
-            hjust = 1,
+            hjust = 0.5,
             show.legend = FALSE,
             fontface = 'bold', family = "Noto",
             size = 4) +

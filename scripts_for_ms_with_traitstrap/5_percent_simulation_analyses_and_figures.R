@@ -540,7 +540,7 @@ moons_pa <-
     panel.background = element_rect(colour = colorspace::lighten("#141438", 0.1),
                                     size = 0.7),
     plot.title.position = "panel",
-    legend.position = 'right',
+    legend.position = 'none',
     plot.margin = margin(7, 19, 10, 15),
     legend.key.size = unit(3, "mm")
     
@@ -579,10 +579,10 @@ inset_pa =
 
 cowplot::ggdraw(moons_pa) +
   cowplot::draw_plot(inset_pa,
-                     width = 0.77,
-                     height = 0.86,
+                     width = 0.88,
+                     height = 0.85,
                      x = 0.07,
-                     y = 0.085) +
+                     y = 0.087) +
   cowplot::draw_image(
     img3, x = 0.03, y = 0.93, hjust = 0.5, vjust = 0.5,
     width = 0.045
