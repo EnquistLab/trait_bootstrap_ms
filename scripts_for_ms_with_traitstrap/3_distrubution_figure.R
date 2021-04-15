@@ -249,7 +249,7 @@ cowplot::ggdraw(
                         aes(x = value,
                             y = factor(paste(mean_elev,"m"))),
                         rel_min_height = 0.01,
-                        colour = unname(colors)[5],
+                        colour = "#5e5e5e",
                         scale = 0.9,
                         fill = NA,
                         linetype = 3,
@@ -278,13 +278,9 @@ cowplot::ggdraw(
     guides(alpha = 'none')  +
     figure_theme +
     theme(axis.text.x = element_blank(),
-          plot.background = element_rect(fill = "#141438",
-                                         colour = NA),
-          legend.background = element_rect(fill = "#141438",
-                                           colour = NA),
-          panel.background = element_rect(fill = "#141438",
-                                          colour = 'grey69'),
+          panel.background = element_rect(colour = '#5e5e5e'),
           strip.text.y = element_text(margin = margin(0, 0, 10, 0),
+<<<<<<< Updated upstream
                                       size = 14, face = "bold",
                                       colour = "grey65"),
           strip.text.x.top = element_text(margin = margin(0, 0, 10, 0),
@@ -294,12 +290,25 @@ cowplot::ggdraw(
           legend.key.size = unit(1,"line"),
           legend.text = element_text(colour = "grey65"),
           axis.title = element_text(colour = "grey65"),
+=======
+                                      size = rel(.9), face = "bold",
+                                      colour = "#5e5e5e"),
+          strip.text.x.top = element_text(margin = margin(0, 0, 10, 0),
+                                          size = rel(.9), face = "bold",
+                                          colour = "#5e5e5e"),
+>>>>>>> Stashed changes
           strip.background = element_blank(),
           axis.line = element_blank(),
           strip.placement = 'outside',
           axis.ticks.y = element_blank(),
+<<<<<<< Updated upstream
           legend.title = element_text(colour = "grey65"),
           legend.position = 'bottom')
+=======
+          legend.position = 'bottom',
+          legend.key.size = unit(3, "mm"),
+          axis.ticks = element_blank())
+>>>>>>> Stashed changes
   )+
   cowplot::draw_image(
     img1, x = 0.03, y = 0.93, hjust = 0.5, vjust = 0.5,
@@ -311,53 +320,6 @@ ggsave(here::here("figures/densityestimate_joy.png"),
        units = "in", dpi = 300)
 
 
-### Halfeye plots ----
-
-library(tidybayes)
-ggplot() +
-  stat_interval(data = all_dists %>%
-                  filter(trait == "leaf_area_mm2" &
-                           method == "True"),
-                aes(y = value, 
-                    x = factor(paste(mean_elev,"m"))),
-                .width = c(.1, .25, .5, .75, 1), 
-                height = 5, show.legend = F) +
-  rcartocolor::scale_color_carto_d(palette = "RedOr") +
-  stat_halfeye(data = all_dists %>%
-                 filter(trait == "leaf_area_mm2" &
-                          method == "True"),
-               aes(y = value, 
-                   x = factor(paste(mean_elev,"m"))), 
-               .width = 0, fill = "#D98032", alpha = 0.2, height = 0.7, 
-               point_color = NA) + 
-  stat_halfeye(data = all_dists %>%
-                 filter(trait == "leaf_area_mm2" &
-                          method != "True"),
-               aes(y = value, 
-                   x = factor(paste(mean_elev,"m")),
-                   group = method,
-                   fill = method), 
-               .width = 0, 
-               alpha = 0.7, height = 0.7,
-               point_color = NA) +
-  scale_fill_manual(values  = pal_df$c,
-                    labels = pal_df$l) +
-  scale_discrete_manual("point_color",
-                        values  = pal_df$c,
-                        labels = pal_df$l) +
-  coord_flip() +
-  labs(x = "", y = "Leaf Area") +
-  theme_classic()  +
-  figure_theme
-
-ggsave(here::here("figures/densityestimates.png"),
-       height = 8.3, width = 15,
-       units = "in", dpi = 600)
-
-#For some reason grouping by elevation will place the plots on a nice elevation scale, but breaks the coloring.  Not sure if there is a fix for this
-
-
-###################################################################################
 ###################################################################################
 
 #Figure showing bootstrapped distributions vs true

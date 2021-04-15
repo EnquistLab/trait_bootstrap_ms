@@ -412,6 +412,7 @@ rodents =
                                            title.hjust = 0.5),
                       values = colorspace::lighten(pal_df$c, amount = 0.6),
                       labels = pal_df$l) +
+<<<<<<< Updated upstream
   # scale_x_continuous(trans = 'sqrt', breaks = c(0,10,50,100,200,500),
   #                    limits = c(0, 500)) +
   facet_grid(rows = vars(moment),
@@ -433,10 +434,64 @@ rodents =
     frogs + theme(legend.position = 'bottom'))/
   (panama + theme(legend.position = 'bottom') + 
      rodents + theme(legend.position = 'bottom')) +
+=======
+    scale_colour_manual(guide = guide_legend(title = "Method",
+                                             title.position="top",
+                                             title.hjust = 0.5),
+                        values = colorspace::lighten(pal_df$c, amount = 0.6),
+                        labels = pal_df$l) +
+    # scale_x_continuous(trans = 'sqrt', breaks = c(0,10,50,100,200,500),
+    #                    limits = c(0, 500)) +
+    facet_grid(rows = vars(moment),
+               cols = vars(method),
+               labeller = labeller(
+                 trait = traits_parsed,
+                 .default = capitalize
+               ),
+               switch = 'y',
+               scales = 'free') +
+    labs(x = "Sample Size",
+         y = "Average deviation from true moment",
+         title = paste(levels(sim_moon_means$dataset)[i])) +
+    # Theme
+    figure_theme +
+    theme(
+      axis.text = element_text(size = rel(.4)),
+      axis.title = element_text(size = rel(.5)),
+      legend.text = element_text(size = rel(.5)),
+      legend.title = element_text(size = rel(.6)),
+      strip.text.y = element_text(margin = margin(0, 0, 3, 0),
+                                  size = rel(.6), face = "bold"),
+      strip.text.x.top = element_text(margin = margin(0, 0, 3, 0),
+                                      size = rel(.6), face = "bold"),
+      panel.grid.major.y = element_line(size = 0.03),
+      strip.background = element_blank(),
+      axis.line = element_blank(),
+      strip.placement = 'outside',
+      panel.background = element_rect(colour = colorspace::darken("#dddddd", 0.1),
+                                      size = 0.6),
+      plot.title.position = "panel",
+      plot.title = element_text(margin = margin(0, 0, 10, 0),
+                                size = rel(.7), face = "bold"),
+      legend.position = 'bottom',
+      plot.margin = margin(2, 2, 2, 2)
+    ) 
+  
+}
+
+(plots[[2]] +
+    labs(title = "A: Tadpoles") + 
+    plots[[3]] +
+    labs(title = "B: Trees"))/
+  (plots[[4]] +
+     labs(title = "C: Rodents") + 
+     plots[[5]] +
+     labs(title = "D: Plankton")) +
+>>>>>>> Stashed changes
   plot_layout(guides = 'collect') +
   plot_annotation(theme = theme(
-                    plot.background = element_rect(fill = "#141438", colour = NA),
-                    panel.background = element_rect(fill = "#141438", colour = NA),
+                    plot.background = element_rect(fill = "white", colour = NA),
+                    panel.background = element_rect(fill = "white", colour = NA),
                     legend.position = 'bottom')) 
 
 ggsave(here::here("figures/restricted_sample_datasets.png"),

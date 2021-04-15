@@ -59,7 +59,12 @@ cowplot::ggdraw(
                     y = method, 
                     fill = method,
                     alpha = hit), 
+<<<<<<< Updated upstream
                 color = "grey85", 
+=======
+                color = colorspace::lighten("#5e5e5e", 0.3), 
+                size = 0.8,
+>>>>>>> Stashed changes
                 width = 0, height = 0.2, shape = 21) +
     geom_point(data = simmeans,
                aes(x = estimate, 
@@ -79,7 +84,7 @@ cowplot::ggdraw(
                       breaks = pal_df$l) +
     scale_colour_manual(values = colorspace::darken(pal_df$c, 0.5),
                         breaks = pal_df$l) +
-    scale_alpha_discrete(range = c(0.2, 0.5)) +
+    scale_alpha_discrete(range = c(0.5, 0.9)) +
     labs(x = "Deviation from true value",
          y = NULL) +
     guides(colour = guide_legend(title = "Method",
@@ -93,7 +98,8 @@ cowplot::ggdraw(
            alpha = guide_legend(title = "Value in CI",
                                 override.aes = list(shape = 16,
                                                     size = 3,
-                                                    order = 2))) +
+                                                    order = 2,
+                                                    colour = "#5e5e5e"))) +
     theme_lollipop
   ) +
   cowplot::draw_image(
@@ -176,7 +182,12 @@ lollipop_all =
                   y = method, 
                   fill = method,
                   alpha = hit), 
+<<<<<<< Updated upstream
               color = "white", 
+=======
+              color = colorspace::lighten("#5e5e5e", 0.3), 
+              size = 0.8, 
+>>>>>>> Stashed changes
               width = 0, height = 0.2, shape = 21) +
   geom_point(data = simmeans,
              aes(x = estimate, 
@@ -201,17 +212,24 @@ lollipop_all =
                       breaks = pal_df$l) +
   scale_alpha_discrete(guide = guide_legend(title = "Value in CI",
                                             override.aes = list(shape = 16,
-                                                                size = 3)),
-                       range = c(0.2, 0.5)) +
+                                                                size = 3,
+                                                                colour = "#5e5e5e")),
+                       range = c(0.5, 0.9)) +
   labs(
     x = "Deviation from true value",
     y = NULL
   ) +
   #guides(size = 'none') +
   theme_lollipop +
+<<<<<<< Updated upstream
   theme(strip.text.y.left = element_text(margin = margin(0, 0, 10, 0),
                                          size = rel(1.2), face = "bold", vjust = 0,
                                          colour = "grey65", angle = 0))
+=======
+  theme(strip.text.y.left = element_text(margin = margin(0, 0, 2, 0),
+                                         size = rel(0.8), vjust = 0,
+                                         angle = 0))
+>>>>>>> Stashed changes
 
 ggsave(here::here("figures/Lollipops_Datsets.png"),
        lollipop_all,
@@ -267,11 +285,15 @@ doughnut_CO =
                 y = 0.25,
                 colour = method,
                 label = glue::glue("{percentage}%")),
+<<<<<<< Updated upstream
             #label = glue::glue("{method} - {percentage}%")),
             #colour = 'grey90',
             hjust = 1,
+=======
+            hjust = 0.5,
+>>>>>>> Stashed changes
             show.legend = FALSE,
-            size = 4) +
+            size = 4.2, fontface = 'bold', family = "Noto") +
   coord_polar(theta = 'y') +
   facet_grid(rows = vars(trait),
              cols = vars(moment),
@@ -281,16 +303,14 @@ doughnut_CO =
              ),
              switch = 'y')  + 
   scale_fill_manual(guide = guide_legend(title = "Method",
-                                         #nrow = 1,
                                          title.position="top",
                                          title.hjust = 0.5),
                     values = pal_df$c,
                     breaks = pal_df$l) +
   scale_colour_manual(guide = guide_legend(title = "Method",
-                                           #nrow = 1,
                                            title.position="top",
                                            title.hjust = 0.5),
-                      values = pal_df$c,
+                      values =colorspace::darken(pal_df$c, 0.2),
                       breaks = pal_df$l) +
   # Theme
   theme_doughnut
@@ -334,7 +354,7 @@ inset =
   geom_segment(aes(y = 0,
                    xend = 4.5,
                    x = 0.5, yend = 0),
-               colour = 'grey96',
+               colour = 'grey69',
                size = 0.7) +
   scale_fill_manual(values = pal_df$c,
                     breaks = pal_df$l) +
@@ -361,78 +381,6 @@ cowplot::ggdraw(doughnut_CO) +
 ggsave(here::here("figures/WinnerDoughnuts.png"),
        height = 10.4, width = 8.6,
        units = "in", dpi = 300)
-
-### Over Under - across winners ----
-
-over_under =
-  rbind(simdata %>%
-          mutate(dataset = rep("Herbs", nrow(.))),
-        simdata_frogs %>%
-          mutate(dataset = rep("Tadpoles", nrow(.))),
-        simdata_panama %>%
-          mutate(dataset = rep("Trees", nrow(.))),
-        simdata_rats %>%
-          mutate(dataset = rep("Rodents", nrow(.)))) %>%
-  filter(sample_size < 26 &
-           sample_size > 8) %>%
-  group_by(dataset, moment, method, overunder) %>%
-  summarise(dev = mean(abs(deviation)),
-            tally = n()) %>%
-  group_by(dataset, moment, method) %>%
-  filter(tally == max(tally)) %>%
-  group_by(dataset, moment, overunder) %>%
-  mutate(x = dev/max(dev)) %>%
-  mutate(x = ifelse(overunder == "under",
-                    -1*x,
-                    x))
-
-over_under$method <- factor(over_under$method,
-                            levels = c("Cross-Site CWM",
-                                       "Site-Specific CWM",
-                                       "Parametric BS", 
-                                       "Non-Parametric BS"))
-
-over_under$dataset <- factor(over_under$dataset,
-                             levels = c("Herbs",
-                                        "Tadpoles",
-                                        "Trees", 
-                                        "Rodents"))
-
-over_under$moment <- factor(over_under$moment,
-                            levels = c("mean",
-                                       "variance",
-                                       "skewness",
-                                       "kurtosis"))
-
-inset = 
-  ggplot(over_under) +
-  geom_col(aes(y = x,
-               x = method,
-               fill = method),
-           alpha = 0.5,
-           show.legend = FALSE) +
-  facet_grid(rows = vars(dataset),
-             cols = vars(moment),
-             labeller = labeller(
-               trait = traits_parsed,
-               .default = capitalize
-             ),
-             switch = 'y')  + 
-  geom_segment(aes(y = 0,
-                   xend = 4.5,
-                   x = 0.5, yend = 0),
-               colour = 'grey96',
-               size = 0.7) +
-  scale_fill_manual(values = pal_df$c,
-                    breaks = pal_df$l) +
-  lims(y = c(-5,5)) + 
-  expand_limits(x= c(-9, 11)) +
-  # Theme
-  theme_void() +
-  theme(
-    strip.text = element_blank()
-  )
-
 
 ### Doughnut plots - across winners ----
 
@@ -506,6 +454,7 @@ sim_win_text$dataset <- factor(sim_win_text$dataset,
                                           "Trees", 
                                           "Rodents"))
 
+<<<<<<< Updated upstream
 doughnut = 
   ggplot(sim_doughnuts_all) +
   geom_col(aes(
@@ -572,6 +521,8 @@ ggsave(here::here("figures/WinnerDoughnuts_datasets_images.png"),
        height = 10, width = 10.2,
        units = "in", dpi = 300)
 
+=======
+>>>>>>> Stashed changes
 ### a) BumpPlots ----
 
 library(ggbump)
@@ -688,14 +639,22 @@ ggplot(bumps %>%
                      labels = c("Best", "Worst")) +
   # Theme
   figure_theme +
-  theme(panel.background = element_rect(colour = colorspace::lighten("#141438", 0.1),
+  theme(panel.background = element_rect(colour = colorspace::darken("#dddddd", 0.1),
                                         size = 1),
+<<<<<<< Updated upstream
         strip.text.y.left = element_text(margin = margin(0, 0, 10, 0),
                                          size = rel(1.7), face = "bold", vjust = 0,
                                          colour = "grey65", angle = 0),
         strip.text.x.top = element_text(margin = margin(0, 0, 10, 0),
                                         size = rel(1.7),
                                         colour = "grey65", face = "bold"),
+=======
+        strip.text.y.left = element_text(margin = margin(0, 5, 2, 0),
+                                         size = rel(1), vjust = 0,
+                                         angle = 0),
+        strip.text.x.top = element_text(margin = margin(0, 0, 10, 0),
+                                        size = rel(1),face = "bold"),
+>>>>>>> Stashed changes
         panel.grid.major.y = element_blank(),
         strip.background = element_blank(),
         axis.line = element_blank(),
@@ -703,12 +662,20 @@ ggplot(bumps %>%
         axis.ticks.y = element_blank(),
         axis.title.y = element_blank(),
         legend.position = 'bottom',
+<<<<<<< Updated upstream
         legend.text = element_text(color = "grey65", size = rel(1)),
         legend.title = element_text(color = "grey65", size = rel(1.5)))
 
 ggsave(here::here("figures/bumps.png"),
        height = 8, width = 15,
        units = "in", dpi = 300)
+=======
+        legend.key.size = unit(3, "mm"))
+
+ggsave(here::here("figures/bumps.png"),
+       height = 127, width = 180,
+       units = "mm", dpi = 600)
+>>>>>>> Stashed changes
 
 ### b) Lollipop CO ----
 
@@ -732,7 +699,12 @@ lollipop_CO =
                   y = method, 
                   fill = method,
                   alpha = hit), 
+<<<<<<< Updated upstream
               color = "white", 
+=======
+              color = colorspace::lighten("#5e5e5e", 0.3), 
+              size = 0.8,
+>>>>>>> Stashed changes
               width = 0, height = 0.2, shape = 21) +
   geom_point(data = simmeans %>%
                filter(dataset == "Herbs"),
@@ -759,7 +731,7 @@ lollipop_CO =
   scale_alpha_discrete(guide = guide_legend(title = "Value in CI",
                                             override.aes = list(shape = 16,
                                                                 size = 3)),
-                       range = c(0.2, 0.5)) +
+                       range = c(0.5, 0.9)) +
   labs(
     x = "Deviation from true value",
     y = NULL
@@ -770,6 +742,7 @@ lollipop_CO =
 ### Fig 2 panel ----
 
 (ggplot(sim_doughnuts_all) +
+<<<<<<< Updated upstream
     geom_col(aes(
       x = 2,
       y = percentage,
@@ -814,6 +787,54 @@ lollipop_CO =
           text = element_text(family = "Noto", color = "grey65"),
           strip.text.y = element_blank(),
           axis.title.y = element_text(size = rel(0.9))))/
+=======
+   geom_col(aes(
+     x = 2,
+     y = percentage,
+     fill = method
+   ),
+   colour = 'grey96') +
+   xlim(c(0.5, 2.5)) +
+   ylim(c(0, 1)) +
+   #annotation textboxes
+   geom_text(data = sim_win_text,
+             aes(x = 0.5,
+                 y = 0.25,
+                 colour = method,
+                 label = glue::glue("{percentage}%")),
+             hjust = 0.5,
+             show.legend = FALSE,
+             fontface = 'bold', family = "Noto",
+             size = 3.3) +
+   coord_polar(theta = 'y') +
+   facet_grid(rows = vars(dataset),
+              cols = vars(moment),
+              labeller = labeller(
+                trait = traits_parsed,
+                .default = capitalize
+              ),
+              switch = 'y')  + 
+   scale_colour_manual(values = colorspace::darken(pal_df$c, 0.2),
+                       breaks = pal_df$l)  + 
+   scale_fill_manual(guide = guide_legend(title = "Method",
+                                          #nrow = 1,
+                                          title.position="top",
+                                          title.hjust = 0.5),
+                     values = pal_df$c,
+                     breaks = pal_df$l) +
+   # Theme
+   theme_doughnut +
+   theme(strip.text.y.left = element_text(margin = margin(0, 0, 5, 0),
+                                          size = rel(0.8), vjust = 0,
+                                          colour = "grey65", angle = 0),
+         legend.position = 'none')
+) /
+  (sub_bump +
+     theme(legend.position = 'none',
+           text = element_text(family = "Noto"),
+           strip.text.y = element_blank(),
+           axis.title.y = element_text(size = rel(0.9))))/
+>>>>>>> Stashed changes
   lollipop_CO +
   theme(
     strip.text.y = element_blank(),
@@ -821,8 +842,8 @@ lollipop_CO =
   )  +
   plot_annotation(tag_levels = 'A',
                   theme = theme(
-                    plot.background = element_rect(fill = "#141438", colour = NA),
-                    panel.background = element_rect(fill = "#141438", colour = NA),
+                    plot.background = element_rect(fill = "white", colour = NA),
+                    panel.background = element_rect(fill = "white", colour = NA),
                     text = element_text(family = "Noto", color = "grey65", 
                                         face = 'bold'))) +
   plot_layout(heights = c(1, 0.25, 0.25))
@@ -934,6 +955,7 @@ doughnut =
             #colour = 'grey90',
             hjust = 1,
             show.legend = FALSE,
+            fontface = 'bold', family = "Noto",
             size = 4) +
   coord_polar(theta = 'y') +
   facet_grid(rows = vars(trait),
@@ -953,7 +975,7 @@ doughnut =
                                            #nrow = 1,
                                            title.position="top",
                                            title.hjust = 0.5),
-                      values = pal_df$c,
+                      values = colorspace::darken(pal_df$c, 0.2),
                       breaks = pal_df$l) +
   # Theme
   theme_doughnut
@@ -975,7 +997,7 @@ inset =
   geom_segment(aes(y = 0,
                    xend = 4.5,
                    x = 0.5, yend = 0),
-               colour = 'grey96',
+               colour = 'grey69',
                size = 0.7) +
   scale_fill_manual(values = pal_df$c,
                     breaks = pal_df$l) +
@@ -990,9 +1012,9 @@ inset =
 
 cowplot::ggdraw(doughnut) +
   cowplot::draw_plot(inset,
-                     width = 0.75,
+                     width = 0.76,
                      height = 0.92,
-                     x = 0.285,
+                     x = 0.26,
                      y = 0.09) +
   cowplot::draw_image(
     img3, x = 0.06, y = 0.965, hjust = 0.5, vjust = 0.5,

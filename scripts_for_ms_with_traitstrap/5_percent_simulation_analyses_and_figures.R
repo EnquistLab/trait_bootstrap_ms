@@ -169,8 +169,13 @@ inset_co =
   geom_segment(aes(y = 0,
                    xend = 7.5,
                    x = 0.5, yend = 0),
+<<<<<<< Updated upstream
                colour = '#4e5368',
                size = 0.5) +
+=======
+               colour = 'grey69',
+               size = 0.2) +
+>>>>>>> Stashed changes
   scale_fill_manual(values = pal_df$c,
                     breaks = pal_df$l) +
   lims(y = c(-1.3,10)) + 
@@ -346,8 +351,13 @@ inset_az =
   geom_segment(aes(y = 0,
                    xend = 9.5,
                    x = 0.5, yend = 0),
+<<<<<<< Updated upstream
                colour = '#4e5368',
                size = 0.5) +
+=======
+               colour = 'grey69',
+               size = 0.2) +
+>>>>>>> Stashed changes
   scale_fill_manual(values = pal_df$c,
                     breaks = pal_df$l) +
   lims(y = c(-1.3,10)) + 
@@ -374,38 +384,45 @@ ggsave(here::here("figures/moons_pct_abund_rodents.png"),
 
 #### Combine CO and AZ ----
 
-moon_legend2 = 
-  ggplot(data.frame(y = c(1,2.7,4.4,6.1), 
-                    x = 0, ratio = 1:4 * 0.25),
-         aes(x = x, y = y)) +
-  geom_moon(aes(ratio = ratio), size = 5, fill = "grey69", colour = "grey69") +
-  geom_text(aes(x = x + 3,
-                label = paste0(ratio*100,"%")),
-            size = 4,
-            colour = "grey65",
-            family = "Noto") +
-  coord_fixed() +
-  ggtitle("Value in CI") +
-  lims(y = c(0.5, 7), x = c(-1, 8)) +
-  theme_void() +
-  theme(plot.title = element_markdown(hjust = 0.5,
-                                      halign = 0,
-                                      size = rel(1.7)),
-        plot.title.position = "panel",
-        text = element_text(colour = "grey65",
-                            family = "Noto"))
-
 (moons_co +
+<<<<<<< Updated upstream
   labs(title = "A: Herbs") + 
   theme(plot.title.position = 'panel',
         plot.title = element_text(size = 16, color = "grey65"),
         plot.margin = margin(40, 5, 10, 25)) +
+=======
+    labs(title = "A: Herbs") +
+    theme(
+      axis.ticks = element_line(size = 0.03),
+      axis.text = element_text(size = rel(.4)),
+      axis.title = element_text(size = rel(.5)),
+      legend.text = element_text(size = rel(.3)),
+      legend.title = element_text(size = rel(.5)),
+      strip.text.y = element_text(margin = margin(0, 0, 3, 0),
+                                  size = rel(.5), face = "bold"),
+      strip.text.x.top = element_text(margin = margin(0, 0, 3, 0),
+                                      size = rel(.5), face = "bold"),
+      panel.grid.major.y = element_line(size = 0.03),
+      strip.background = element_blank(),
+      axis.line = element_blank(),
+      strip.placement = 'outside',
+      panel.background = element_rect(colour = colorspace::lighten("#141438", 0.1),
+                                      size = 0.7),
+      plot.title.position = "panel",
+      plot.title = element_text(margin = margin(0, 0, 10, 0),
+                                size = rel(.7), face = "bold"),
+      legend.position = 'right',
+      plot.margin = margin(2, 2, 2, 2),
+      legend.key.size = unit(3, "mm")
+    ) +
+>>>>>>> Stashed changes
     inset_element(inset_co,
                   left = 0,
                   bottom = 0,
                   right = 1,
                   top = 1)) +
   (moons_az  +
+<<<<<<< Updated upstream
   labs(title = "B: Rodents") +   
   theme(plot.title.position = 'panel',
         plot.title = element_text(size = 16, color = "grey65"),
@@ -426,6 +443,41 @@ moon_legend2 =
                 right = 0.925, 
                 top = 0.5,
                 align_to = 'full')
+=======
+     labs(title = "B: Rodents") +
+     theme(
+       axis.ticks = element_line(size = 0.03),
+       axis.text = element_text(size = rel(.4)),
+       axis.title = element_text(size = rel(.5)),
+       legend.text = element_text(size = rel(.3)),
+       legend.title = element_text(size = rel(.5)),
+       strip.text.y = element_text(margin = margin(0, 0, 3, 0),
+                                   size = rel(.5), face = "bold"),
+       strip.text.x.top = element_text(margin = margin(0, 0, 3, 0),
+                                       size = rel(.5), face = "bold"),
+       panel.grid.major.y = element_line(size = 0.03),
+       strip.background = element_blank(),
+       axis.line = element_blank(),
+       strip.placement = 'outside',
+       panel.background = element_rect(colour = colorspace::lighten("#141438", 0.1),
+                                       size = 0.7),
+       plot.title.position = "panel",
+       plot.title = element_text(margin = margin(0, 0, 10, 0),
+                                 size = rel(.7), face = "bold"),
+       legend.position = 'right',
+       plot.margin = margin(2, 2, 2, 2),
+       legend.key.size = unit(3, "mm")
+     ) +
+     inset_element(inset_az,
+                   left = 0,
+                   bottom = 0,
+                   right = 1,
+                   top = 1)) +
+  plot_layout(guides = 'collect',
+              widths = c(1, 1)) +
+  plot_annotation(theme = theme(
+    plot.background = element_rect(fill = "white", colour = NA)))
+>>>>>>> Stashed changes
 
 ggsave(here::here("figures/moons_pct_abund_AB.png"),
        height = 9.2, width = 20.5,
@@ -853,7 +905,33 @@ moons_pa <-
   labs(x = "Percent cumulative abundance sampled",
        y = "Average deviation from true moment") +
   # Theme
+<<<<<<< Updated upstream
   theme_moon
+=======
+  theme_moon +
+  theme(
+    axis.ticks = element_line(size = 0.03),
+    axis.text = element_text(size = rel(.4)),
+    axis.title = element_text(size = rel(.5)),
+    legend.text = element_text(size = rel(.3)),
+    legend.title = element_text(size = rel(.5)),
+    strip.text.y = element_text(margin = margin(0, 0, 3, 0),
+                                size = rel(.5), face = "bold"),
+    strip.text.x.top = element_text(margin = margin(0, 0, 3, 0),
+                                    size = rel(.5), face = "bold"),
+    panel.grid.major.y = element_line(size = 0.03),
+    strip.background = element_blank(),
+    axis.line = element_blank(),
+    strip.placement = 'outside',
+    panel.background = element_rect(colour = colorspace::lighten("#141438", 0.1),
+                                    size = 0.7),
+    plot.title.position = "panel",
+    legend.position = 'right',
+    plot.margin = margin(7, 19, 10, 15),
+    legend.key.size = unit(3, "mm")
+    
+  )
+>>>>>>> Stashed changes
 
 inset_pa =
   ggplot(overunders) +
@@ -874,8 +952,13 @@ inset_pa =
   geom_segment(aes(y = 0,
                    xend = 9.5,
                    x = 0.5, yend = 0),
+<<<<<<< Updated upstream
                colour = '#4e5368',
                size = 0.5) +
+=======
+               colour = 'grey69',
+               size = 0.3) +
+>>>>>>> Stashed changes
   scale_fill_manual(values = pal_df$c,
                     breaks = pal_df$l) +
   lims(y = c(-1.3,10)) + 
@@ -891,10 +974,17 @@ cowplot::ggdraw(moons_pa) +
                      .78, .17,
                      0.21, .22) +
   cowplot::draw_plot(inset_pa,
+<<<<<<< Updated upstream
                      width = 0.72,
                      height = 0.81,
                      x = 0.08,
                      y = 0.09) +
+=======
+                     width = 0.77,
+                     height = 0.86,
+                     x = 0.07,
+                     y = 0.085) +
+>>>>>>> Stashed changes
   cowplot::draw_image(
     img3, x = 0.03, y = 0.93, hjust = 0.5, vjust = 0.5,
     width = 0.045

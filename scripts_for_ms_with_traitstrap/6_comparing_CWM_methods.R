@@ -46,6 +46,7 @@ cowplot::ggdraw(
                    y = max(log10(abs(cwm_methods$bootstrap_CWM))),
                    label = glue::glue("R^2 = {corr}")),
                hjust = 0,
+               size = 1.5,
                vjust = 1,
                width = unit(0.27, "npc"),
                family = "Noto") +
@@ -67,8 +68,8 @@ cowplot::ggdraw(
   )
 
 ggsave(here::here("figures/CWM_comparison.png"),
-       height = 9, width = 14,
-       units = "in", dpi = 300)
+       height = 120, width = 180,
+       units = "mm", dpi = 600)
 
 #### Bootstrap sample sizes ####
 
@@ -94,248 +95,111 @@ moon_means$moment =
                                        "skewness",
                                        "kurtosis"))
 
-#BSS + 200
+plots <- vector('list', 4)
+samp_size = c(200, 400, 800, 1600)
 
-p200 =
-ggplot(moon_means %>%
-         filter(boot_sample_size == 200)) +
-  geom_hline(aes(yintercept = 0),
-             color = "grey50",
-             size = 1.5) +
-  geom_smooth(aes(
-    x = trait_sample_size,
-    y = deviation ,
-    color = method),
-    alpha = 0.5,
-    se = FALSE,
-    size = 0.8) +
-  geom_point(aes(
-    x = trait_sample_size,
-    y = deviation,
-    color = method
-  ),
-  size = 5,
-  alpha = 0.9) +
-  geom_moon(aes(
-    x = trait_sample_size,
-    y = deviation,
-    ratio = percentage,
-    fill = method
-  ),
-  color = "transparent",
-  size = 5) +
-  coord_cartesian(clip = 'off') +
-  scale_fill_manual(guide = guide_legend(title = "Method",
-                                         title.position="top",
-                                         title.hjust = 0.5),
-                    values = colorspace::darken(pal_df$c, amount = 0.2),
-                    labels = pal_df$l) +
-  scale_colour_manual(guide = guide_legend(title = "Method",
+for (i in 1:4) {
+  
+  plots[[i]] = 
+    ggplot(moon_means %>%
+             filter(boot_sample_size == samp_size[i])) +
+    geom_hline(aes(yintercept = 0),
+               color = "grey50",
+               size = .7) +
+    geom_smooth(aes(
+      x = trait_sample_size,
+      y = deviation ,
+      color = method),
+      alpha = 0.5,
+      se = FALSE,
+      size = 0.5) +
+    geom_point(aes(
+      x = trait_sample_size,
+      y = deviation,
+      color = method
+    ),
+    size = 1.8,
+    alpha = 0.9) +
+    geom_moon(aes(
+      x = trait_sample_size,
+      y = deviation,
+      ratio = percentage,
+      fill = method
+    ),
+    color = "transparent",
+    size = 1.8) +
+    coord_cartesian(clip = 'off') +
+    scale_fill_manual(guide = guide_legend(title = "Method",
                                            title.position="top",
                                            title.hjust = 0.5),
-                      values = colorspace::lighten(pal_df$c, amount = 0.6),
+                      values = colorspace::darken(pal_df$c, amount = 0.2),
                       labels = pal_df$l) +
-  scale_x_continuous(trans = 'sqrt', breaks = c(0,10,50,100,200,500),
-                     limits = c(0, 500)) +
-  facet_grid(rows = vars(moment),
-             cols = vars(method),
-             labeller = labeller(
-               trait = traits_parsed,
-               .default = capitalize
-             ),
-             switch = 'y',
-             scales = 'free') +
-  labs(x = "Trait sample size",
-       y = "Average deviation from true moment",
-       title = "A: Bootstrap sample size = 200") +
-  #draw_key_moon(data.frame(x = 1:5, y = 0, ratio = 0:4 * 0.25))
-  # Theme
-  theme_moon
+    scale_colour_manual(guide = guide_legend(title = "Method",
+                                             title.position="top",
+                                             title.hjust = 0.5),
+                        values = colorspace::lighten(pal_df$c, amount = 0.6),
+                        labels = pal_df$l) +
+    # scale_x_continuous(trans = 'sqrt', breaks = c(0,10,50,100,200,500),
+    #                    limits = c(0, 500)) +
+    facet_grid(rows = vars(moment),
+               cols = vars(method),
+               labeller = labeller(
+                 trait = traits_parsed,
+                 .default = capitalize
+               ),
+               switch = 'y',
+               scales = 'free') +
+    labs(x = "Sample Size",
+         y = "Average deviation from true moment") +
+    # Theme
+    figure_theme +
+    theme(
+      axis.text = element_text(color = "#5e5e5e", size = rel(.4)),
+      axis.title = element_text(color = "#5e5e5e", size = rel(.5)),
+      legend.text = element_text(color = "#5e5e5e", size = rel(.5)),
+      legend.title = element_text(color = "#5e5e5e", size = rel(.6)),
+      strip.text.y = element_text(margin = margin(0, 0, 3, 0),
+                                  size = rel(.6), face = "bold",
+                                  color = "#5e5e5e"),
+      strip.text.x.top = element_text(margin = margin(0, 0, 3, 0),
+                                      size = rel(.6),
+                                      color = "#5e5e5e", face = "bold"),
+      panel.grid.major.y = element_line(size = 0.03,
+                                        color = "#5e5e5e"),
+      strip.background = element_blank(),
+      axis.line = element_blank(),
+      strip.placement = 'outside',
+      panel.background = element_rect(colour = colorspace::darken("#dddddd", 0.1),
+                                      size = 0.5),
+      plot.title.position = "panel",
+      plot.title = element_text(margin = margin(0, 0, 10, 0),
+                                size = rel(.5), face = "bold",
+                                color = "#5e5e5e"),
+      legend.position = 'bottom',
+      plot.margin = margin(2, 2, 2, 2),
+      legend.key.size = unit(3, "mm"),
+      axis.ticks = element_line(size = 0.03)
+    ) 
+  
+}
 
-#BSS = 400
-
-p400 =
-  ggplot(moon_means %>%
-           filter(boot_sample_size == 400)) +
-  geom_hline(aes(yintercept = 0),
-             color = "grey50",
-             size = 1.5) +
-  geom_smooth(aes(
-    x = trait_sample_size,
-    y = deviation ,
-    color = method),
-    alpha = 0.5,
-    se = FALSE,
-    size = 0.8) +
-  geom_point(aes(
-    x = trait_sample_size,
-    y = deviation,
-    color = method
-  ),
-  size = 5,
-  alpha = 0.9) +
-  geom_moon(aes(
-    x = trait_sample_size,
-    y = deviation,
-    ratio = percentage,
-    fill = method
-  ),
-  color = "transparent",
-  size = 5) +
-  coord_cartesian(clip = 'off') +
-  scale_fill_manual(guide = guide_legend(title = "Method",
-                                         title.position="top",
-                                         title.hjust = 0.5),
-                    values = colorspace::darken(pal_df$c, amount = 0.2),
-                    labels = pal_df$l) +
-  scale_colour_manual(guide = guide_legend(title = "Method",
-                                           title.position="top",
-                                           title.hjust = 0.5),
-                      values = colorspace::lighten(pal_df$c, amount = 0.6),
-                      labels = pal_df$l) +
-  scale_x_continuous(trans = 'sqrt', breaks = c(0,10,50,100,200,500),
-                     limits = c(0, 500)) +
-  facet_grid(rows = vars(moment),
-             cols = vars(method),
-             labeller = labeller(
-               trait = traits_parsed,
-               .default = capitalize
-             ),
-             switch = 'y',
-             scales = 'free') +
-  labs(x = "Trait sample size",
-       y = "Average deviation from true moment",
-       title = "B: Bootstrap sample size = 400") +
-  #draw_key_moon(data.frame(x = 1:5, y = 0, ratio = 0:4 * 0.25))
-  # Theme
-  theme_moon
-
-#BSS = 800
-
-p800 =
-  ggplot(moon_means %>%
-           filter(boot_sample_size == 800)) +
-  geom_hline(aes(yintercept = 0),
-             color = "grey50",
-             size = 1.5) +
-  geom_smooth(aes(
-    x = trait_sample_size,
-    y = deviation ,
-    color = method),
-    alpha = 0.5,
-    se = FALSE,
-    size = 0.8) +
-  geom_point(aes(
-    x = trait_sample_size,
-    y = deviation,
-    color = method
-  ),
-  size = 5,
-  alpha = 0.9) +
-  geom_moon(aes(
-    x = trait_sample_size,
-    y = deviation,
-    ratio = percentage,
-    fill = method
-  ),
-  color = "transparent",
-  size = 5) +
-  coord_cartesian(clip = 'off') +
-  scale_fill_manual(guide = guide_legend(title = "Method",
-                                         title.position="top",
-                                         title.hjust = 0.5),
-                    values = colorspace::darken(pal_df$c, amount = 0.2),
-                    labels = pal_df$l) +
-  scale_colour_manual(guide = guide_legend(title = "Method",
-                                           title.position="top",
-                                           title.hjust = 0.5),
-                      values = colorspace::lighten(pal_df$c, amount = 0.6),
-                      labels = pal_df$l) +
-  scale_x_continuous(trans = 'sqrt', breaks = c(0,10,50,100,200,500),
-                     limits = c(0, 500)) +
-  facet_grid(rows = vars(moment),
-             cols = vars(method),
-             labeller = labeller(
-               trait = traits_parsed,
-               .default = capitalize
-             ),
-             switch = 'y',
-             scales = 'free') +
-  labs(x = "Trait sample size",
-       y = "Average deviation from true moment",
-       title = "C: Bootstrap sample size = 800") +
-  theme_moon
-
-#BSS = 1600
-
-p1600 =
-  ggplot(moon_means %>%
-           filter(boot_sample_size == 1600)) +
-  geom_hline(aes(yintercept = 0),
-             color = "grey50",
-             size = 1.5) +
-  geom_smooth(aes(
-    x = trait_sample_size,
-    y = deviation ,
-    color = method),
-    alpha = 0.5,
-    se = FALSE,
-    size = 0.8) +
-  geom_point(aes(
-    x = trait_sample_size,
-    y = deviation,
-    color = method
-  ),
-  size = 5,
-  alpha = 0.9) +
-  geom_moon(aes(
-    x = trait_sample_size,
-    y = deviation,
-    ratio = percentage,
-    fill = method
-  ),
-  color = "transparent",
-  size = 5) +
-  coord_cartesian(clip = 'off') +
-  scale_fill_manual(guide = guide_legend(title = "Method",
-                                         title.position="top",
-                                         title.hjust = 0.5),
-                    values = colorspace::darken(pal_df$c, amount = 0.2),
-                    labels = pal_df$l) +
-  scale_colour_manual(guide = guide_legend(title = "Method",
-                                           title.position = "top",
-                                           title.hjust = 0.5),
-                      values = colorspace::lighten(pal_df$c, amount = 0.6),
-                      labels = pal_df$l) +
-  scale_x_continuous(trans = 'sqrt', breaks = c(0,10,50,100,200,500),
-                     limits = c(0, 500)) +
-  facet_grid(rows = vars(moment),
-             cols = vars(method),
-             labeller = labeller(
-               trait = traits_parsed,
-               .default = capitalize
-             ),
-             switch = 'y',
-             scales = 'free') +
-  labs(x = "Trait sample size",
-       y = "Average deviation from true moment",
-       title = "D: Bootstrap sample size = 1 600") +
-  # Theme
-  theme_moon
-
-(p200 + theme(legend.position = 'bottom') + 
-    p400 + theme(legend.position = 'bottom'))/
-  (p800 + theme(legend.position = 'bottom') + 
-     p1600 + theme(legend.position = 'bottom')) +
+(plots[[1]] +
+    labs(title = "A: Bootstrap sample size = 200") + 
+    plots[[2]] +
+    labs(title = "B: Bootstrap sample size = 400"))/
+  (plots[[3]] +
+     labs(title = "C: Bootstrap sample size = 800") + 
+     plots[[4]] +
+     labs(title = "D: Bootstrap sample size = 1 600")) +
   plot_layout(guides = 'collect') +
   plot_annotation(theme = theme(
-    plot.background = element_rect(fill = "#141438", colour = NA),
-    panel.background = element_rect(fill = "#141438", colour = NA),
+    plot.background = element_rect(fill = "white", colour = NA),
+    panel.background = element_rect(fill = "white", colour = NA),
     legend.text = element_text(color = "grey65", size = 12),
     legend.title = element_text(color = "grey65", size = 13),
-    legend.position = 'bottom',
+    legend.position = 'none',
   )) 
 
 ggsave(here::here("figures/bs_samplesize.png"),
-       height = 14, width = 22,
-       units = "in", dpi = 300)
+       height = 130, width = 180,
+       units = "mm", dpi = 600)
