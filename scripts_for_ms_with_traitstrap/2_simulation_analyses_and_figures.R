@@ -512,12 +512,12 @@ sub_bump =
     geom_bump(aes(x = sample_size,
                   y = -rank,
                   colour = method),
-              size = 1, smooth = 8),
+              size = 0.7, smooth = 8),
     sigma = 1) +
   geom_point(aes(x = sample_size,
                  y = -rank,
                  colour = method),
-             size = 2) +
+             size = 1.5) +
   facet_grid(cols = vars(moment),
              rows = vars(dataset),
              labeller = labeller(
@@ -557,12 +557,12 @@ ggplot(bumps %>%
     geom_bump(aes(x = sample_size,
                   y = -rank,
                   colour = method),
-              size = 1, smooth = 8),
+              size = 0.7, smooth = 8),
     sigma = 1) +
   geom_point(aes(x = sample_size,
                  y = -rank,
                  colour = method),
-             size = 2) +
+             size = 1) +
   facet_grid(cols = vars(moment),
              rows = vars(dataset),
              labeller = labeller(
@@ -589,7 +589,7 @@ ggplot(bumps %>%
                                         size = 1),
         strip.text.y.left = element_text(margin = margin(0, 5, 2, 0),
                                          size = rel(1), vjust = 0,
-                                         angle = 0),
+                                         angle = 0,face = "bold"),
         strip.text.x.top = element_text(margin = margin(0, 0, 2, 0),
                                         size = rel(1),face = "bold"),
         panel.grid.major.y = element_blank(),
