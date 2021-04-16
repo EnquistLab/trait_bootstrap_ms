@@ -146,81 +146,6 @@ all_dists <- merge(x = all_dists,y = elev)
 all_dists$mean_elev <-round(all_dists$mean_elev)
 rm(atraits_dist)
 
-
-
-
-
-ggplot(data = all_dists[which(all_dists$site=="Road"),],
-       mapping = aes(x=value,color=method,fill=method,alpha=0.5)) +
-  geom_density() +
-  facet_wrap(~trait,scales = "free")
-
-ggplot(data = all_dists[which(all_dists$trait=="height"),],
-       mapping = aes(x=value,color=method,fill=method,alpha=0.5)) +
-  geom_density() +
-  facet_wrap(~site,scales = "free_y")
-
-
-
-ggplot(all_dists[which(all_dists$trait=="height"),],
-       aes(x = value,
-           y = as.factor(round(mean_elev)),
-           color = method,
-           fill = method)) +
-  geom_density_ridges(rel_min_height = 0.005,alpha=0.5) +
-  scale_y_discrete(expand = c(0.01, 0)) +
-  scale_x_continuous(expand = c(0.1, 0)) +
-  theme_ridges() +
-  scale_color_manual(values = colors) +
-  scale_fill_manual(values=colors)
-
-ggplot(all_dists[which(all_dists$trait=="biomass_per_ind"),], aes(x = value, y = as.factor(round(mean_elev)),color=method,fill=method)) +
-  geom_density_ridges(rel_min_height = 0.005,alpha=0.5) +
-  scale_y_discrete(expand = c(0.01, 0)) +
-  scale_x_continuous(expand = c(0.1, 0)) +
-  theme_ridges()
-
-ggplot(all_dists[which(all_dists$trait=="dry_mass_mg"),], aes(x = value, y = as.factor(round(mean_elev)),color=method,fill=method)) +
-  geom_density_ridges(rel_min_height = 0.005,alpha=0.5) +
-  scale_y_discrete(expand = c(0.01, 0)) +
-  scale_x_continuous(expand = c(0.1, 0)) +
-  theme_ridges()
-
-ggplot(all_dists[which(all_dists$trait=="leaf_area_mm2"),], aes(x = value, y = as.factor(paste(round(mean_elev),"m")),color=method,fill=method)) +
-  geom_density_ridges(rel_min_height = 0.005,alpha=0.5) +
-  scale_y_discrete(expand = c(0.01, 0)) +
-  scale_x_continuous(expand = c(0.1, 0)) +
-  theme_ridges()+xlab("Leaf Area")+ylab(NULL)
-
-ggplot(all_dists[which(all_dists$trait=="LMA_mg_mm2"),], aes(x = value, y = as.factor(round(mean_elev)),color=method,fill=method)) +
-  geom_density_ridges2(rel_min_height = 0.005,alpha=0.5) +
-  scale_y_discrete(expand = c(0.01, 0)) +
-  scale_x_continuous(expand = c(0.1, 0)) +
-  theme_ridges()
-
-
-ggplot(all_dists[which(all_dists$trait=="leaf_area_mm2"),],
-       aes(x = value,
-           y = factor(paste(mean_elev,"m")),
-           fill=method,
-           color=method,
-           linetype = method,
-           alpha= method)) +
-  geom_density_ridges(rel_min_height = 0.005) +
-  scale_y_discrete(expand = c(0.01, 0)) +
-  scale_x_continuous(expand = c(0.1, 0)) +
-  theme_ridges() +
-  labs(x = "Leaf Area",
-       y = NULL) +
-  scale_color_manual(values = colors) +
-  scale_fill_manual(values=colors) +
-  scale_linetype_manual(values=c(1,1,1,1,2)) +
-  scale_alpha_manual(values=c(0.5,0.5,0.5,0.5,0.7)) +
-  guides(alpha = 'none') +
-  figure_theme
-
-##Tanya's zone
-
 ### Joy (Ridge) Plots ----
 
 all_dists$method <- factor(all_dists$method,
@@ -230,69 +155,81 @@ all_dists$method <- factor(all_dists$method,
                                       "Non-parametric BS",
                                       "Parametric BS"))
 
-cowplot::ggdraw(
+joy_plot = 
   ggplot() +
-    scale_fill_manual(guide = guide_legend(title = "Method",
-                                           #nrow = 1,
-                                           override.aes = list(alpha = 0.7, shape = 2, size = 4),
+  scale_fill_manual(guide = guide_legend(title = "Method",
+                                         #nrow = 1,
+                                         override.aes = list(alpha = 0.7, shape = 2, size = 4),
+                                         title.position="top",
+                                         title.hjust = 0.5),
+                    values = pal_df$c,
+                    labels = pal_df$l) +
+  scale_colour_manual(guide = guide_legend(title = "Method",
                                            title.position="top",
                                            title.hjust = 0.5),
                       values = pal_df$c,
                       labels = pal_df$l) +
-    scale_colour_manual(guide = guide_legend(title = "Method",
-                                             title.position="top",
-                                             title.hjust = 0.5),
-                        values = pal_df$c,
-                        labels = pal_df$l) +
-    stat_density_ridges(data = all_dists %>%
-                          filter(method == "True"),
-                        aes(x = value,
-                            y = factor(paste(mean_elev,"m"))),
-                        rel_min_height = 0.01,
-                        colour = "#5e5e5e",
-                        scale = 0.9,
-                        fill = NA,
-                        linetype = 3,
-                        alpha = 0.3) +
-    stat_density_ridges(data = all_dists %>%
-                          filter(method != "True"),
-                        aes(x = value,
-                            y = factor(paste(mean_elev,"m")),
-                            fill = method,
-                            colour = method),
-                        rel_min_height = 0.01,
-                        scale = 0.9,
-                        alpha = 0.4) +
-    scale_y_discrete(expand = c(0.01, 0)) +
-    scale_x_continuous(expand = c(0.1, 0)) +
-    coord_cartesian(clip = 'off') +
-    facet_wrap(~trait,
-               scales = 'free_x',
-               labeller = labeller(
-                 trait = traits_parsed,
-                 .default = capitalize
-               )) +
-    theme_classic() +
-    labs(x = NULL,
-         y = NULL) +
-    guides(alpha = 'none')  +
-    figure_theme +
-    theme(axis.text.x = element_blank(),
-          panel.background = element_rect(colour = '#5e5e5e'),
-          strip.text.y = element_text(margin = margin(0, 0, 10, 0),
-                                      size = rel(.9), face = "bold",
-                                      colour = "#5e5e5e"),
-          strip.text.x.top = element_text(margin = margin(0, 0, 10, 0),
-                                          size = rel(.9), face = "bold",
-                                          colour = "#5e5e5e"),
-          strip.background = element_blank(),
-          axis.line = element_blank(),
-          strip.placement = 'outside',
-          axis.ticks.y = element_blank(),
-          legend.position = 'bottom',
-          legend.key.size = unit(3, "mm"),
-          axis.ticks = element_blank())
-  )+
+  stat_density_ridges(data = all_dists %>%
+                        filter(method == "True"),
+                      aes(x = value,
+                          y = factor(paste(mean_elev,"m"))),
+                      rel_min_height = 0.01,
+                      colour = "#5e5e5e",
+                      scale = 0.9,
+                      fill = NA,
+                      linetype = 3,
+                      alpha = 0.3) +
+  stat_density_ridges(data = all_dists %>%
+                        filter(method != "True"),
+                      aes(x = value,
+                          y = factor(paste(mean_elev,"m")),
+                          fill = method,
+                          colour = method),
+                      rel_min_height = 0.01,
+                      scale = 0.9,
+                      alpha = 0.4) +
+  scale_y_discrete(expand = c(0.01, 0)) +
+  scale_x_continuous(expand = c(0.1, 0)) +
+  coord_cartesian(clip = 'off') +
+  facet_wrap(~trait,
+             scales = 'free_x',
+             labeller = labeller(
+               trait = traits_parsed,
+               .default = capitalize
+             )) +
+  theme_classic() +
+  labs(x = NULL,
+       y = NULL) +
+  guides(alpha = 'none')  +
+  figure_theme +
+  theme(axis.text.x = element_blank(),
+        panel.background = element_rect(colour = '#5e5e5e',
+                                        size = 0.3),
+        strip.text.y = element_text(margin = margin(0, 0, 10, 0),
+                                    size = rel(.9), face = "bold",
+                                    colour = "#5e5e5e"),
+        strip.text.x.top = element_text(margin = margin(0, 0, 10, 0),
+                                        size = rel(.9), face = "bold",
+                                        colour = "#5e5e5e"),
+        strip.background = element_blank(),
+        axis.line = element_blank(),
+        strip.placement = 'outside',
+        axis.ticks.y = element_blank(),
+        legend.position = 'right',
+        legend.key.size = unit(3, "mm"),
+        axis.ticks = element_blank())
+
+legend <- cowplot::get_legend(joy_plot)
+
+cowplot::ggdraw(
+  joy_plot +
+    theme(legend.position = 'none')
+  ) +
+  cowplot::draw_plot(legend,
+                     width = 0.5,
+                     height = 0.3,
+                     x = 0.6,
+                     y = 0.1) +
   cowplot::draw_image(
     img1, x = 0.03, y = 0.93, hjust = 0.5, vjust = 0.5,
     width = 0.045
