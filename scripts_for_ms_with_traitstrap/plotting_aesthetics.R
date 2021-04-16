@@ -42,8 +42,9 @@ figure_theme =
     legend.key = element_blank(),
     legend.text = element_text(size = rel(.6)),
     legend.title = element_text(size = rel(.7)),
-    text = element_text(family = "Noto", color = "#5e5e5e"), #font change
-    plot.margin = margin(15, 5, 10, 15)
+    text = element_text(color = "#5e5e5e"), #font change
+    plot.margin = margin(10, 5, 5, 10),
+    legend.margin = margin(1, 2, 1, 2)
     )
 
 
@@ -63,9 +64,10 @@ theme_doughnut =
                                     size = rel(1),face = "bold"),
     legend.text = element_text(size = rel(.7)),
     legend.title = element_text(size = rel(.9)),
-    plot.margin = margin(15, 19, 10, 15),
+    plot.margin = margin(15, 15, 10, 15),
     legend.position = 'bottom',
-    text = element_text(family = "Noto", color = "#5e5e5e")
+    text = element_text(color = "#5e5e5e"),
+    legend.key.size = unit(4, "mm")
   )
 
 ##b--🌖 Theme----
@@ -97,9 +99,9 @@ theme_lollipop =
   theme(axis.text.y = element_blank(),
         panel.background = element_rect(colour = colorspace::darken("#dddddd", 0.1),
                                         size = 0.6),
-        strip.text.y = element_text(margin = margin(0, 10, 0, 0),
+        strip.text.y = element_text(margin = margin(0, 3, 0, 0),
                                     size = rel(1), face = "bold"),
-        strip.text.x.top = element_text(margin = margin(0, 0, 10, 0),
+        strip.text.x.top = element_text(margin = margin(0, 0, 3, 0),
                                         size = rel(1), face = "bold"),
         panel.grid.major.y = element_blank(),
         strip.background = element_blank(),

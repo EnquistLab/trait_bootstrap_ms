@@ -49,29 +49,29 @@ simdata_lollipop =
 cowplot::ggdraw(
   ggplot(simmeans) +
     geom_vline(aes(xintercept = 0),
-               color = "grey50",
-               size = 1) +
+               color = "grey69",
+               size = 0.7) +
     geom_segment(data = simmeans,
                  aes(x = 0,
                      xend = estimate,
                      y = method,
                      yend = method),
-                 color = "grey50",
-                 size = 0.5) +
+                 color = "grey69",
+                 size = 0.3) +
     geom_jitter(data = simdata_lollipop,
                 aes(x = deviation,
                     y = method,
                     fill = method,
                     alpha = hit),
                 color = colorspace::lighten("#5e5e5e", 0.3),
-                size = 0.8,
+                size = 1, stroke = 0.2,
                 width = 0, height = 0.2, shape = 21) +
     geom_point(data = simmeans,
                aes(x = estimate,
                    y = method,
                    fill = method,
                    colour = method),
-               shape = 23, size = 3.2) +
+               shape = 23, size = 1.7) +
     facet_grid(rows = vars(trait),
                cols = vars(moment),
                labeller = labeller(
@@ -106,16 +106,18 @@ cowplot::ggdraw(
                                                     size = 3,
                                                     order = 2,
                                                     colour = "#5e5e5e"))) +
-    theme_lollipop
+    theme_lollipop +
+    theme(plot.margin = margin(15, 15, 10, 20))
   ) +
   cowplot::draw_image(
     img1, x = 0.03, y = 0.94, hjust = 0.5, vjust = 0.5,
-    width = 0.03
+    width = 0.04
   )
 
 ggsave(here::here("figures/Lollipops_deviation.png"),
-       height = 150, width = 180,
+       height = 120, width = 180,
        units = "mm", dpi = 600)
+
 
 
 ### Accuracy Across datasets (creative) ----
@@ -157,7 +159,7 @@ simdata_lollipop =
            sample_size > 8) %>%
   # group_by(dataset, moment) %>%
   # mutate(deviation = scale(deviation)) %>%
-  filter(deviation < 10 &&
+  filter(deviation < 10 &
            deviation > -10 ) %>%
   group_by(dataset, moment, method, sample_size) %>%
   slice_sample(n = 20)
@@ -181,29 +183,29 @@ simmeans$dataset <- factor(simmeans$dataset,
 lollipop_all =
   ggplot(simmeans) +
   geom_vline(aes(xintercept = 0),
-             color = "grey50",
-             size = 1) +
+             color = "grey69",
+             size = 0.7) +
   geom_segment(data = simmeans,
                aes(x = 0,
                    xend = estimate,
                    y = method,
                    yend = method),
-               color = "grey50",
-               size = 0.5) +
+               color = "grey69",
+               size = 0.3) +
   geom_jitter(data = simdata_lollipop,
               aes(x = deviation,
                   y = method,
                   fill = method,
                   alpha = hit),
               color = colorspace::lighten("#5e5e5e", 0.3),
-              size = 0.8,
+              size = 1, stroke = 0.2,
               width = 0, height = 0.2, shape = 21) +
   geom_point(data = simmeans,
              aes(x = estimate,
                  y = method,
                  fill = method,
                  colour = method),
-             shape = 23, size = 3.2) +
+             shape = 23, size = 2) +
   facet_grid(rows = vars(dataset),
              cols = vars(moment),
              labeller = labeller(
@@ -236,13 +238,13 @@ lollipop_all =
   ) +
   #guides(size = 'none') +
   theme_lollipop +
-  theme(strip.text.y.left = element_text(margin = margin(0, 0, 2, 0),
+  theme(strip.text.y.left = element_text(margin = margin(0, 2, 2, 0),
                                          size = rel(0.8), vjust = 0,
                                          angle = 0))
 
 ggsave(here::here("figures/Lollipops_Datsets.png"),
        lollipop_all,
-       height = 160, width = 180,
+       height = 115, width = 180,
        units = "mm", dpi = 600)
 
 
@@ -299,7 +301,7 @@ doughnut_CO =
             hjust = 0.5,
             size = 4,
             show.legend = FALSE,
-            fontface = 'bold', family = "Noto") +
+            fontface = 'bold') +
   coord_polar(theta = 'y') +
   facet_grid(rows = vars(trait),
              cols = vars(moment),
@@ -531,14 +533,15 @@ sub_bump =
   scale_x_continuous(trans = 'sqrt', breaks = c(1,4,9,16,25, 36,49),
                      limits = c(1, 50)) +
   scale_y_continuous(breaks = c(-1,-4),
-                   labels = c("Best", "Worst")) +
+                   labels = c("Best", "Worst"),
+                   limits = c(-4.25, -0.75)) +
   # Theme
   figure_theme +
   theme(panel.background = element_rect(colour = colorspace::darken("#dddddd", 0.1),
                                         size = 0.6),
         strip.text.y = element_blank(),
-        strip.text.x.top = element_text(margin = margin(0, 0, 10, 0),
-                                        size = rel(1.7), face = "bold"),
+        strip.text.x.top = element_text(margin = margin(0, 0, 5, 0),
+                                        size = rel(1), face = "bold"),
         panel.grid.major.y = element_blank(),
         strip.background = element_blank(),
         axis.line = element_blank(),
@@ -576,9 +579,10 @@ ggplot(bumps %>%
   labs(x = 'Sample size',
        y = "Rank") +
   scale_x_continuous(trans = 'sqrt', breaks = c(1,4,9,16,25,36,49),
-                     limits = c(0, 50)) +
+                     limits = c(1, 50)) +
   scale_y_continuous(breaks = c(-1,-4),
-                     labels = c("Best", "Worst")) +
+                     labels = c("Best", "Worst"),
+                     limits = c(-4.25, -0.75)) +
   # Theme
   figure_theme +
   theme(panel.background = element_rect(colour = colorspace::darken("#dddddd", 0.1),
@@ -586,7 +590,7 @@ ggplot(bumps %>%
         strip.text.y.left = element_text(margin = margin(0, 5, 2, 0),
                                          size = rel(1), vjust = 0,
                                          angle = 0),
-        strip.text.x.top = element_text(margin = margin(0, 0, 10, 0),
+        strip.text.x.top = element_text(margin = margin(0, 0, 2, 0),
                                         size = rel(1),face = "bold"),
         panel.grid.major.y = element_blank(),
         strip.background = element_blank(),
@@ -598,7 +602,7 @@ ggplot(bumps %>%
         legend.key.size = unit(3, "mm"))
 
 ggsave(here::here("figures/bumps.png"),
-       height = 140, width = 180,
+       height = 130, width = 180,
        units = "mm", dpi = 600)
 
 ### b) Lollipop CO ----
@@ -607,16 +611,16 @@ lollipop_CO =
   ggplot(simmeans %>%
            filter(dataset == "Herbs")) +
   geom_vline(aes(xintercept = 0),
-             color = "grey50",
-             size = 1) +
+             color = "grey69",
+             size = 0.6) +
   geom_segment(data = simmeans %>%
                  filter(dataset == "Herbs"),
                aes(x = 0,
                    xend = estimate,
                    y = method,
                    yend = method),
-               color = "grey50",
-               size = 0.5) +
+               color = "grey69",
+               size = 0.3) +
   geom_jitter(data = simdata_lollipop %>%
                 filter(dataset == "Herbs"),
               aes(x = deviation,
@@ -624,7 +628,7 @@ lollipop_CO =
                   fill = method,
                   alpha = hit),
               color = colorspace::lighten("#5e5e5e", 0.3),
-              size = 0.8,
+              size = 1, stroke = 0.2,
               width = 0, height = 0.2, shape = 21) +
   geom_point(data = simmeans %>%
                filter(dataset == "Herbs"),
@@ -632,7 +636,7 @@ lollipop_CO =
                  y = method,
                  fill = method,
                  colour = method),
-             shape = 23, size = 3.2) +
+             shape = 23, size = 2) +
   facet_grid(rows = vars(dataset),
              cols = vars(moment),
              labeller = labeller(
@@ -678,7 +682,7 @@ lollipop_CO =
                  label = glue::glue("{percentage}%")),
              hjust = 0.5,
              show.legend = FALSE,
-             fontface = 'bold', family = "Noto",
+             fontface = 'bold',
              size = 4.2) +
    coord_polar(theta = 'y') +
    facet_grid(rows = vars(dataset),
@@ -701,7 +705,11 @@ lollipop_CO =
    theme(strip.text.y.left = element_text(margin = margin(0, 0, 5, 0),
                                           size = rel(0.8), vjust = 0,
                                           angle = 0),
-         legend.position = 'none')
+         legend.position = 'top',
+         legend.background = element_rect(colour = colorspace::darken("#dddddd", 0.1),
+                                                                 size = 0.4),
+         legend.margin = margin(3, 5, 3, 5),
+         plot.margin = margin(5, 0, 7, 0))
 ) /
   (sub_bump +
      theme(legend.position = 'none',
@@ -711,14 +719,16 @@ lollipop_CO =
   lollipop_CO +
   theme(
     strip.text.y = element_blank(),
-    axis.title.y = element_text(size = rel(0.9))
+    axis.title.y = element_text(size = rel(0.9)),
+    legend.position = 'none'
   )  +
   plot_annotation(tag_levels = 'A',
                   theme = theme(
                     plot.background = element_rect(fill = "white", colour = NA),
                     panel.background = element_rect(fill = "white", colour = NA),
-                    text = element_text(family = "Noto", face = 'bold'))) +
-  plot_layout(heights = c(1, 0.25, 0.25))
+                    text = element_text(face = 'bold'))) +
+  plot_layout(heights = c(1, 0.2, 0.2),
+              guides = 'keep')
 
 ggsave(here::here("figures/Fig2_panel.png"),
        height = 290, width = 180,
@@ -827,8 +837,8 @@ doughnut =
             #colour = 'grey90',
             hjust = 0.5,
             show.legend = FALSE,
-            fontface = 'bold', family = "Noto",
-            size = 4) +
+            fontface = 'bold',
+            size = 4.5) +
   coord_polar(theta = 'y') +
   facet_grid(rows = vars(trait),
              cols = vars(moment),
