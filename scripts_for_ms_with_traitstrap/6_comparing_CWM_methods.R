@@ -30,6 +30,8 @@ cwm_corr$moment <- factor(cwm_corr$moment,
                                      "skewness",
                                      "kurtosis"))
 
+#### Traditinal CWM ####
+
 cowplot::ggdraw(
   ggplot(cwm_methods) +
   geom_abline(aes(slope = 1, 
@@ -46,7 +48,7 @@ cowplot::ggdraw(
                    y = max(log10(abs(cwm_methods$bootstrap_CWM))),
                    label = glue::glue("R^2 = {corr}")),
                hjust = 0,
-               size = 1.5,
+               size = 1.6,
                vjust = 1,
                width = unit(0.27, "npc"),
                family = "Noto") +
@@ -60,15 +62,17 @@ cowplot::ggdraw(
   labs(x = "Traditional CWM; log-transformed",
        y = "Bootstrapped CWM; log-transformed") +
   scale_x_continuous(breaks = c(-1,0,1)) +
-  theme_moon
-  ) +
+  theme_moon +
+  theme(axis.ticks.length=unit(.5, "mm"),
+        axis.text = element_text(size = rel(.55)))
+  )  +
   cowplot::draw_image(
     img1, x = 0.03, y = 0.93, hjust = 0.5, vjust = 0.5,
     width = 0.045
   )
 
 ggsave(here::here("figures/CWM_comparison.png"),
-       height = 120, width = 180,
+       height = 110, width = 180,
        units = "mm", dpi = 600)
 
 #### Bootstrap sample sizes ####
