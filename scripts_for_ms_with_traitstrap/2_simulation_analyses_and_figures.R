@@ -25,7 +25,7 @@ simdata_frogs <-
 
 ##TODO
 simdata_plankton <- 
-  tidy_simdata(readRDS("output_data/simulation_results_treefrogs.RDS"))
+  tidy_simdata(readRDS("output_data/simulation_results_phyto_subset_scaled.RDS"))
 
 
 ### Accuracy but using absolutes ----
@@ -237,10 +237,7 @@ lollipop_all =
     y = NULL
   ) +
   #guides(size = 'none') +
-  theme_lollipop +
-  theme(strip.text.y.left = element_text(margin = margin(0, 2, 2, 0),
-                                         size = rel(0.8), vjust = 0,
-                                         angle = 0))
+  theme_lollipop
 
 ggsave(here::here("figures/Lollipops_Datsets.png"),
        lollipop_all,
@@ -471,6 +468,34 @@ sim_win_text$dataset <- factor(sim_win_text$dataset,
 ### a) BumpPlots ----
 
 bumps =
+  # rbind(simdata %>%
+  #         mutate(dataset = rep("Herbs", nrow(.))),
+  #       simdata_frogs %>%
+  #         mutate(dataset = rep("Tadpoles", nrow(.))),
+  #       simdata_panama %>%
+  #         mutate(dataset = rep("Trees", nrow(.))),
+  #       simdata_rats %>%
+  #         mutate(dataset = rep("Rodents", nrow(.))),
+  #       simdata_plankton %>%
+  #         mutate(dataset = rep("Plankton", nrow(.)))) %>%
+  # mutate(hit = ifelse(ci_low <= true_value & true_value <= ci_high,
+  #                     2,
+  #                     1),
+  #        deviation = ifelse(abs(estimate) > abs(true_value),
+  #                           abs(estimate) - abs(true_value),
+  #                           abs(true_value) - abs(estimate))) %>%
+  # group_by(dataset, moment, sample_size, site, trait) %>%
+  # filter(hit == 2) %>%
+  # filter(deviation == min(deviation)) %>%
+  # group_by(dataset, method, moment, sample_size) %>%
+  # count()%>%
+  # group_by(dataset, moment, sample_size) %>%
+  # mutate(rank = rank(-n,
+  #                    ties.method = 'random')) %>%
+  # mutate(rank = ifelse(is.na(rank),
+  #                      5,
+  #                      rank))
+  
   rbind(simdata %>%
           mutate(dataset = rep("Herbs", nrow(.))),
         simdata_frogs %>%
@@ -489,8 +514,10 @@ bumps =
                             abs(true_value) - abs(estimate))) %>%
   # group_by(dataset, moment, sample_size, site, trait) %>%
   filter(hit == 2)  %>%
+  group_by(dataset, method, moment, trait, site, sample_size) %>%
+  summarise(n = min(deviation)) %>%
   group_by(dataset, method, moment, sample_size) %>%
-  summarise(n = mean(deviation)) %>%
+  summarise(n = mean(n)) %>%
   group_by(dataset, moment, sample_size) %>%
   mutate(rank = rank(n)) %>%
   mutate(rank = ifelse(is.na(rank),
@@ -720,7 +747,7 @@ lollipop_CO =
            plot.margin = margin(0, 2, 0, 0)))/
   lollipop_CO +
   theme(
-    strip.text.y = element_blank(),
+    strip.text.y,left = element_blank(),
     strip.text.x.top = element_blank(),
     axis.title.y = element_text(size = rel(0.9)),
     legend.position = 'none',
