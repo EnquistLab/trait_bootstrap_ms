@@ -588,7 +588,7 @@ ggplot(bumps %>%
   theme(panel.background = element_rect(colour = colorspace::darken("#dddddd", 0.1),
                                         size = 1),
         strip.text.y.left = element_text(margin = margin(0, 5, 2, 0),
-                                         size = rel(1), vjust = 0,
+                                         size = rel(0.7), vjust = 0,
                                          angle = 0,face = "bold"),
         strip.text.x.top = element_text(margin = margin(0, 0, 2, 0),
                                         size = rel(1),face = "bold"),
@@ -683,7 +683,7 @@ lollipop_CO =
              hjust = 0.5,
              show.legend = FALSE,
              fontface = 'bold',
-             size = 4.2) +
+             size = 5) +
    coord_polar(theta = 'y') +
    facet_grid(rows = vars(dataset),
               cols = vars(moment),
@@ -702,9 +702,10 @@ lollipop_CO =
                      breaks = pal_df$l) +
    # Theme
    theme_doughnut +
-   theme(strip.text.y.left = element_text(margin = margin(0, 0, 5, 0),
+   theme(strip.text.y.left = element_text(margin = margin(0, -1, 5, 0),
                                           size = rel(0.8), vjust = 0,
                                           angle = 0),
+         strip.text.x.top = element_text(size = rel(1.3)),
          legend.position = 'top',
          legend.background = element_rect(colour = colorspace::darken("#dddddd", 0.1),
                                                                  size = 0.4),
@@ -713,25 +714,27 @@ lollipop_CO =
 ) /
   (sub_bump +
      theme(legend.position = 'none',
-           text = element_text(family = "Noto"),
+           strip.text.x.top = element_blank(),
            strip.text.y = element_blank(),
-           axis.title.y = element_text(size = rel(0.9))))/
+           axis.title.y = element_text(size = rel(0.9)),
+           plot.margin = margin(0, 2, 0, 0)))/
   lollipop_CO +
   theme(
     strip.text.y = element_blank(),
+    strip.text.x.top = element_blank(),
     axis.title.y = element_text(size = rel(0.9)),
-    legend.position = 'none'
+    legend.position = 'none',
+    plot.margin = margin(0, 2, 0, 0)
   )  +
   plot_annotation(tag_levels = 'A',
                   theme = theme(
                     plot.background = element_rect(fill = "white", colour = NA),
                     panel.background = element_rect(fill = "white", colour = NA),
                     text = element_text(face = 'bold'))) +
-  plot_layout(heights = c(1, 0.2, 0.2),
-              guides = 'keep')
+  plot_layout(heights = c(1, 0.15, 0.15))
 
 ggsave(here::here("figures/Fig2_panel.png"),
-       height = 290, width = 180,
+       height = 310, width = 180,
        units = "mm", dpi = 600)
 
 ### Doughnut - Panama by trait ----

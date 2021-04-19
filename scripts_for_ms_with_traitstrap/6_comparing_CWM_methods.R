@@ -108,8 +108,8 @@ for (i in 1:4) {
     ggplot(moon_means %>%
              filter(boot_sample_size == samp_size[i])) +
     geom_hline(aes(yintercept = 0),
-               color = "grey50",
-               size = .7) +
+               color = "grey69",
+               size = .6) +
     geom_smooth(aes(
       x = trait_sample_size,
       y = deviation ,
@@ -122,7 +122,7 @@ for (i in 1:4) {
       y = deviation,
       color = method
     ),
-    size = 1.8,
+    size = 1.3,
     alpha = 0.9) +
     geom_moon(aes(
       x = trait_sample_size,
@@ -131,7 +131,7 @@ for (i in 1:4) {
       fill = method
     ),
     color = "transparent",
-    size = 1.8) +
+    size = 1.3) +
     coord_cartesian(clip = 'off') +
     scale_fill_manual(guide = guide_legend(title = "Method",
                                            title.position="top",
@@ -141,10 +141,8 @@ for (i in 1:4) {
     scale_colour_manual(guide = guide_legend(title = "Method",
                                              title.position="top",
                                              title.hjust = 0.5),
-                        values = colorspace::lighten(pal_df$c, amount = 0.6),
+                        values = colorspace::lighten(pal_df$c, amount = 0.2),
                         labels = pal_df$l) +
-    # scale_x_continuous(trans = 'sqrt', breaks = c(0,10,50,100,200,500),
-    #                    limits = c(0, 500)) +
     facet_grid(rows = vars(moment),
                cols = vars(method),
                labeller = labeller(
