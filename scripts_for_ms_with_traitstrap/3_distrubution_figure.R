@@ -127,8 +127,8 @@ np_dist <- get_distributions(imputed_traits = imputed_full,nrep = n_distribution
 
 np_dist$method <- "Non-parametric BS"
 pbs_dist$method <- "Parametric BS"
-cwm_dist$method <- "Cross-Site CWM"
-cwm_site_dist$method <- "Site-Specific CWM"
+cwm_dist$method <- "Cross-Site WM"
+cwm_site_dist$method <- "Site-Specific WM"
 
 all_dists <- rbind(as_tibble(np_dist),as_tibble(pbs_dist),as_tibble(cwm_dist),as_tibble(cwm_site_dist))
 
@@ -146,91 +146,17 @@ all_dists <- merge(x = all_dists,y = elev)
 all_dists$mean_elev <-round(all_dists$mean_elev)
 rm(atraits_dist)
 
-
-
-
-
-ggplot(data = all_dists[which(all_dists$site=="Road"),],
-       mapping = aes(x=value,color=method,fill=method,alpha=0.5)) +
-  geom_density() +
-  facet_wrap(~trait,scales = "free")
-
-ggplot(data = all_dists[which(all_dists$trait=="height"),],
-       mapping = aes(x=value,color=method,fill=method,alpha=0.5)) +
-  geom_density() +
-  facet_wrap(~site,scales = "free_y")
-
-library(ggridges)
-
-ggplot(all_dists[which(all_dists$trait=="height"),],
-       aes(x = value,
-           y = as.factor(round(mean_elev)),
-           color = method,
-           fill = method)) +
-  geom_density_ridges(rel_min_height = 0.005,alpha=0.5) +
-  scale_y_discrete(expand = c(0.01, 0)) +
-  scale_x_continuous(expand = c(0.1, 0)) +
-  theme_ridges() +
-  scale_color_manual(values = colors) +
-  scale_fill_manual(values=colors)
-
-ggplot(all_dists[which(all_dists$trait=="biomass_per_ind"),], aes(x = value, y = as.factor(round(mean_elev)),color=method,fill=method)) +
-  geom_density_ridges(rel_min_height = 0.005,alpha=0.5) +
-  scale_y_discrete(expand = c(0.01, 0)) +
-  scale_x_continuous(expand = c(0.1, 0)) +
-  theme_ridges()
-
-ggplot(all_dists[which(all_dists$trait=="dry_mass_mg"),], aes(x = value, y = as.factor(round(mean_elev)),color=method,fill=method)) +
-  geom_density_ridges(rel_min_height = 0.005,alpha=0.5) +
-  scale_y_discrete(expand = c(0.01, 0)) +
-  scale_x_continuous(expand = c(0.1, 0)) +
-  theme_ridges()
-
-ggplot(all_dists[which(all_dists$trait=="leaf_area_mm2"),], aes(x = value, y = as.factor(paste(round(mean_elev),"m")),color=method,fill=method)) +
-  geom_density_ridges(rel_min_height = 0.005,alpha=0.5) +
-  scale_y_discrete(expand = c(0.01, 0)) +
-  scale_x_continuous(expand = c(0.1, 0)) +
-  theme_ridges()+xlab("Leaf Area")+ylab(NULL)
-
-ggplot(all_dists[which(all_dists$trait=="LMA_mg_mm2"),], aes(x = value, y = as.factor(round(mean_elev)),color=method,fill=method)) +
-  geom_density_ridges2(rel_min_height = 0.005,alpha=0.5) +
-  scale_y_discrete(expand = c(0.01, 0)) +
-  scale_x_continuous(expand = c(0.1, 0)) +
-  theme_ridges()
-
-
-ggplot(all_dists[which(all_dists$trait=="leaf_area_mm2"),],
-       aes(x = value,
-           y = factor(paste(mean_elev,"m")),
-           fill=method,
-           color=method,
-           linetype = method,
-           alpha= method)) +
-  geom_density_ridges(rel_min_height = 0.005) +
-  scale_y_discrete(expand = c(0.01, 0)) +
-  scale_x_continuous(expand = c(0.1, 0)) +
-  theme_ridges() +
-  labs(x = "Leaf Area",
-       y = NULL) +
-  scale_color_manual(values = colors) +
-  scale_fill_manual(values=colors) +
-  scale_linetype_manual(values=c(1,1,1,1,2)) +
-  scale_alpha_manual(values=c(0.5,0.5,0.5,0.5,0.7)) +
-  guides(alpha = 'none') +
-  figure_theme
-
-##Tanya's zone
-
 ### Joy (Ridge) Plots ----
 
 all_dists$method <- factor(all_dists$method,
                            levels = c("True",
-                                      "Cross-Site CWM",
-                                      "Site-Specific CWM",
+                                      "Cross-Site WM",
+                                      "Site-Specific WM",
                                       "Non-parametric BS",
                                       "Parametric BS"))
 
-ggplot() +
+joy_plot = 
+  ggplot() +
   scale_fill_manual(guide = guide_legend(title = "Method",
                                          #nrow = 1,
                                          override.aes = list(alpha = 0.7, shape = 2, size = 4),
@@ -248,7 +174,7 @@ ggplot() +
                       aes(x = value,
                           y = factor(paste(mean_elev,"m"))),
                       rel_min_height = 0.01,
-                      colour = unname(colors)[5],
+                      colour = "#5e5e5e",
                       scale = 0.9,
                       fill = NA,
                       linetype = 3,
@@ -277,81 +203,43 @@ ggplot() +
   guides(alpha = 'none')  +
   figure_theme +
   theme(axis.text.x = element_blank(),
-        plot.background = element_rect(fill = "#141438",
-                                       colour = NA),
-        legend.background = element_rect(fill = "#141438",
-                                         colour = NA),
-        panel.background = element_rect(fill = "#141438",
-                                        colour = 'grey69'),
+        panel.background = element_rect(colour = '#5e5e5e',
+                                        size = 0.3),
         strip.text.y = element_text(margin = margin(0, 0, 10, 0),
-                                    size = 14, face = "bold",
-                                    colour = "grey65"),
+                                    size = rel(.9), face = "bold",
+                                    colour = "#5e5e5e"),
         strip.text.x.top = element_text(margin = margin(0, 0, 10, 0),
-                                        size = 12, face = "bold",
-                                        colour = "grey65"),
-        #legend.key = element_blank(),
-        legend.key.size = unit(1,"line"),
-        legend.text = element_text(colour = "grey65"),
-        axis.title = element_text(colour = "grey65"),
+                                        size = rel(.9), face = "bold",
+                                        colour = "#5e5e5e"),
         strip.background = element_blank(),
         axis.line = element_blank(),
         strip.placement = 'outside',
         axis.ticks.y = element_blank(),
-        legend.title = element_text(colour = "grey65"),
-        legend.position = 'bottom')
+        legend.position = 'right',
+        legend.key.size = unit(3, "mm"),
+        axis.ticks = element_blank())
+
+legend <- cowplot::get_legend(joy_plot)
+
+cowplot::ggdraw(
+  joy_plot +
+    theme(legend.position = 'none')
+  ) +
+  cowplot::draw_plot(legend,
+                     width = 0.5,
+                     height = 0.3,
+                     x = 0.6,
+                     y = 0.1) +
+  cowplot::draw_image(
+    img1, x = 0.03, y = 0.93, hjust = 0.5, vjust = 0.5,
+    width = 0.045
+  )
 
 ggsave(here::here("figures/densityestimate_joy.png"),
-       height = 9, width = 12.4,
-       units = "in", dpi = 300)
+       height = 120, width = 180,
+       units = "mm", dpi = 600)
 
 
-### Halfeye plots ----
-
-library(tidybayes)
-ggplot() +
-  stat_interval(data = all_dists %>%
-                  filter(trait == "leaf_area_mm2" &
-                           method == "True"),
-                aes(y = value, 
-                    x = factor(paste(mean_elev,"m"))),
-                .width = c(.1, .25, .5, .75, 1), 
-                height = 5, show.legend = F) +
-  rcartocolor::scale_color_carto_d(palette = "RedOr") +
-  stat_halfeye(data = all_dists %>%
-                 filter(trait == "leaf_area_mm2" &
-                          method == "True"),
-               aes(y = value, 
-                   x = factor(paste(mean_elev,"m"))), 
-               .width = 0, fill = "#D98032", alpha = 0.2, height = 0.7, 
-               point_color = NA) + 
-  stat_halfeye(data = all_dists %>%
-                 filter(trait == "leaf_area_mm2" &
-                          method != "True"),
-               aes(y = value, 
-                   x = factor(paste(mean_elev,"m")),
-                   group = method,
-                   fill = method), 
-               .width = 0, 
-               alpha = 0.7, height = 0.7,
-               point_color = NA) +
-  scale_fill_manual(values  = pal_df$c,
-                    labels = pal_df$l) +
-  scale_discrete_manual("point_color",
-                        values  = pal_df$c,
-                        labels = pal_df$l) +
-  coord_flip() +
-  labs(x = "", y = "Leaf Area") +
-  theme_classic()  +
-  figure_theme
-
-ggsave(here::here("figures/densityestimates.png"),
-       height = 8.3, width = 15,
-       units = "in", dpi = 600)
-
-#For some reason grouping by elevation will place the plots on a nice elevation scale, but breaks the coloring.  Not sure if there is a fix for this
-
-
-###################################################################################
 ###################################################################################
 
 #Figure showing bootstrapped distributions vs true
