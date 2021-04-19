@@ -2,6 +2,8 @@
 
 
 ###########################################
+#install_github("richardjtelford/traitstrap")
+
 library(BIEN)
 library(e1071)
 library(traitstrap)
@@ -372,6 +374,203 @@ treefrog_output %>%
 
 saveRDS(object = treefrog_output,
         file = "output_data/simulation_results_treefrogs.RDS")
+
+##########################################################################################
+
+
+#Phytoplankton
+
+#2019
+phyto <- read.table("data/plankton/zooplankton_2019.csv",sep = ";",header = T)
+
+#convert area into numeric
+phyto$area <- noquote(phyto$area)
+phyto$area <- gsub(pattern = ",", replacement = ".", x = phyto$area)
+phyto$area <- as.numeric(phyto$area)
+
+#convert aspect ratio into numeric
+phyto$aspect_ratio <- noquote(phyto$aspect_ratio)
+phyto$aspect_ratio <- gsub(pattern = ",", replacement = ".", x = phyto$aspect_ratio)
+phyto$aspect_ratio <- as.numeric(phyto$aspect_ratio)
+
+#convert eccentricity into numeric
+phyto$eccentricity <- noquote(phyto$eccentricity)
+phyto$eccentricity <- gsub(pattern = ",", replacement = ".", x = phyto$eccentricity)
+phyto$eccentricity <- as.numeric(phyto$eccentricity)
+
+#convert solidity into numeric
+phyto$solidity <- noquote(phyto$solidity)
+phyto$solidity <- gsub(pattern = ",", replacement = ".", x = phyto$solidity)
+phyto$solidity <- as.numeric(phyto$solidity)
+
+
+#convert date and add additonal format options for plotting
+phyto$date <-
+  unlist(lapply(X = phyto$timestamp,FUN = function(x) {
+    strsplit(x = x,split = " ")[[1]][1]
+  }
+  ))
+
+phyto$date <- as.Date(phyto$date)
+phyto$day_of_year <- as.numeric(phyto$date) - as.numeric(as.Date("2019-01-01"))
+
+
+#taxon = prediction
+#day of year = site
+#traits 
+#size
+#area
+#shape
+#eccentricity,
+#solidity
+
+
+#prune dataset to save space
+phyto <- 
+  phyto[c("area",
+          "aspect_ratio",
+          "eccentricity",
+          "solidity",
+          "prediction",
+          "day_of_year",
+          "date"
+  )]
+
+#Toss anything with NA's
+phyto <- na.omit(phyto)
+
+#Toss unassigned taxa
+
+phyto <- 
+  phyto[which(!phyto$prediction %in% c("Unclassified","unknown","dirt") ),]
+
+#check for trait correlations
+cor(phyto[,1:4])
+colnames(phyto)
+
+#toss aspect ratio since it is strongly correlated with eccentricity
+phyto <- phyto[which(colnames(phyto) != "aspect_ratio")]
+
+
+#Reformat to match simulation input expectations (site, taxon, id,trait,value)
+
+  phyto$ID <- 1:nrow(phyto) #Add ID field to link traits when we tidy things up
+  phyto$area <- log10(phyto$area)
+  
+  hist(phyto$area)#good enough - fit with normal
+  hist(phyto$eccentricity) #good candidate for beta fit
+  hist(phyto$solidity) #good candidate for beta fit
+  
+  
+  phyto <-
+  pivot_longer(data = phyto,
+               cols = 1:3,
+               names_to = "trait",
+               values_to = "value")%>% 
+    mutate(taxon = prediction,
+           site = as.character(day_of_year)) %>%
+    select(-prediction)
+
+
+#Make community data
+phyto_community <- phyto %>%
+  group_by(taxon,site) %>%
+  summarise(across(ID,~(length(unique(.x))),
+                   .names = "abundance"),
+            .groups="drop")
+
+
+source("r_functions/sim_sample_size.R")
+
+phyto_scaled <-
+phyto %>%
+  group_by(trait) %>% 
+  mutate(value = as.numeric(scale(value))) %>% 
+  ungroup() %>%filter(trait == "area")
+
+#Make subsets of the data to make things faster
+
+
+
+phyto_scaled_subset
+
+length(unique(phyto$day_of_year))
+
+
+phyto_scaled_subset <-
+phyto_scaled %>% 
+  filter(day_of_year %in% unique(phyto$day_of_year)[seq(1, length(unique(phyto$day_of_year)), 28)])
+
+phyto_community_subset <-
+phyto_community %>%
+  filter(site %in% unique(phyto_scaled_subset$site))
+
+#Run sample size simulations that are scaled for the ms and subsetted to be faster
+output_phyto_scaled_subset <-
+  sim_sample_size(tidy_traits = phyto_scaled_subset,
+                  community = phyto_community_subset,
+                  n_to_sample =
+                    (1:ceiling(x = max(phyto_community_subset$abundance)^.5))^2,
+                    #c(1:21,38,55)^2,
+                  n_reps_trait = 10,
+                  n_reps_boot = 200,
+                  seed = 2005,
+                  prob = NULL,
+                  distribution_type = "normal",
+                  min_n_in_sample = 1 )
+
+saveRDS(object = output_phyto_scaled_subset,
+        file = "output_data/simulation_results_phyto_subset_scaled.RDS")
+
+
+
+#Run sample size simulations to show it can be done
+output_phyto_unscaled <-
+  sim_sample_size(tidy_traits = phyto,
+                  community = phyto_community,
+                  n_to_sample =
+                    (2:ceiling(x = max(phyto_community$abundance)^.5))^2,
+                  n_reps_trait = 10,
+                  n_reps_boot = 200,
+                  seed = 2005,
+                  prob = NULL,
+                  distribution_type = list(area = "normal",
+                                           eccentricity = "beta",
+                                           solidity = "beta"),
+                  min_n_in_sample = 2 #need to set this to 2 for beta fitting
+  )
+
+saveRDS(object = output_phyto_unscaled,
+        file = "output_data/unscaled_simulation_results_phyto.RDS")
+
+#Run sample size simulations that are scaled for the ms
+output_phyto_scaled <-
+  sim_sample_size(tidy_traits = phyto_scaled,
+                  community = phyto_community,
+                  n_to_sample =
+                    (1:ceiling(x = max(phyto_community$abundance)^.5))^2,
+                  n_reps_trait = 10,
+                  n_reps_boot = 200,
+                  seed = 2005,
+                  prob = NULL,
+                  distribution_type = "normal",
+                  min_n_in_sample = 1 )
+
+
+
+saveRDS(object = output_phyto_scaled,
+        file = "output_data/simulation_results_phyto.RDS")
+
+
+
+unique(phyto$trait)
+
+
+
+
+
+
+
 
 
 ###############################################################################
