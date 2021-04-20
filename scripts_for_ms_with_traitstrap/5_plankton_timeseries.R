@@ -24,23 +24,30 @@ plankton_means =
   simdata_plankton %>%
   filter(sample_size == 9) %>%
   group_by(method, moment, site) %>%
-  summarise(deviation = mean(estimate))
+  summarise(estimate = mean(estimate),
+            ci_low = mean(ci_low),
+            ci_high = mean(ci_high),
+            true_value = mean(true_value))
 
 cowplot::ggdraw(
-  ggplot(simdata_plankton %>%
-           filter(sample_size == 9)) +
-    geom_smooth(aes(x = as.numeric(site),
-                    y = true_value,
-                    group = method),
-                colour = 'grey69',
-                se = FALSE,
-                size = 0.5) +
-    geom_smooth(aes(
+  ggplot(plankton_means) +
+    geom_line(aes(x = as.numeric(site),
+                  y = true_value,
+                  group = method),
+              colour = 'grey69',
+              size = 0.5) +
+    geom_ribbon(aes(
+      x = as.numeric(site),
+      ymin = ci_low,
+      ymax = ci_high,
+      fill = method
+    ),
+    alpha = 0.2) +
+    geom_line(aes(
       x = as.numeric(site),
       y = estimate ,
       color = method),
       alpha = 0.5,
-      se = FALSE,
       size = 0.9) +
     coord_cartesian(clip = 'off') +
     scale_fill_manual(guide = guide_legend(title = "Method",
