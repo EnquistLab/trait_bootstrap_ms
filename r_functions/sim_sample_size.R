@@ -15,7 +15,9 @@ sim_sample_size <- function(tidy_traits,
                             seed = 2005, #set seed for reproducibility.  2005 = Year Transformers: The Movie (cartoon version) is set.
                             prob = NULL, ##Probability for biased sampling.  If NULL, sampling will be random.
                             distribution_type = "normal", #distribution for fitting the parametric
-                            min_n_in_sample = 1
+                            min_n_in_sample = 1,
+                            focal_trait = "leaf_area_mm2", #trait used for biased sampling
+                            large_biased =T #should sampling be biased towards large individuals?
 ){
 
   
@@ -37,8 +39,9 @@ for( n in n_to_sample){
       
       traits_nt <- draw_traits_tidy_large(tidy_traits = tidy_traits,
                                           sample_size =  n,
-                                          focal_trait = "leaf_area_mm2",
-                                          prob = prob)
+                                          focal_trait = focal_trait,
+                                          prob = prob,
+                                          large_biased = large_biased)
       
     }
     
