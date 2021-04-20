@@ -499,7 +499,7 @@ length(unique(phyto$day_of_year))
 
 phyto_scaled_subset <-
 phyto_scaled %>% 
-  filter(day_of_year %in% unique(phyto$day_of_year)[seq(1, length(unique(phyto$day_of_year)), 28)])
+  filter(day_of_year %in% unique(phyto$day_of_year)[seq(1, length(unique(phyto$day_of_year)), 7)])
 
 phyto_community_subset <-
 phyto_community %>%
