@@ -523,6 +523,9 @@ saveRDS(object = output_phyto_scaled_subset,
         file = "output_data/simulation_results_phyto_subset_scaled.RDS")
 
 
+plot(output_phyto_scaled_subset$mean~output_phyto_scaled_subset$site)
+
+
 
 #Run sample size simulations to show it can be done
 output_phyto_unscaled <-
