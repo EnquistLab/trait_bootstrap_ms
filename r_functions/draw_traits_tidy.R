@@ -70,7 +70,10 @@ samples_to_means <- function(tidy_traits, level = "taxon_by_site"){
 #'@param sample_size Numeric (one number only)
 #'@param focal_trait Trait used to simulate biased sampling
 #'@param prob Probability of sampling each leaf (passed to dnbinom)
-draw_traits_tidy_large <- function(tidy_traits,sample_size,focal_trait = "leaf_area_mm2",prob = 0.75){
+#'@param large_biased If TRUE (default) large individuals are preferentially sampled, if FALSE, small individuals.
+draw_traits_tidy_large <- function(tidy_traits,sample_size,focal_trait = "leaf_area_mm2",prob = 0.75,large_biased=TRUE){
+  
+  
   
   tidy_traits$site <- as.character(tidy_traits$site)
   tidy_traits$taxon <- as.character(tidy_traits$taxon)
@@ -78,8 +81,34 @@ draw_traits_tidy_large <- function(tidy_traits,sample_size,focal_trait = "leaf_a
   #create a site x taxon object to apply over
   site_x_taxon <- unique(tidy_traits[c("site","taxon")])
   
-  trait_draw <- apply(X = site_x_taxon, MARGIN = 1,FUN = function(x){
+  
+  #temp
+  output <- NULL
+  for( i in 1:nrow(site_x_taxon)){
     
+    x <- site_x_taxon[i,]
+    IDS <- unique(tidy_traits$ID[which(tidy_traits$site == x[1] & tidy_traits$taxon == x[2])])
+    
+    if(length(IDS) <= sample_size){
+      output <- cbind(output,tidy_traits[which(tidy_traits$ID %in% IDS),])
+    }
+    
+    
+    
+    #if number of IDs > sample size, take a biased sample
+    sorted_IDS <- tidy_traits[which(tidy_traits$ID %in% IDS & tidy_traits$trait == focal_trait),"ID"][order(tidy_traits[which(tidy_traits$ID %in% IDS & tidy_traits$trait == focal_trait),]["value"],decreasing = large_biased)]
+    
+    
+    return( tidy_traits[which(tidy_traits$ID %in% resample(x = sorted_IDS,
+                                                           size = sample_size,
+                                                           replace = F,
+                                                           prob = dnbinom(x = 1:length(sorted_IDS),size = sample_size,prob = prob))),]  )
+    
+  }
+  
+  #end temp
+  trait_draw <- apply(X = site_x_taxon, MARGIN = 1,FUN = function(x){
+    print(x)
     #get relevant individual IDs
     IDS <- unique(tidy_traits$ID[which(tidy_traits$site == x[1] & tidy_traits$taxon == x[2])])
     
@@ -89,7 +118,7 @@ draw_traits_tidy_large <- function(tidy_traits,sample_size,focal_trait = "leaf_a
     }                   
     
     #if number of IDs > sample size, take a biased sample
-    sorted_IDS <- tidy_traits[which(tidy_traits$ID %in% IDS & tidy_traits$trait == focal_trait),"ID"][order(tidy_traits[which(tidy_traits$ID %in% IDS & tidy_traits$trait == focal_trait),]["value"],decreasing = T)]
+    sorted_IDS <- tidy_traits[which(tidy_traits$ID %in% IDS & tidy_traits$trait == focal_trait),"ID"][order(tidy_traits[which(tidy_traits$ID %in% IDS & tidy_traits$trait == focal_trait),]["value"],decreasing = large_biased)]
     
     
     return( tidy_traits[which(tidy_traits$ID %in% resample(x = sorted_IDS,
