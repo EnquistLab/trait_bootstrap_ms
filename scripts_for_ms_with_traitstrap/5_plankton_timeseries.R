@@ -35,20 +35,20 @@ cowplot::ggdraw(
                   y = true_value,
                   group = method),
               colour = 'grey69',
-              size = 0.5) +
+              size = 0.3) +
     geom_ribbon(aes(
       x = as.numeric(site),
       ymin = ci_low,
       ymax = ci_high,
       fill = method
     ),
-    alpha = 0.2) +
+    alpha = 0.15) +
     geom_line(aes(
       x = as.numeric(site),
       y = estimate ,
       color = method),
-      alpha = 0.5,
-      size = 0.9) +
+      alpha = 0.8,
+      size = 0.5) +
     coord_cartesian(clip = 'off') +
     scale_fill_manual(guide = guide_legend(title = "Method",
                                            title.position="top"),
@@ -79,5 +79,27 @@ cowplot::ggdraw(
   )
 
 ggsave(here::here("figures/plankton_time.png"),
+       height = 120, width = 180,
+       units = "mm", dpi = 600)
+
+# Wave plots ----
+
+plankton_dist = 
+  readRDS("output_data/raw_plankton_distributions.RDS")
+
+
+
+ggplot(plankton_dist %>%
+         mutate(month = month(as.Date(day_of_year, format = "%j", origin = "1.1.2014"),
+                              label = TRUE))) +
+  stat_density_ridges(aes(x = value,
+                          y = month),
+                      colour = "#5e5e5e",
+                      alpha = 0.1,
+                      fill = "#5e5e5e",
+                      scale = 2.5) +
+  xlim(c(-2,7))
+
+ggsave(here::here("figures/plankton_wave.png"),
        height = 120, width = 180,
        units = "mm", dpi = 600)
