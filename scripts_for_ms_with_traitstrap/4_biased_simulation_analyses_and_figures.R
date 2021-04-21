@@ -68,7 +68,7 @@ sim_biased_moon_means =
   summarise(percentage = sum(hit - 1)/n(),
             deviation = mean(abs(deviation)))
 
-inset <-
+inset_moon <-
   ggplot(overunders) +
   geom_col(aes(y = x,
                x = as.factor(sample_size),
@@ -99,8 +99,8 @@ inset <-
 
 
 moons <-
-ggplot(sim_moon_means %>%
-         filter(sample_size %in% c(1,9,49,100,196,441))) +
+  ggplot(sim_moon_means %>%
+           filter(sample_size %in% c(1,9,49,100,196,441))) +
   geom_hline(aes(yintercept = 0),
              color = "grey50",
              size = 0.7) +
@@ -165,9 +165,127 @@ ggplot(sim_moon_means %>%
   theme(legend.key.size = unit(5, "mm"),
         axis.text = element_text(size = rel(.55)))
 
+moons_mini <-
+  ggplot(sim_moon_means %>%
+           filter(sample_size %in% c(1,9,49,100,196,441))) +
+  geom_hline(aes(yintercept = 0),
+             color = "grey50",
+             size = 0.3) +
+  geom_smooth(data = sim_biased_moon_means,
+              aes(
+                x = sample_size,
+                y = deviation,
+                color = method,
+                linetype = "Biased"),
+              se = FALSE,
+              size = 0.2) +
+  geom_smooth(aes(
+    x = sample_size,
+    y = deviation ,
+    color = method,
+    linetype = "Random"),
+    alpha = 0.5,
+    se = FALSE,
+    size = 0.2) +
+  geom_point(aes(
+    x = sample_size,
+    y = deviation,
+    color = method
+  ),
+  size = 1,
+  alpha = 0.9) +
+  geom_moon(aes(
+    x = sample_size,
+    y = deviation,
+    ratio = percentage,
+    fill = method
+  ),
+  color = "transparent",
+  size = 1.2) +
+  coord_cartesian(clip = 'off') +
+  scale_fill_manual(guide = guide_legend(title = "Method",
+                                         title.position="top"),
+                    values = colorspace::darken(pal_df$c, amount = 0.2),
+                    labels = pal_df$l) +
+  scale_colour_manual(guide = guide_legend(title = "Method",
+                                           title.position="top"),
+                      values = colorspace::lighten(pal_df$c, amount = 0.2),
+                      labels = pal_df$l) +
+  scale_linetype_manual("Sampling",
+                        values=c("Biased" = 2,
+                                 "Random" = 1),
+                        guide = guide_legend(override.aes = list(colour = "grey69"))) +
+  scale_x_continuous(trans = 'sqrt', breaks = c(0,10,50,100,200,500),
+                     limits = c(0, 500)) +
+  facet_grid(rows = vars(moment),
+             cols = vars(method),
+             labeller = labeller(
+               trait = traits_parsed,
+               .default = capitalize
+             ),
+             switch = 'y',
+             scales = 'free') +
+  labs(x = "Sample Size",
+       y = "Average deviation from true moment") +
+  # Theme
+  theme_moon +
+  theme(
+    axis.ticks = element_blank(),
+    axis.text = element_text(size = rel(.3)),
+    axis.title = element_text(size = rel(.5)),
+    legend.text = element_text(size = rel(.3)),
+    legend.title = element_text(size = rel(.5)),
+    strip.text.y = element_text(margin = margin(0, 0, 3, 0),
+                                size = rel(.5), face = "bold"),
+    strip.text.x.top = element_text(margin = margin(0, 0, 3, 0),
+                                    size = rel(.5), face = "bold"),
+    panel.grid.major.y = element_line(size = 0.03),
+    strip.background = element_blank(),
+    axis.line = element_blank(),
+    strip.placement = 'outside',
+    panel.background = element_rect(colour = colorspace::lighten("#141438", 0.1),
+                                    size = 0.3),
+    plot.title.position = "panel",
+    plot.title = element_text(margin = margin(0, 0, 10, 0),
+                              size = rel(.7), face = "bold"),
+    legend.position = 'right',
+    plot.margin = margin(2, 2, 2, 2),
+    legend.key.size = unit(3, "mm"),
+    axis.ticks.length=unit(0.25, "mm")
+  )
+
+inset_mini <-
+  ggplot(overunders) +
+  geom_col(aes(y = x,
+               x = as.factor(sample_size),
+               fill = method),
+           alpha = 0.5,
+           show.legend = FALSE) +
+  facet_grid(rows = vars(moment),
+             cols = vars(method),
+             labeller = labeller(
+               trait = traits_parsed,
+               .default = capitalize
+             ),
+             switch = 'y') + 
+  geom_segment(aes(y = 0,
+                   xend = 7.5,
+                   x = 0.5, yend = 0),
+               colour = 'grey69',
+               size = 0.2) +
+  scale_fill_manual(values = pal_df$c,
+                    breaks = pal_df$l) +
+  lims(y = c(-8,6)) + 
+  expand_limits(x= c(-32, 7)) +
+  # Theme
+  theme_void() +
+  theme(
+    strip.text = element_blank()
+  )
+
 
 cowplot::ggdraw(moons) +
-  cowplot::draw_plot(inset,
+  cowplot::draw_plot(inset_moon,
                      width = 0.70,
                      height = 0.8,
                      x = 0.135,
@@ -208,9 +326,9 @@ sim_moon_means =
 
 sim_moon_means$moment =
   ordered(sim_moon_means$moment,levels = c("mean",
-                                                  "variance",
-                                                  "skewness",
-                                                 "kurtosis"))
+                                           "variance",
+                                           "skewness",
+                                           "kurtosis"))
 
 sim_moon_means$dataset =
   ordered(sim_moon_means$dataset,levels = c("Herbs",
@@ -295,7 +413,7 @@ for (i in 1:5) {
       plot.title.position = "panel",
       plot.title = element_text(margin = margin(0, 0, 10, 0),
                                 size = rel(.7), face = "bold"
-                                ),
+      ),
       legend.position = 'none',
       plot.margin = margin(2, 2, 2, 2)
     ) 
@@ -558,6 +676,49 @@ for (i in 1:2) {
 
 ggsave(here::here("figures/moons_pct_abund_AB.png"),
        height = 70, width =180,
+       units = "mm", dpi = 600)
+
+#### Triple stack ----
+
+layout <- '
+A#
+BC
+'
+
+
+(moons_mini +
+   labs(title = "A: Herbs: Size baised") +
+   theme(legend.position = 'none') +
+   inset_element(inset_mini,
+                 left = 0,
+                 bottom = 0,
+                 right = 1,
+                 top = 1)) +
+  (moon_plots[[1]] +
+      labs(title = "B: Herbs: Percent abundance") +
+      theme(legend.position = 'none') +
+      inset_element(inset_plots[[1]],
+                    left = 0,
+                    bottom = 0,
+                    right = 1,
+                    top = 1)) +
+     (moon_plots[[2]]  +
+        labs(title = "C: Rodents: Percent abundance") +
+        theme(legend.position = 'none') +
+        inset_element(inset_plots[[2]],
+                      left = 0,
+                      bottom = 0,
+                      right = 1,
+                      top = 1)) +
+     plot_layout(guides = 'collect',
+                 widths = c(1, 1),
+                 design = layout) +
+     plot_annotation(theme = theme(
+       plot.background = element_rect(fill = "white", colour = NA),
+       legend.position = 'none'))
+
+ggsave(here::here("figures/triple_stacked_moons.png"),
+       height = 140, width = 180,
        units = "mm", dpi = 600)
 
 # Moon Panama ----
