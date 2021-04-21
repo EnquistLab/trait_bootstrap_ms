@@ -42,7 +42,7 @@ cowplot::ggdraw(
       ymax = ci_high,
       fill = method
     ),
-    alpha = 0.15) +
+    alpha = 0.2) +
     geom_line(aes(
       x = as.numeric(site),
       y = estimate ,
