@@ -381,26 +381,36 @@ saveRDS(object = treefrog_output,
 #Phytoplankton
 
 #2019
-phyto <- read.table("data/plankton/zooplankton_2019.csv",sep = ";",header = T)
+phyto <- read.table(file = "data/plankton/zooplankton_2019.csv",
+                    sep = ";",
+                    header = T)
 
 #convert area into numeric
 phyto$area <- noquote(phyto$area)
-phyto$area <- gsub(pattern = ",", replacement = ".", x = phyto$area)
+phyto$area <- gsub(pattern = ",",
+                   replacement = ".",
+                   x = phyto$area)
 phyto$area <- as.numeric(phyto$area)
 
 #convert aspect ratio into numeric
 phyto$aspect_ratio <- noquote(phyto$aspect_ratio)
-phyto$aspect_ratio <- gsub(pattern = ",", replacement = ".", x = phyto$aspect_ratio)
+phyto$aspect_ratio <- gsub(pattern = ",",
+                           replacement = ".",
+                           x = phyto$aspect_ratio)
 phyto$aspect_ratio <- as.numeric(phyto$aspect_ratio)
 
 #convert eccentricity into numeric
 phyto$eccentricity <- noquote(phyto$eccentricity)
-phyto$eccentricity <- gsub(pattern = ",", replacement = ".", x = phyto$eccentricity)
+phyto$eccentricity <- gsub(pattern = ",",
+                           replacement = ".",
+                           x = phyto$eccentricity)
 phyto$eccentricity <- as.numeric(phyto$eccentricity)
 
 #convert solidity into numeric
 phyto$solidity <- noquote(phyto$solidity)
-phyto$solidity <- gsub(pattern = ",", replacement = ".", x = phyto$solidity)
+phyto$solidity <- gsub(pattern = ",",
+                       replacement = ".",
+                       x = phyto$solidity)
 phyto$solidity <- as.numeric(phyto$solidity)
 
 
@@ -479,6 +489,9 @@ phyto_community <- phyto %>%
                    .names = "abundance"),
             .groups="drop")
 
+#Check that abundances match the number of individuals measured
+sum(phyto_community$abundance) == length(unique(phyto$ID))
+
 
 source("r_functions/sim_sample_size.R")
 
@@ -486,24 +499,24 @@ phyto_scaled <-
 phyto %>%
   group_by(trait) %>% 
   mutate(value = as.numeric(scale(value))) %>% 
-  ungroup() %>%filter(trait == "area")
+  ungroup() %>% filter(trait == "area")
+
+#Check that abundances match the number of individuals measured
+sum(phyto_community$abundance) == length(unique(phyto_scaled$ID))
+
 
 #Make subsets of the data to make things faster
 
-
-
-phyto_scaled_subset
-
-length(unique(phyto$day_of_year))
-
-
 phyto_scaled_subset <-
 phyto_scaled %>% 
-  filter(day_of_year %in% unique(phyto$day_of_year)[seq(1, length(unique(phyto$day_of_year)), 28)])
+  filter(day_of_year %in% unique(phyto$day_of_year)[seq(1, length(unique(phyto$day_of_year)), 7)])
 
 phyto_community_subset <-
 phyto_community %>%
   filter(site %in% unique(phyto_scaled_subset$site))
+
+length(unique(phyto_scaled_subset$day_of_year)) == length(unique(phyto_community_subset$site))
+
 
 #Run sample size simulations that are scaled for the ms and subsetted to be faster
 output_phyto_scaled_subset <-
@@ -525,52 +538,55 @@ saveRDS(object = output_phyto_scaled_subset,
 
 
 #Run sample size simulations to show it can be done
-output_phyto_unscaled <-
-  sim_sample_size(tidy_traits = phyto,
-                  community = phyto_community,
-                  n_to_sample =
-                    (2:ceiling(x = max(phyto_community$abundance)^.5))^2,
-                  n_reps_trait = 10,
-                  n_reps_boot = 200,
-                  seed = 2005,
-                  prob = NULL,
-                  distribution_type = list(area = "normal",
-                                           eccentricity = "beta",
-                                           solidity = "beta"),
-                  min_n_in_sample = 2 #need to set this to 2 for beta fitting
-  )
+# output_phyto_unscaled <-
+#   sim_sample_size(tidy_traits = phyto,
+#                   community = phyto_community,
+#                   n_to_sample =
+#                     (2:ceiling(x = max(phyto_community$abundance)^.5))^2,
+#                   n_reps_trait = 10,
+#                   n_reps_boot = 200,
+#                   seed = 2005,
+#                   prob = NULL,
+#                   distribution_type = list(area = "normal",
+#                                            eccentricity = "beta",
+#                                            solidity = "beta"),
+#                   min_n_in_sample = 2 #need to set this to 2 for beta fitting
+#   )
+# 
+# saveRDS(object = output_phyto_unscaled,
+#         file = "output_data/unscaled_simulation_results_phyto.RDS")
 
-saveRDS(object = output_phyto_unscaled,
-        file = "output_data/unscaled_simulation_results_phyto.RDS")
 
 #Run sample size simulations that are scaled for the ms
-output_phyto_scaled <-
-  sim_sample_size(tidy_traits = phyto_scaled,
-                  community = phyto_community,
-                  n_to_sample =
-                    (1:ceiling(x = max(phyto_community$abundance)^.5))^2,
-                  n_reps_trait = 10,
-                  n_reps_boot = 200,
-                  seed = 2005,
-                  prob = NULL,
-                  distribution_type = "normal",
-                  min_n_in_sample = 1 )
+#get output distributions for Tanya
+
+plankton_sample <-
+draw_traits_tidy(tidy_traits = phyto_scaled,
+                 sample_size = 9)
+
+
+imputed_plankton <-
+trait_impute(comm = phyto_community,
+             traits = plankton_sample,
+             scale_hierarchy = "site",
+             global = TRUE,
+             taxon_col = "taxon",
+             trait_col = "trait",
+             value_col = "value",
+             abundance_col = "abundance",
+             min_n_in_sample = 1)
+
+plankton_dist <-
+trait_np_bootstrap(imputed_traits = imputed_plankton,
+                   nrep = 1,
+                   sample_size = 200,
+                   raw = TRUE)
 
 
 
-saveRDS(object = output_phyto_scaled,
-        file = "output_data/simulation_results_phyto.RDS")
 
-
-
-unique(phyto$trait)
-
-
-
-
-
-
-
+colnames(phyto_community)
+colnames(plankton_sample)
 
 
 ###############################################################################
