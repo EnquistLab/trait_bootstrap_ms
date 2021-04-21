@@ -980,7 +980,7 @@ moons_pa <-
       color = method),
     alpha = 0.5,
     se = FALSE,
-    size = 0.2,
+    size = 0.4,
     linetype = 4) +
   geom_point(aes(
     x = pct_abd_sampled,
@@ -1084,7 +1084,7 @@ cowplot::ggdraw(moons_pa) +
   )
 
 ggsave(here::here("figures/moons_pct_abund_panama.png"),
-       height = 120, width = 180,
+       height = 100, width = 160,
        units = "mm", dpi = 600)
 
 # End of script ----
