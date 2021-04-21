@@ -585,13 +585,37 @@ for (i in 1:5) {
 }
 
 (plots[[2]] +
-    labs(title = "A: Tadpoles") + 
+    labs(title = "A: Tadpoles") +
+    inset_element(img2,
+                  left = 0.02,
+                  bottom = 0.87,
+                  right = 0.11,
+                  top = 1, 
+                  align_to = 'full') + theme_void() + 
     plots[[3]] +
-    labs(title = "B: Trees"))/
+    labs(title = "B: Trees") +
+    inset_element(img3,
+                  left = 0.02,
+                  bottom = 0.89,
+                  right = 0.11,
+                  top = 1, 
+                  align_to = 'full') + theme_void())/
   (plots[[4]] +
-     labs(title = "C: Rodents") + 
+     labs(title = "C: Rodents") +
+     inset_element(img4,
+                   left = 0.02,
+                   bottom = 0.89,
+                   right = 0.11,
+                   top = 1, 
+                   align_to = 'full') + theme_void() + 
      plots[[5]] +
-     labs(title = "D: Plankton")) +
+     labs(title = "D: Plankton") +
+     inset_element(img5,
+                   left = 0.02,
+                   bottom = 0.89,
+                   right = 0.11,
+                   top = 1, 
+                   align_to = 'full') + theme_void()) +
   plot_layout(guides = 'collect') +
   plot_annotation(theme = theme(
     plot.background = element_rect(fill = "white", colour = NA),
@@ -865,7 +889,13 @@ CC
                   bottom = 0,
                   right = 1,
                   top = 1, 
-                  ignore_tag = TRUE)) +
+                  ignore_tag = TRUE) +
+    inset_element(img1,
+                  left = 0.05,
+                  bottom = 0.9,
+                  right = 0.1,
+                  top = 1, 
+                  align_to = 'full') + theme_void()) +
     (moons_AZ +
        labs(tag = "B") +
        theme(legend.position = 'right',
@@ -876,7 +906,13 @@ CC
                      bottom = 0,
                      right = 1,
                      top = 1, 
-                     ignore_tag = TRUE))) +
+                     ignore_tag = TRUE) +
+       inset_element(img4,
+                     left = 0.05,
+                     bottom = 0.89,
+                     right = 0.11,
+                     top = 1, 
+                     align_to = 'full') + theme_void())) +
   ((moon_plots[[1]] +
       labs(tag = "C") +
       theme(legend.position = 'none',
@@ -887,7 +923,13 @@ CC
                     bottom = 0,
                     right = 1,
                     top = 1, 
-                    ignore_tag = TRUE)) +
+                    ignore_tag = TRUE) +
+      inset_element(img1,
+                    left = 0.05,
+                    bottom = 0.9,
+                    right = 0.1,
+                    top = 1, 
+                    align_to = 'full') + theme_void()) +
      (moon_plots[[2]]  +
         labs(tag = "D") +
         theme(legend.position = 'none',
@@ -898,13 +940,25 @@ CC
                       bottom = 0,
                       right = 1,
                       top = 1,
-                      ignore_tag = TRUE))) +
+                      ignore_tag = TRUE) +
+        inset_element(img4,
+                      left = 0.05,
+                      bottom = 0.89,
+                      right = 0.11,
+                      top = 1, 
+                      align_to = 'full') + theme_void())) +
   plot_layout(guides = 'collect',
               # heights = c(1, 0.7),
               design = layout) +
   plot_annotation(theme = theme(
     plot.background = element_rect(fill = "white", colour = NA),
-    legend.position = 'right'))
+    legend.position = 'right')) +
+  inset_element(moon_legend,
+                left = 0.87,
+                bottom = 0.43,
+                right = 1,
+                top = 0.7, 
+                align_to = 'full') + theme_void()
 
 ggsave(here::here("figures/triple_stacked_moons.png"),
        height = 120, width = 180,
@@ -980,7 +1034,7 @@ moons_pa <-
       color = method),
     alpha = 0.5,
     se = FALSE,
-    size = 0.4,
+    size = 0.5,
     linetype = 4) +
   geom_point(aes(
     x = pct_abd_sampled,
@@ -1020,14 +1074,12 @@ moons_pa <-
   theme_moon +
   theme(
     axis.ticks = element_line(size = 0.03),
-    axis.text = element_text(size = rel(.4)),
-    axis.title = element_text(size = rel(.5)),
-    legend.text = element_text(size = rel(.3)),
-    legend.title = element_text(size = rel(.5)),
+    axis.text = element_text(size = rel(.5)),
+    axis.title = element_text(size = rel(.6)),
     strip.text.y = element_text(margin = margin(0, 0, 3, 0),
-                                size = rel(.5), face = "bold"),
+                                size = rel(.7), face = "bold"),
     strip.text.x.top = element_text(margin = margin(0, 0, 3, 0),
-                                    size = rel(.5), face = "bold"),
+                                    size = rel(.7), face = "bold"),
     panel.grid.major.y = element_line(size = 0.03),
     strip.background = element_blank(),
     axis.line = element_blank(),
@@ -1065,23 +1117,26 @@ inset_pa =
   scale_fill_manual(values = pal_df$c,
                     breaks = pal_df$l) +
   lims(y = c(-1.3,10)) + 
-  expand_limits(x= c(-1, 22)) +
+  expand_limits(x= c(0, 22)) +
   # Theme
   theme_void() +
   theme(
     strip.text = element_blank()
   )
 
-cowplot::ggdraw(moons_pa) +
-  cowplot::draw_plot(inset_pa,
-                     width = 0.88,
-                     height = 0.85,
-                     x = 0.07,
-                     y = 0.087) +
-  cowplot::draw_image(
-    img3, x = 0.03, y = 0.93, hjust = 0.5, vjust = 0.5,
-    width = 0.045
-  )
+moons_pa +
+  inset_element(inset_pa,
+                left = 0,
+                bottom = 0,
+                right = 1,
+                top = 1, 
+                ignore_tag = TRUE) +
+  inset_element(img3,
+                left = 0,
+                bottom = 0.9,
+                right = 0.09,
+                top = 1, 
+                align_to = 'full') + theme_void()
 
 ggsave(here::here("figures/moons_pct_abund_panama.png"),
        height = 100, width = 160,

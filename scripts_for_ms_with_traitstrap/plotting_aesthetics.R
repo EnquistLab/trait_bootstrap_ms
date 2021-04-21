@@ -157,12 +157,10 @@ moon_legend =
   ggplot(data.frame(y = c(1,1.5,2,2.5), 
                     x = 0, ratio = 1:4 * 0.25),
          aes(x = x, y = y)) +
-  geom_moon(aes(ratio = ratio), size = 5, fill = "grey69", colour = "grey69") +
+  geom_moon(aes(ratio = ratio), size = 5, fill = "#5e5e5e", colour = "grey69") +
   geom_text(aes(x = x + 0.7,
                 label = paste0(ratio*100,"%")),
-            size = 4,
-            colour = "grey65",
-            family = "Noto") +
+            size = 4) +
   coord_fixed() +
   ggtitle("Value in CI") +
   lims(y = c(0.5, 2.7), x = c(-0.5, 2.5)) +
@@ -170,13 +168,13 @@ moon_legend =
   theme(plot.title = element_markdown(hjust = 0.5,
                                       halign = 0,
                                       size = rel(1.7)),
-        plot.title.position = "panel",
-        text = element_text(colour = "grey65",
-                            family = "Noto"))
+        plot.title.position = "panel")
+
+moon_legend = png::readPNG("images/moons_legend.png", native = TRUE)
 
 ## Inset images ----
-img1 = png::readPNG("images/Colorado_dark.png")
-img2 = png::readPNG("images/Frogs_dark.png")
-img3 = png::readPNG("images/Panama_dark.png")
-img4 = png::readPNG("images/AZ_dark.png")
-img5 = png::readPNG("images/Phyto_dark.png")
+img1 = png::readPNG("images/Colorado_dark.png", native = TRUE)
+img2 = png::readPNG("images/Frogs_dark.png", native = TRUE)
+img3 = png::readPNG("images/Panama_dark.png", native = TRUE)
+img4 = png::readPNG("images/AZ_dark.png", native = TRUE)
+img5 = png::readPNG("images/Phyto_dark.png", native = TRUE)
