@@ -58,14 +58,15 @@ cowplot::ggdraw(
                      yend = method),
                  color = "grey69",
                  size = 0.3) +
-    geom_jitter(data = simdata_lollipop,
+    geom_point(data = simdata_lollipop,
                 aes(x = deviation,
                     y = method,
                     fill = method,
                     alpha = hit),
                 color = colorspace::lighten("#5e5e5e", 0.3),
                 size = 1, stroke = 0.2,
-                width = 0, height = 0.2, shape = 21) +
+                position = position_jitternormal(sd_x = 0, sd_y = 0.1), 
+                shape = 21) +
     geom_point(data = simmeans,
                aes(x = estimate,
                    y = method,
@@ -192,14 +193,15 @@ lollipop_all =
                    yend = method),
                color = "grey69",
                size = 0.3) +
-  geom_jitter(data = simdata_lollipop,
+  geom_point(data = simdata_lollipop,
               aes(x = deviation,
                   y = method,
                   fill = method,
                   alpha = hit),
               color = colorspace::lighten("#5e5e5e", 0.3),
               size = 1, stroke = 0.2,
-              width = 0, height = 0.2, shape = 21) +
+             position = position_jitternormal(sd_x = 0, sd_y = 0.1), 
+             shape = 21) +
   geom_point(data = simmeans,
              aes(x = estimate,
                  y = method,
@@ -648,7 +650,7 @@ lollipop_CO =
                    yend = method),
                color = "grey69",
                size = 0.3) +
-  geom_jitter(data = simdata_lollipop %>%
+  geom_point(data = simdata_lollipop %>%
                 filter(dataset == "Herbs"),
               aes(x = deviation,
                   y = method,
@@ -656,7 +658,8 @@ lollipop_CO =
                   alpha = hit),
               color = colorspace::lighten("#5e5e5e", 0.3),
               size = 1, stroke = 0.2,
-              width = 0, height = 0.2, shape = 21) +
+              position = position_jitternormal(sd_x = 0, sd_y = 0.1), 
+              shape = 21) +
   geom_point(data = simmeans %>%
                filter(dataset == "Herbs"),
              aes(x = estimate,
@@ -747,7 +750,7 @@ lollipop_CO =
            plot.margin = margin(0, 2, 0, 0)))/
   lollipop_CO +
   theme(
-    strip.text.y,left = element_blank(),
+    strip.text.y.left = element_blank(),
     strip.text.x.top = element_blank(),
     axis.title.y = element_text(size = rel(0.9)),
     legend.position = 'none',
