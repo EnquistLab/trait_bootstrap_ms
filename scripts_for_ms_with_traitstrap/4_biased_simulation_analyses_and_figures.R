@@ -681,41 +681,44 @@ ggsave(here::here("figures/moons_pct_abund_AB.png"),
 #### Triple stack ----
 
 layout <- '
-A#
-BC
+AAA#
+BBCC
 '
 
 
 (moons_mini +
-   labs(title = "A: Herbs: Size baised") +
-   theme(legend.position = 'none') +
-   inset_element(inset_mini,
-                 left = 0,
-                 bottom = 0,
-                 right = 1,
-                 top = 1)) +
+    labs(title = "A: Herbs: Size baised") +
+    theme(legend.position = 'none') +
+    inset_element(inset_mini,
+                  left = 0,
+                  bottom = 0,
+                  right = 1,
+                  top = 1, 
+                  ignore_tag = TRUE)) +
   (moon_plots[[1]] +
-      labs(title = "B: Herbs: Percent abundance") +
-      theme(legend.position = 'none') +
-      inset_element(inset_plots[[1]],
-                    left = 0,
-                    bottom = 0,
-                    right = 1,
-                    top = 1)) +
-     (moon_plots[[2]]  +
-        labs(title = "C: Rodents: Percent abundance") +
-        theme(legend.position = 'none') +
-        inset_element(inset_plots[[2]],
-                      left = 0,
-                      bottom = 0,
-                      right = 1,
-                      top = 1)) +
-     plot_layout(guides = 'collect',
-                 widths = c(1, 1),
-                 design = layout) +
-     plot_annotation(theme = theme(
-       plot.background = element_rect(fill = "white", colour = NA),
-       legend.position = 'none'))
+     labs(title = "B: Herbs: Percent abundance") +
+     theme(legend.position = 'none') +
+     inset_element(inset_plots[[1]],
+                   left = 0,
+                   bottom = 0,
+                   right = 1,
+                   top = 1, 
+                   ignore_tag = TRUE)) +
+  (moon_plots[[2]]  +
+     labs(title = "C: Rodents: Percent abundance") +
+     theme(legend.position = 'none') +
+     inset_element(inset_plots[[2]],
+                   left = 0,
+                   bottom = 0,
+                   right = 1,
+                   top = 1,
+                   ignore_tag = TRUE)) +
+  plot_layout(guides = 'collect',
+              heights = c(1, 0.7),
+              design = layout) +
+  plot_annotation(theme = theme(
+    plot.background = element_rect(fill = "white", colour = NA),
+    legend.position = 'none'))
 
 ggsave(here::here("figures/triple_stacked_moons.png"),
        height = 140, width = 180,
