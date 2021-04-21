@@ -289,6 +289,27 @@ rodent_pct_sims <- sim_percent_sampling(traits = portal_traits,
 saveRDS(object = rodent_pct_sims,
         file = "output_data/Rodent_percent_community_sims.RDS")
 
+#Run size-biased simulations
+
+output_rodents_biased <-
+  sim_sample_size(tidy_traits = as.data.frame(portal_traits),
+                  community = as.data.frame(portal_community),
+                  prob = 0.75,
+                  n_to_sample =
+                    (1:ceiling(x = max(portal_community$abundance)^.5))^2,
+                  n_reps_trait = 10,
+                  n_reps_boot = 200,
+                  seed = 2005,
+                  distribution_type = "normal",
+                  min_n_in_sample = 1,
+                  focal_trait = "log10_weight",
+                  large_biased = FALSE) #setting large bias = FALSE here reverses sorting order (smaller individuals will be selected)
+
+#save output
+saveRDS(object = output_rodents_biased,
+        file = "output_data/simulation_results_rodents_biased.RDS")
+
+
 ###############################################################################
 
 #Treefrog tadpoles
@@ -582,11 +603,8 @@ trait_np_bootstrap(imputed_traits = imputed_plankton,
                    sample_size = 200,
                    raw = TRUE)
 
-
-
-
-colnames(phyto_community)
-colnames(plankton_sample)
+saveRDS(object = plankton_dist,
+         file = "output_data/raw_plankton_distributions.RDS")
 
 
 ###############################################################################
