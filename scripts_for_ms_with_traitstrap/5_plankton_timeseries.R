@@ -66,7 +66,7 @@ cowplot::ggdraw(
                ),
                switch = 'y',
                scales = 'free') +
-    labs(x = "Time",
+    labs(x = "Day of year",
          y = "Estimate") +
     # Theme
     theme_moon +
