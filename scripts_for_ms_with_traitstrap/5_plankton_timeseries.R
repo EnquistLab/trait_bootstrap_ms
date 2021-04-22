@@ -94,12 +94,13 @@ ggplot(plankton_dist %>%
                               label = TRUE))) +
   stat_density_ridges(aes(x = value,
                           y = month),
-                      colour = "#5e5e5e",
-                      alpha = 0.1,
-                      fill = "#5e5e5e",
+                      colour = NA,
+                      alpha = 0.4,
+                      fill = "#f3b155",
                       scale = 2.5) +
-  xlim(c(-2,7))
+  xlim(c(-2,7)) +
+  theme_void()
 
 ggsave(here::here("figures/plankton_wave.png"),
-       height = 120, width = 180,
+       height = 240, width = 180,
        units = "mm", dpi = 600)
