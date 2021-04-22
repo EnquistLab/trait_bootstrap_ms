@@ -162,25 +162,30 @@ joy_plot =
                                          override.aes = list(alpha = 0.7, shape = 2, size = 4),
                                          title.position="top",
                                          title.hjust = 0.5),
-                    values = pal_df$c,
-                    labels = pal_df$l) +
+                    values = c(pal_df$c, NA),
+                    labels = c(pal_df$l, "True")) +
   scale_colour_manual(guide = guide_legend(title = "Method",
                                            title.position="top",
                                            title.hjust = 0.5),
-                      values = pal_df$c,
-                      labels = pal_df$l) +
-  stat_density_ridges(data = all_dists %>%
-                        filter(method == "True"),
-                      aes(x = value,
-                          y = factor(paste(mean_elev,"m"))),
-                      rel_min_height = 0.01,
-                      colour = "#5e5e5e",
-                      scale = 0.9,
-                      fill = NA,
-                      linetype = 3,
-                      alpha = 0.3) +
-  stat_density_ridges(data = all_dists %>%
-                        filter(method != "True"),
+                      values = c(pal_df$c, "#5e5e5e"),
+                      labels = c(pal_df$l, "True")) +
+  guides(colour = guide_legend(override.aes = list(linetype = c(1, 1, 1, 1, 3))),
+         fill = guide_legend(override.aes = list(linetype = c(1, 1, 1, 1, 3)))) +
+  scale_linetype_manual("Sampling",
+                        values= c("True distribution" = 3,
+                                  "Estimated distribution" = 1),
+                        guide = guide_legend(override.aes = list(colour = "grey69"))) +
+  # stat_density_ridges(data = all_dists %>%
+  #                       filter(method == "True"),
+  #                     aes(x = value,
+  #                         y = factor(paste(mean_elev,"m")),
+  #                         linetype = "True distribution"),
+  #                     rel_min_height = 0.01,
+  #                     colour = "#5e5e5e",
+  #                     scale = 0.9,
+  #                     fill = NA,
+  #                     alpha = 0.3) +
+  stat_density_ridges(data = all_dists,
                       aes(x = value,
                           y = factor(paste(mean_elev,"m")),
                           fill = method,
@@ -224,7 +229,7 @@ legend <- cowplot::get_legend(joy_plot)
 cowplot::ggdraw(
   joy_plot +
     theme(legend.position = 'none')
-  ) +
+) +
   cowplot::draw_plot(legend,
                      width = 0.5,
                      height = 0.3,
