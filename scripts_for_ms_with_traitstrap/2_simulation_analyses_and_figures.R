@@ -792,6 +792,7 @@ lollipop_CO =
                                           title.hjust = 0.5),
                      values = pal_df$c,
                      breaks = pal_df$l) +
+   labs(tag = "A") +
    # Theme
    theme_doughnut +
    theme(strip.text.y.left = element_text(margin = margin(0, -1, 5, 0),
@@ -839,7 +840,8 @@ lollipop_CO =
                  top = 0.85, 
                  align_to = 'full', 
                  ignore_tag = TRUE) + theme_void()) /
-  (sub_bump +
+  (sub_bump+
+     labs(tag = "B") +
      theme(legend.position = 'none',
            strip.text.x.top = element_blank(),
            strip.text.y = element_blank(),
@@ -849,10 +851,11 @@ lollipop_CO =
                    left = 0.0,
                    bottom = 0.4,
                    right = 0.1,
-                   top = 0.8, 
+                   top = 0.7, 
                    align_to = 'full', 
                    ignore_tag = TRUE) + theme_void())/
-  lollipop_CO +
+  lollipop_CO+
+  labs(tag = "C") +
   theme(
     strip.text.y.left = element_blank(),
     strip.text.x.top = element_blank(),
@@ -864,11 +867,10 @@ lollipop_CO =
                 left = 0.0,
                 bottom = 0.4,
                 right = 0.1,
-                top = 0.8, 
+                top = 0.7, 
                 align_to = 'full', 
                 ignore_tag = TRUE) + theme_void()  +
-  plot_annotation(tag_levels = 'A',
-                  theme = theme(
+  plot_annotation(theme = theme(
                     plot.background = element_rect(fill = "white", colour = NA),
                     panel.background = element_rect(fill = "white", colour = NA),
                     text = element_text(face = 'bold'))) +
