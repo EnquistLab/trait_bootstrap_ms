@@ -67,7 +67,7 @@ source("r_functions/get_distributions.R")
 sample_size <- 10 #this is the number of leaf samples to take
 n_distributions <- 1
 sample_size_dist <- 200 #number of samples to draw from the distribution
-elev<-read_rds(path = "data/elevations.RDS")
+elev<-readRDS("data/elevations.RDS")
 
 
 
@@ -149,11 +149,11 @@ rm(atraits_dist)
 ### Joy (Ridge) Plots ----
 
 all_dists$method <- factor(all_dists$method,
-                           levels = c("True",
-                                      "Cross-Site WM",
+                           levels = c("Cross-Site WM",
                                       "Site-Specific WM",
                                       "Non-parametric BS",
-                                      "Parametric BS"))
+                                      "Parametric BS",
+                                      "True"))
 
 joy_plot = 
   ggplot() +
@@ -169,30 +169,28 @@ joy_plot =
                                            title.hjust = 0.5),
                       values = c(pal_df$c, "#5e5e5e"),
                       labels = c(pal_df$l, "True")) +
-  guides(colour = guide_legend(override.aes = list(linetype = c(1, 1, 1, 1, 3))),
-         fill = guide_legend(override.aes = list(linetype = c(1, 1, 1, 1, 3)))) +
-  scale_linetype_manual("Sampling",
-                        values= c("True distribution" = 3,
-                                  "Estimated distribution" = 1),
+  guides(colour = guide_legend(override.aes = list(linetype = c(1, 1, 1, 1, 3)),
+                               title = "Method",
+                               title.position="top",
+                               title.hjust = 0.5),
+         fill = guide_legend(override.aes = list(linetype = c(1, 1, 1, 1, 3)),
+                             title = "Method",
+                             title.position="top",
+                             title.hjust = 0.5),
+         linetype = 'none') +
+  scale_linetype_manual("Method",
+                        values= c(1, 1, 1, 1, 3),
                         guide = guide_legend(override.aes = list(colour = "grey69"))) +
-  # stat_density_ridges(data = all_dists %>%
-  #                       filter(method == "True"),
-  #                     aes(x = value,
-  #                         y = factor(paste(mean_elev,"m")),
-  #                         linetype = "True distribution"),
-  #                     rel_min_height = 0.01,
-  #                     colour = "#5e5e5e",
-  #                     scale = 0.9,
-  #                     fill = NA,
-  #                     alpha = 0.3) +
   stat_density_ridges(data = all_dists,
                       aes(x = value,
                           y = factor(paste(mean_elev,"m")),
                           fill = method,
-                          colour = method),
+                          colour = method,
+                          linetype = method),
                       rel_min_height = 0.01,
                       scale = 0.9,
-                      alpha = 0.4) +
+                      alpha = 0.4,
+                      size = 0.3) +
   scale_y_discrete(expand = c(0.01, 0)) +
   scale_x_continuous(expand = c(0.1, 0)) +
   coord_cartesian(clip = 'off') +
