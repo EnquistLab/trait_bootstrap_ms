@@ -51,7 +51,8 @@ cowplot::ggdraw(
       size = 0.5) +
     coord_cartesian(clip = 'off') +
     scale_fill_manual(guide = guide_legend(title = "Method",
-                                           title.position="top"),
+                                           title.position="top",
+                                           title.hjust = 0.5),
                       values = colorspace::darken(pal_df$c, amount = 0.2),
                       labels = pal_df$l) +
     scale_colour_manual(guide = guide_legend(title = "Method",
@@ -71,10 +72,11 @@ cowplot::ggdraw(
     # Theme
     theme_moon +
     theme(legend.key.size = unit(5, "mm"),
-          axis.text = element_text(size = rel(.55)))
+          axis.text = element_text(size = rel(.55)),
+          legend.position = 'bottom')
 )+
   cowplot::draw_image(
-    img5, x = 0.04, y = 0.93, hjust = 0.5, vjust = 0.5,
+    img5, x = 0.03, y = 0.94, hjust = 0.5, vjust = 0.5,
     width = 0.06
   )
 
