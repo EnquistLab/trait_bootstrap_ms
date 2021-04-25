@@ -27,7 +27,6 @@ simdata_rats <-
 simdata_frogs <- 
   tidy_simdata(readRDS("output_data/simulation_results_treefrogs.RDS"))
 
-##TODO
 simdata_plankton <- 
   tidy_simdata(readRDS("output_data/simulation_results_phyto_subset_scaled.RDS"))
 

@@ -16,7 +16,11 @@ cwm_methods =
 cwm_corr =
   readRDS("output_data/CWM_methods_comparison.RDS") %>%
   group_by(trait, moment) %>%
-  summarise(corr = sprintf('%.2f',(summary(lm(bootstrap_CWM~traditional_CWM))$r.squared)))
+  summarise(corr = sprintf('%.2f',(summary(lm(bootstrap_CWM~traditional_CWM))$r.squared)),
+            yint = round(lm(bootstrap_CWM~traditional_CWM)$coefficients[[1]],
+                         digits = 2),
+            grad = round(lm(bootstrap_CWM~traditional_CWM)$coefficients[[2]],
+                         digits = 2))
 
 cwm_methods$moment <- factor(cwm_methods$moment,
                              levels = c("mean",
@@ -34,38 +38,41 @@ cwm_corr$moment <- factor(cwm_corr$moment,
 
 cowplot::ggdraw(
   ggplot(cwm_methods) +
-  geom_abline(aes(slope = 1, 
-                  intercept = 0),
-              colour = "grey69") +
-  geom_point(aes(x = log10(abs(traditional_CWM)),
-                 y = log10(abs(bootstrap_CWM))),
-             colour = "grey69",
-             fill = pal_df$c[1],
-             shape = 21,
-             size = 2) +
-  geom_textbox(data = cwm_corr,
-               aes(x = min(log10(abs(cwm_methods$traditional_CWM))),
-                   y = max(log10(abs(cwm_methods$bootstrap_CWM))),
-                   label = glue::glue("R^2 = {corr}")),
-               hjust = 0,
-               size = 1.6,
-               vjust = 1,
-               width = unit(0.27, "npc"),
-               family = "Noto") +
-  facet_grid(rows = vars(trait),
-             cols = vars(moment),
-             labeller = labeller(
-               trait = traits_parsed,
-               .default = capitalize
-             ),
-             switch = 'y') +
-  labs(x = "Traditional CWM; log-transformed",
-       y = "Bootstrapped CWM; log-transformed") +
-  scale_x_continuous(breaks = c(-1,0,1)) +
-  theme_moon +
-  theme(axis.ticks.length=unit(.5, "mm"),
-        axis.text = element_text(size = rel(.55)))
-  )  +
+    geom_abline(aes(slope = 1, 
+                    intercept = 0),
+                colour = "black",
+                linetype = 2) +
+    geom_abline(data = cwm_corr,
+                aes(slope = grad, 
+                    intercept = yint),
+                colour = "grey69") +
+    geom_point(aes(x = traditional_CWM,
+                   y = bootstrap_CWM),
+               colour = "grey69",
+               fill = pal_df$c[1],
+               shape = 21,
+               size = 2) +
+    geom_textbox(data = cwm_corr,
+                 aes(x = min(cwm_methods$traditional_CWM),
+                     y = max(cwm_methods$bootstrap_CWM),
+                     label = paste0(glue::glue("R^2 = {corr} Slope = {grad}"))),
+                 hjust = 0,
+                 size = 1.6,
+                 vjust = 1,
+                 width = unit(0.27, "npc"),
+                 box.padding = unit(c(2.7, 0.9, 2.3, 2.3), "pt")) +
+    facet_grid(rows = vars(trait),
+               cols = vars(moment),
+               labeller = labeller(
+                 trait = traits_parsed,
+                 .default = capitalize
+               ),
+               switch = 'y') +
+    labs(x = "Traditional CWM",
+         y = "Bootstrapped CWM") +
+    theme_moon +
+    theme(axis.ticks.length=unit(.5, "mm"),
+          axis.text = element_text(size = rel(.55))))  +
   cowplot::draw_image(
     img1, x = 0.03, y = 0.93, hjust = 0.5, vjust = 0.5,
     width = 0.045
