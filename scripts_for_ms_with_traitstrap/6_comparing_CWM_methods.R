@@ -39,12 +39,13 @@ cwm_corr$moment <- factor(cwm_corr$moment,
 cowplot::ggdraw(
   ggplot(cwm_methods) +
     geom_abline(aes(slope = 1, 
-                    intercept = 0),
-                colour = "black",
-                linetype = 2) +
+                    intercept = 0,
+                    linetype = "1:1 line"),
+                colour = "black") +
     geom_abline(data = cwm_corr,
                 aes(slope = grad, 
-                    intercept = yint),
+                    intercept = yint,
+                    linetype = "Regression slope"),
                 colour = "grey69") +
     geom_point(aes(x = traditional_CWM,
                    y = bootstrap_CWM),
@@ -68,11 +69,18 @@ cowplot::ggdraw(
                  .default = capitalize
                ),
                switch = 'y') +
-    labs(x = "Traditional CWM",
-         y = "Bootstrapped CWM") +
+    labs(x = "Traditional CW estimate",
+         y = "Bootstrapped CW estimate") +
+    scale_linetype_manual("",
+                          values=c("1:1 line" = 2,
+                                   "Regression slope" = 1),
+                          guide = guide_legend(override.aes = list(colour = c("black","grey69")))) +
     theme_moon +
     theme(axis.ticks.length=unit(.5, "mm"),
-          axis.text = element_text(size = rel(.55))))  +
+          axis.text = element_text(size = rel(.55)),
+          legend.position = 'bottom',
+          legend.text = element_text(size = rel(.7)),
+          legend.key.size = unit(3, "mm")))  +
   cowplot::draw_image(
     img1, x = 0.03, y = 0.93, hjust = 0.5, vjust = 0.5,
     width = 0.045
