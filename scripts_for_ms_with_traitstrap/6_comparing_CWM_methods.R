@@ -11,7 +11,13 @@ library(ggtext)
 
 #read in data
 cwm_methods =
-  readRDS("output_data/CWM_methods_comparison.RDS")
+  readRDS("output_data/CWM_methods_comparison.RDS") %>%
+  mutate(ci_low = predict(lm(bootstrap_CWM~traditional_CWM), 
+                          interval = "confidence",
+                          level = 0.95)[,2],
+         ci_high = predict(lm(bootstrap_CWM~traditional_CWM), 
+                           interval = "confidence",
+                           level = 0.95)[,3])
 
 cwm_corr =
   readRDS("output_data/CWM_methods_comparison.RDS") %>%
@@ -21,6 +27,19 @@ cwm_corr =
                          digits = 2),
             grad = round(lm(bootstrap_CWM~traditional_CWM)$coefficients[[2]],
                          digits = 2))
+
+cwm_CI = 
+  readRDS("output_data/CWM_methods_comparison.RDS") %>%
+  group_by(trait, moment) %>%
+  mutate(ci_low = predict(lm(bootstrap_CWM~traditional_CWM), 
+                          interval = "confidence",
+                          level = 0.95)[,2],
+         ci_high = predict(lm(bootstrap_CWM~traditional_CWM), 
+                           interval = "confidence",
+                           level = 0.95)[,3]) %>%
+  group_by(trait, moment, traditional_CWM) %>%
+  summarise(ci_high = mean(ci_high),
+            ci_low  = mean(ci_low))
 
 cwm_methods$moment <- factor(cwm_methods$moment,
                              levels = c("mean",
@@ -34,6 +53,12 @@ cwm_corr$moment <- factor(cwm_corr$moment,
                                      "skewness",
                                      "kurtosis"))
 
+cwm_CI$moment <- factor(cwm_CI$moment,
+                        levels = c("mean",
+                                   "variance",
+                                   "skewness",
+                                   "kurtosis"))
+
 #### Traditinal CWM ####
 
 cowplot::ggdraw(
@@ -42,6 +67,11 @@ cowplot::ggdraw(
                     intercept = 0,
                     linetype = "1:1 line"),
                 colour = "black") +
+    geom_ribbon(data = cwm_CI,
+                aes(x = traditional_CWM,
+                    ymin = ci_low,
+                    ymax = ci_high),
+                alpha = 0.15) +
     geom_abline(data = cwm_corr,
                 aes(slope = grad, 
                     intercept = yint,
@@ -52,7 +82,15 @@ cowplot::ggdraw(
                colour = "grey69",
                fill = pal_df$c[1],
                shape = 21,
-               size = 2) +
+               size = 2,
+               alpha = 0.6) +
+    geom_point(aes(x = traditional_CWM,
+                   y = bootstrap_CWM),
+               colour = "grey69",
+               fill = NA,
+               shape = 21,
+               size = 2,
+               alpha = 0.5) +
     geom_textbox(data = cwm_corr,
                  aes(x = min(cwm_methods$traditional_CWM),
                      y = max(cwm_methods$bootstrap_CWM),
@@ -62,12 +100,20 @@ cowplot::ggdraw(
                  vjust = 1,
                  width = unit(0.27, "npc"),
                  box.padding = unit(c(2.7, 0.9, 2.3, 2.3), "pt")) +
+    # facet_wrap(vars(trait, moment),
+    #            labeller = labeller(
+    #              trait = traits_parsed,
+    #              .default = capitalize
+    #            ),
+    #            scale = 'free',
+    #            switch = 'y') +
     facet_grid(rows = vars(trait),
                cols = vars(moment),
                labeller = labeller(
                  trait = traits_parsed,
                  .default = capitalize
                ),
+               scale = 'free',
                switch = 'y') +
     labs(x = "Traditional CW estimate",
          y = "Bootstrapped CW estimate") +
@@ -75,6 +121,7 @@ cowplot::ggdraw(
                           values=c("1:1 line" = 2,
                                    "Regression slope" = 1),
                           guide = guide_legend(override.aes = list(colour = c("black","grey69")))) +
+    coord_cartesian(clip = "off") +
     theme_moon +
     theme(axis.ticks.length=unit(.5, "mm"),
           axis.text = element_text(size = rel(.55)),
