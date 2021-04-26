@@ -62,7 +62,7 @@ sim_boot_size <- function(tidy_traits,
                      trait_col = "trait",
                      value_col = "value",
                      abundance_col = "abundance",
-                     min_n_leaves = 1)
+                     min_n_in_sample = 1)
       
       #Trait imputation for species mean
       imputed_species_mean <- 
@@ -74,7 +74,7 @@ sim_boot_size <- function(tidy_traits,
                      trait_col = "trait",
                      value_col = "value",
                      abundance_col = "abundance",
-                     min_n_leaves = 1)
+                     min_n_in_sample = 1)
       
       #Trait imputation for species x site mean
       imputed_species_x_site_mean <- 
@@ -86,7 +86,7 @@ sim_boot_size <- function(tidy_traits,
                      trait_col = "trait",
                      value_col = "value",
                      abundance_col = "abundance",
-                     min_n_leaves = 1)
+                     min_n_in_sample = 1)
       
       #Get Non-parametric moments
       np_results_nt <- 
