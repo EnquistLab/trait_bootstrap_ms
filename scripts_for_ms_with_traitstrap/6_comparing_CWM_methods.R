@@ -104,7 +104,7 @@ moon_means =
   mutate(hit = ifelse(ci_low <= true_value & true_value <= ci_high,
                       2,
                       1)) %>%
-  filter(boot_sample_size %in% c(200, 400, 800, 1600)) %>%
+  filter(boot_sample_size %in% c(100, 200, 400, 800, 1600)) %>%
   group_by(boot_sample_size, method, moment, trait_sample_size) %>%
   #calcualte proportion of 'hits' per trait, methods, moment
   summarise(percentage = sum(hit - 1)/n(),
@@ -118,9 +118,9 @@ moon_means$moment =
                                        "kurtosis"))
 
 plots <- vector('list', 4)
-samp_size = c(200, 400, 800, 1600)
+samp_size = c(100, 200, 400, 800, 1600)
 
-for (i in 1:4) {
+for (i in 1:length(samp_size)) {
   
   plots[[i]] = 
     ggplot(moon_means %>%
@@ -140,7 +140,7 @@ for (i in 1:4) {
       y = deviation,
       color = method
     ),
-    size = 1.3,
+    size = 1.1,
     alpha = 0.9) +
     geom_moon(aes(
       x = trait_sample_size,
@@ -204,23 +204,22 @@ for (i in 1:4) {
 }
 
 (plots[[1]] +
-    labs(title = "A: Bootstrap sample size = 200") + 
-    plots[[2]] +
-    labs(title = "B: Bootstrap sample size = 400"))/
-  (plots[[3]] +
-     labs(title = "C: Bootstrap sample size = 800") + 
-     plots[[4]] +
-     labs(title = "D: Bootstrap sample size = 1 600")) +
+    plots[[2]]) /
+  (plots[[3]] + 
+     plots[[4]])/
+  (plots[[5]]+ 
+     plots[[5]]) +
   plot_layout(guides = 'collect') +
-  plot_annotation(theme = theme(
-    plot.background = element_rect(fill = "white", colour = NA),
-    panel.background = element_rect(fill = "white", colour = NA),
-    legend.position = 'none',
-  )) 
+  plot_annotation(tag_levels = 'A',
+                  theme = theme(
+                    plot.background = element_rect(fill = "white", colour = NA),
+                    panel.background = element_rect(fill = "white", colour = NA),
+                    legend.position = 'none',
+                  )) 
 
 ggsave(here::here("figures/SI.png"),
-       height = 130, width = 180,
+       height = 190, width = 180,
        units = "mm", dpi = 600)
 ggsave(here::here("figures/SI.pdf"),
-       height = 130, width = 180,
+       height = 190, width = 180,
        units = "mm", dpi = 600)
