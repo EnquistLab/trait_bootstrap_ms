@@ -86,7 +86,10 @@ cowplot::ggdraw(
     width = 0.045
   )
 
-ggsave(here::here("figures/CWM_comparison.png"),
+ggsave(here::here("figures/Figure_SI1.png"),
+       height = 110, width = 180,
+       units = "mm", dpi = 600)
+ggsave(here::here("figures/Figure_SI1.pdf"),
        height = 110, width = 180,
        units = "mm", dpi = 600)
 
@@ -215,6 +218,9 @@ for (i in 1:4) {
     legend.position = 'none',
   )) 
 
-ggsave(here::here("figures/bs_samplesize.png"),
+ggsave(here::here("figures/SI.png"),
+       height = 130, width = 180,
+       units = "mm", dpi = 600)
+ggsave(here::here("figures/SI.pdf"),
        height = 130, width = 180,
        units = "mm", dpi = 600)
