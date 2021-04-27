@@ -698,7 +698,7 @@ boot_sample_output <-
                 n_to_sample = (1:22)^2,
                 n_reps_trait = 10,
                 n_reps_boot = 200,
-                boot_sample_size = c(100, 200, 400, 800, 1600, 3200),
+                boot_sample_size = c(50, 100, 200, 400, 800, 1600, 3200),
                 seed = 2005)
 
 saveRDS(object = boot_sample_output,
