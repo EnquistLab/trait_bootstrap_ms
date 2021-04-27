@@ -251,18 +251,30 @@ for (i in 1:length(samp_size)) {
 }
 
 (plots[[1]] +
-    plots[[2]]) /
-  (plots[[3]] + 
-     plots[[4]])/
-  (plots[[5]]+ 
-     plots[[6]]) +
+    labs(title = "A: Bootstrap sample size: 50") +
+    inset_element(img1,
+                  left = 0.02,
+                  bottom = 0.85,
+                  right = 0.1,
+                  top = 0.97, 
+                  align_to = 'full', 
+                  ignore_tag = TRUE) + theme_void() +
+    plots[[2]] +
+    labs(title = "B: Bootstrap sample size: 100")) /
+  (plots[[3]] +
+     labs(title = "C: Bootstrap sample size: 200") + 
+     plots[[4]] +
+     labs(title = "D: Bootstrap sample size: 400"))/
+  (plots[[5]] +
+     labs(title = "E: Bootstrap sample size: 800") + 
+     plots[[6]] +
+     labs(title = "F: Bootstrap sample size: 1 600")) +
   plot_layout(guides = 'collect') +
-  plot_annotation(tag_levels = 'A',
-                  theme = theme(
+  plot_annotation(theme = theme(
                     plot.background = element_rect(fill = "white", colour = NA),
                     panel.background = element_rect(fill = "white", colour = NA),
-                    legend.position = 'none',
-                  )) 
+                    legend.position = 'none')
+  ) 
 
 ggsave(here::here("figures/SI.png"),
        height = 190, width = 180,
@@ -274,7 +286,7 @@ ggsave(here::here("figures/SI.pdf"),
 #### Bootstrap sample sizes with CI ####
 
 bs_ci = 
-bs_methods %>%
+  bs_methods %>%
   filter(trait_sample_size == 9) %>% 
   group_by(method, boot_sample_size, moment) %>%
   summarise(true_value = mean(true_value),
@@ -331,7 +343,7 @@ ggplot(bs_ci) +
   theme(legend.key.size = unit(5, "mm"),
         axis.text = element_text(size = rel(.55)),
         legend.position = 'bottom')
-  
+
 ggsave(here::here("figures/bs_ci.png"),
        height = 120, width = 180,
        units = "mm", dpi = 600)
