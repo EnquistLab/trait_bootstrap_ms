@@ -151,7 +151,7 @@ moon_means =
   mutate(hit = ifelse(ci_low <= true_value & true_value <= ci_high,
                       2,
                       1)) %>%
-  filter(boot_sample_size %in% c(100, 200, 400, 800, 1600)) %>%
+  filter(boot_sample_size %in% c(50, 100, 200, 400, 800, 1600)) %>%
   group_by(boot_sample_size, method, moment, trait_sample_size) %>%
   #calcualte proportion of 'hits' per trait, methods, moment
   summarise(percentage = sum(hit - 1)/n(),
@@ -164,8 +164,8 @@ moon_means$moment =
                                        "skewness",
                                        "kurtosis"))
 
-plots <- vector('list', 4)
-samp_size = c(100, 200, 400, 800, 1600)
+plots <- vector('list', 6)
+samp_size = c(50, 100, 200, 400, 800, 1600)
 
 for (i in 1:length(samp_size)) {
   
@@ -255,7 +255,7 @@ for (i in 1:length(samp_size)) {
   (plots[[3]] + 
      plots[[4]])/
   (plots[[5]]+ 
-     plots[[5]]) +
+     plots[[6]]) +
   plot_layout(guides = 'collect') +
   plot_annotation(tag_levels = 'A',
                   theme = theme(
