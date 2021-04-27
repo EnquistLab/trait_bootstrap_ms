@@ -33,7 +33,8 @@ cowplot::ggdraw(
   ggplot(plankton_means) +
     geom_line(aes(x = as.numeric(site),
                   y = true_value,
-                  group = method),
+                  group = method,
+                  linetype = "True value"),
               colour = 'grey69',
               size = 0.3) +
     geom_ribbon(aes(
@@ -46,7 +47,8 @@ cowplot::ggdraw(
     geom_line(aes(
       x = as.numeric(site),
       y = estimate ,
-      color = method),
+      color = method,
+      linetype = "Mean estimate"),
       alpha = 0.8,
       size = 0.5) +
     coord_cartesian(clip = 'off') +
@@ -59,6 +61,13 @@ cowplot::ggdraw(
                                              title.position="top"),
                         values = colorspace::lighten(pal_df$c, amount = 0.2),
                         labels = pal_df$l) +
+    scale_linetype_manual(values=c("True value" = 1,
+                                   "Mean estimate" = 1),
+                          guide = guide_legend(title = "Estimate",
+                                               title.position="top",
+                                               title.hjust = 0.5,
+                                               override.aes = 
+                                                 list(colour = c("black","grey69")))) +
     facet_grid(rows = vars(moment),
                cols = vars(method),
                labeller = labeller(
