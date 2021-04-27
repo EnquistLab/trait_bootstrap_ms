@@ -342,7 +342,14 @@ ggplot(bs_ci) +
   theme_moon +
   theme(legend.key.size = unit(5, "mm"),
         axis.text = element_text(size = rel(.55)),
-        legend.position = 'bottom')
+        legend.position = 'bottom') +
+  inset_element(img1,
+                left = 0.0,
+                bottom = 0.89,
+                right = 0.07,
+                top = 0.99, 
+                align_to = 'full', 
+                ignore_tag = TRUE) + theme_void()
 
 ggsave(here::here("figures/bs_ci.png"),
        height = 120, width = 180,
