@@ -270,3 +270,71 @@ ggsave(here::here("figures/SI.png"),
 ggsave(here::here("figures/SI.pdf"),
        height = 190, width = 180,
        units = "mm", dpi = 600)
+
+#### Bootstrap sample sizes with CI ####
+
+bs_ci = 
+bs_methods %>%
+  filter(trait_sample_size == 9) %>% 
+  group_by(method, boot_sample_size, moment) %>%
+  summarise(true_value = mean(true_value),
+            estimate = mean(estimate),
+            ci_high = mean(ci_high),
+            ci_low = mean(ci_low)) %>%
+  na.omit()
+
+ggplot(bs_ci) +
+  geom_ribbon(aes(x = boot_sample_size,
+                  ymin = ci_low,
+                  ymax = ci_high,
+                  fill = method),
+              alpha = 0.2) +
+  geom_line(aes(x = boot_sample_size,
+                y = true_value,
+                linetype = "True value"),
+            colour = 'grey69',
+            size = 0.3) +
+  geom_line(aes(x = boot_sample_size,
+                y = estimate,
+                colour = method,
+                linetype = "Mean estimate"),
+            size = 0.6)+
+  coord_cartesian(clip = 'off') +
+  scale_fill_manual(guide = guide_legend(title = "Method",
+                                         title.position="top",
+                                         title.hjust = 0.5),
+                    values = colorspace::darken(pal_df$c, amount = 0.2),
+                    labels = pal_df$l) +
+  scale_linetype_manual(values=c("True value" = 2,
+                                 "Mean estimate" = 1),
+                        guide = guide_legend(title = "Estimate",
+                                             title.position="top",
+                                             title.hjust = 0.5,
+                                             override.aes = 
+                                               list(colour = c("black","grey69")))) +
+  scale_colour_manual(guide = guide_legend(title = "Method",
+                                           title.position="top"),
+                      values = colorspace::lighten(pal_df$c, amount = 0.2),
+                      labels = pal_df$l) +
+  facet_grid(rows = vars(moment),
+             cols = vars(method),
+             labeller = labeller(
+               trait = traits_parsed,
+               .default = capitalize
+             ),
+             switch = 'y',
+             scales = 'free') +
+  labs(x = "BS sample size",
+       y = "Estimate") +
+  # Theme
+  theme_moon +
+  theme(legend.key.size = unit(5, "mm"),
+        axis.text = element_text(size = rel(.55)),
+        legend.position = 'bottom')
+  
+ggsave(here::here("figures/bs_ci.png"),
+       height = 120, width = 180,
+       units = "mm", dpi = 600)
+ggsave(here::here("figures/bs_ci.pdf"),
+       height = 120, width = 180,
+       units = "mm", dpi = 600)
