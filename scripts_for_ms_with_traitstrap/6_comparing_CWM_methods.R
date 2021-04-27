@@ -293,7 +293,7 @@ ggplot(bs_ci) +
                 y = true_value,
                 linetype = "True value"),
             colour = 'grey69',
-            size = 0.3) +
+            size = 0.5) +
   geom_line(aes(x = boot_sample_size,
                 y = estimate,
                 colour = method,
@@ -305,7 +305,7 @@ ggplot(bs_ci) +
                                          title.hjust = 0.5),
                     values = colorspace::darken(pal_df$c, amount = 0.2),
                     labels = pal_df$l) +
-  scale_linetype_manual(values=c("True value" = 2,
+  scale_linetype_manual(values=c("True value" = 1,
                                  "Mean estimate" = 1),
                         guide = guide_legend(title = "Estimate",
                                              title.position="top",
