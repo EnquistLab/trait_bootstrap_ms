@@ -59,7 +59,7 @@ cwm_CI$moment <- factor(cwm_CI$moment,
                                    "skewness",
                                    "kurtosis"))
 
-#### Traditinal CWM ####
+#### Traditional CWM ####
 
 cowplot::ggdraw(
   ggplot(cwm_methods) +
@@ -133,10 +133,10 @@ cowplot::ggdraw(
     width = 0.045
   )
 
-ggsave(here::here("figures/Figure_SI1.png"),
+ggsave(here::here("figures/Figure_SI_1.png"),
        height = 110, width = 180,
        units = "mm", dpi = 600)
-ggsave(here::here("figures/Figure_SI1.pdf"),
+ggsave(here::here("figures/pdf/Figure_SI_1.pdf"),
        height = 110, width = 180,
        units = "mm", dpi = 600)
 
@@ -276,10 +276,10 @@ for (i in 1:length(samp_size)) {
                     legend.position = 'none')
   ) 
 
-ggsave(here::here("figures/SI.png"),
+ggsave(here::here("figures/Figure_SI_11.png"),
        height = 190, width = 180,
        units = "mm", dpi = 600)
-ggsave(here::here("figures/SI.pdf"),
+ggsave(here::here("figures/pdf/Figure_SI_11.pdf"),
        height = 190, width = 180,
        units = "mm", dpi = 600)
 
@@ -351,9 +351,9 @@ ggplot(bs_ci) +
                 align_to = 'full', 
                 ignore_tag = TRUE) + theme_void()
 
-ggsave(here::here("figures/bs_ci.png"),
+ggsave(here::here("figures/Figure_SI_12.png"),
        height = 120, width = 180,
        units = "mm", dpi = 600)
-ggsave(here::here("figures/bs_ci.pdf"),
+ggsave(here::here("figures/pdf/Figure_SI_12.pdf"),
        height = 120, width = 180,
        units = "mm", dpi = 600)

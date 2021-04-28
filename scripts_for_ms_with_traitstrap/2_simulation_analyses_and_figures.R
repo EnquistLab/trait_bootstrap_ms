@@ -114,7 +114,10 @@ cowplot::ggdraw(
     width = 0.04
   )
 
-ggsave(here::here("figures/Lollipops_deviation.png"),
+ggsave(here::here("figures/Figure_SI_3.png"),
+       height = 120, width = 180,
+       units = "mm", dpi = 600)
+ggsave(here::here("figures/pdf/Figure_SI_3.png"),
        height = 120, width = 180,
        units = "mm", dpi = 600)
 
@@ -878,8 +881,7 @@ lollipop_CO =
 ggsave(here::here("figures/Figure_2.png"),
        height = 310, width = 180,
        units = "mm", dpi = 600)
-
-ggsave(here::here("figures/Figure_2.pdf"),
+ggsave(here::here("figures/pdf/Figure_2.pdf"),
        height = 310, width = 180,
        units = "mm", dpi = 600)
 

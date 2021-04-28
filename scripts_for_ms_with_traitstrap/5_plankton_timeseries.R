@@ -31,12 +31,12 @@ plankton_means =
 
 cowplot::ggdraw(
   ggplot(plankton_means) +
-    geom_line(aes(x = as.numeric(site),
+    geom_bump(aes(x = as.numeric(site),
                   y = true_value,
                   group = method,
                   linetype = "True value"),
               colour = 'grey69',
-              size = 0.3) +
+              size = 0.3, smooth = 3) +
     geom_ribbon(aes(
       x = as.numeric(site),
       ymin = ci_low,
@@ -44,13 +44,13 @@ cowplot::ggdraw(
       fill = method
     ),
     alpha = 0.2) +
-    geom_line(aes(
+    geom_bump(aes(
       x = as.numeric(site),
       y = estimate ,
       color = method,
       linetype = "Mean estimate"),
       alpha = 0.8,
-      size = 0.5) +
+      size = 0.5, smooth = 3) +
     coord_cartesian(clip = 'off') +
     scale_fill_manual(guide = guide_legend(title = "Method",
                                            title.position="top",
@@ -89,7 +89,10 @@ cowplot::ggdraw(
     width = 0.06
   )
 
-ggsave(here::here("figures/plankton_time.png"),
+ggsave(here::here("figures/Figure_4.png"),
+       height = 120, width = 180,
+       units = "mm", dpi = 600)
+ggsave(here::here("figures/pdf/Figure_4.pdf"),
        height = 120, width = 180,
        units = "mm", dpi = 600)
 
@@ -112,6 +115,6 @@ ggplot(plankton_dist %>%
   xlim(c(-2,7)) +
   theme_void()
 
-ggsave(here::here("figures/plankton_wave.png"),
-       height = 240, width = 180,
-       units = "mm", dpi = 600)
+# ggsave(here::here("figures/plankton_wave.png"),
+#        height = 240, width = 180,
+#        units = "mm", dpi = 600)
