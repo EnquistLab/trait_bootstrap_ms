@@ -5,13 +5,6 @@ source("r_functions/tidy_simdata.R")
 
 library(e1071)
 
-simdata =
-  tidy_simdata(readRDS("output_data/simulation_results.RDS"))
-
-dry_sim = simdata %>%
-  filter(trait == "dry_mass_mg") %>%
-  arrange(site, method, moment, sample_size)
-
 ## Load data ----
 
 global <- rbind(readRDS("output_data/local_intra_rmbl_moments_2010.rds") %>%
@@ -57,7 +50,9 @@ global <- rbind(readRDS("output_data/local_intra_rmbl_moments_2010.rds") %>%
   rename(trait = traits) %>%
   filter(trait %in% c("SLA", "height")) %>%
   left_join(.,
+            ##HERE##
             readRDS(file = "data/all_traits_unscaled_RMBL.rds") %>%
+              #pick desired traits
               select(site, SLA_m2_kg, height) %>%
               rename(SLA = SLA_m2_kg) %>%
               pivot_longer(cols = c(SLA, height),
@@ -75,34 +70,6 @@ global <- rbind(readRDS("output_data/local_intra_rmbl_moments_2010.rds") %>%
                                                         "variance",
                                                         "skewness",
                                                         "kurtosis"))))
-
-global %>%
-  group_by(dataset) %>%
-  distinct(traits)
-
-
-readRDS(file = "data/all_traits_unscaled_RMBL.rds") %>%
-  select(site, SLA_m2_kg, height) %>%
-  rename(SLA = SLA_m2_kg) %>%
-  pivot_longer(cols = c(SLA, height),
-               names_to = 'trait',
-               values_to = 'true_value') %>%
-  group_by(site, trait) %>%
-  summarise(mean = mean(true_value, na.rm = TRUE),
-            variance = var(true_value, na.rm = TRUE),
-            kurtosis = kurtosis(true_value, na.rm = TRUE),
-            skewness = skewness(true_value, na.rm = TRUE)) %>%
-  pivot_longer(cols = c(mean, variance, kurtosis, skewness),
-               names_to = 'moment',
-               values_to = 'true_value') %>%
-  mutate(moment = ordered(moment,levels = c("mean",
-                                            "variance",
-                                            "skewness",
-                                            "kurtosis")))
-
-global %>%
-  distinct(mean_elev) %>%
-  pull()
 
 
 ##############################################################  
