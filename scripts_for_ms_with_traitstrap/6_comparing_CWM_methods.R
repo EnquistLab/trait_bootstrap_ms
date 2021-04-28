@@ -306,11 +306,11 @@ ggplot(bs_ci) +
                 linetype = "True value"),
             colour = 'grey69',
             size = 0.5) +
-  geom_line(aes(x = boot_sample_size,
+  geom_bump(aes(x = boot_sample_size,
                 y = estimate,
                 colour = method,
                 linetype = "Mean estimate"),
-            size = 0.6)+
+            size = 0.6, smooth = 2)+
   coord_cartesian(clip = 'off') +
   scale_fill_manual(guide = guide_legend(title = "Method",
                                          title.position="top",
