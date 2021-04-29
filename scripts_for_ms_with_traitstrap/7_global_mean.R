@@ -9,16 +9,16 @@ library(e1071)
 
 global <- rbind(readRDS("output_data/local_intra_rmbl_moments_2010.rds") %>%
                   mutate(dataset = "Local BS",
-                         level = "local"),
+                         level = "BS"),
                 readRDS("output_data/local_mean_rmbl_moments_2010.rds") %>%
                   mutate(dataset = "Local CW",
-                         level = "local"),
+                         level = "CW"),
                 readRDS("output_data/BIEN_mean_rmbl_moments_2010.rds") %>%
                   mutate(dataset = "Global CW",
-                         level = "global"),
+                         level = "CW"),
                 readRDS("output_data/BIEN_intra_rmbl_moments_2010.rds") %>%
                   mutate(dataset = "Global BS",
-                         level = "global")) %>%
+                         level = "BS")) %>%
   pivot_longer(cols = c('mean', 'var', 'skew', 'kurt'),
                names_to = 'moment',
                values_to = 'estimate') %>%
@@ -58,6 +58,9 @@ global <- rbind(readRDS("output_data/local_intra_rmbl_moments_2010.rds") %>%
               pivot_longer(cols = c(SLA, height),
                            names_to = 'trait',
                            values_to = 'true_value') %>%
+              mutate(true_value = ifelse(trait == "SLA",
+                                         true_value/100,
+                                         true_value)) %>%
               group_by(site, trait) %>%
               summarise(mean = mean(true_value, na.rm = TRUE),
                         variance = var(true_value, na.rm = TRUE),
@@ -120,7 +123,7 @@ for (i in 1:2) {
                                            title.position = "top",
                                            title.hjust = 0.5),
                       values = c("#4BA698", "#61F2DC", "#2934A6", "#4958F2")) +
-    guides(colour = guide_legend(override.aes = list(shape = c(16, 16, 17, 17),
+    guides(colour = guide_legend(override.aes = list(shape = c(16, 17, 16, 17),
                                                      alpha = c(1,1,1,1),
                                                      size = c(1.7,1.7,1.7,1.7)),
                                  title = "Method",
