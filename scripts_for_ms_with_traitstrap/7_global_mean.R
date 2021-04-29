@@ -8,16 +8,16 @@ library(e1071)
 ## Load data ----
 
 global <- rbind(readRDS("output_data/local_intra_rmbl_moments_2010.rds") %>%
-                  mutate(dataset = "Local intraspecific",
+                  mutate(dataset = "Local BS",
                          level = "local"),
                 readRDS("output_data/local_mean_rmbl_moments_2010.rds") %>%
-                  mutate(dataset = "Local community",
+                  mutate(dataset = "Local CW",
                          level = "local"),
                 readRDS("output_data/BIEN_mean_rmbl_moments_2010.rds") %>%
-                  mutate(dataset = "Global mean",
+                  mutate(dataset = "Global CW",
                          level = "global"),
                 readRDS("output_data/BIEN_intra_rmbl_moments_2010.rds") %>%
-                  mutate(dataset = "Global intraspecific",
+                  mutate(dataset = "Global BS",
                          level = "global")) %>%
   pivot_longer(cols = c('mean', 'var', 'skew', 'kurt'),
                names_to = 'moment',
@@ -96,7 +96,8 @@ for (i in 1:2) {
                   x = mean_elev,
                   colour = dataset),
               size = 0.3,
-              alpha = 0.6) +
+              alpha = 0.6,
+              show.legend = FALSE) +
     geom_point(aes(y = estimate,
                    x = mean_elev,
                    colour = dataset,
@@ -119,7 +120,9 @@ for (i in 1:2) {
                                            title.position = "top",
                                            title.hjust = 0.5),
                       values = c("#4BA698", "#61F2DC", "#2934A6", "#4958F2")) +
-    guides(colour = guide_legend(override.aes = list(shape = c(16, 16, 17, 17)),
+    guides(colour = guide_legend(override.aes = list(shape = c(16, 16, 17, 17),
+                                                     alpha = c(1,1,1,1),
+                                                     size = c(1.7,1.7,1.7,1.7)),
                                  title = "Method",
                                  title.position="top",
                                  title.hjust = 0.5),
@@ -134,7 +137,7 @@ for (i in 1:2) {
       axis.ticks = element_blank(),
       axis.text = element_text(size = rel(.3)),
       axis.title = element_text(size = rel(.5)),
-      legend.text = element_text(size = rel(.5)),
+      legend.text = element_text(size = rel(.6)),
       legend.title = element_text(size = rel(.5)),
       strip.text.y = element_text(margin = margin(0, 0, 3, 0),
                                   size = rel(.7), face = "bold"),
@@ -151,7 +154,7 @@ for (i in 1:2) {
                                 size = rel(.7), face = "bold"),
       legend.position = 'bottom',
       plot.margin = margin(2, 2, 2, 2),
-      legend.key.size = unit(4, "mm"),
+      legend.key.size = unit(5, "mm"),
       axis.ticks.length=unit(0.25, "mm")
     )
   
