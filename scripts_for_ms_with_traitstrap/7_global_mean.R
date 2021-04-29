@@ -101,7 +101,7 @@ for (i in 1:2) {
                    x = mean_elev,
                    colour = dataset,
                    shape = level),
-               size = 1,
+               size = 1.3,
                alpha = 0.6) +
     facet_grid(rows = vars(moment),
                cols = vars(trait),
@@ -170,3 +170,4 @@ global_plots[[1]] +
 ggsave(here::here("figures/global_mean.png"),
        height = 120, width = 180,
        units = "mm", dpi = 600)
+
