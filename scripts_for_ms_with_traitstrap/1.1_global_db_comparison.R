@@ -131,6 +131,7 @@ field_traits <- draw_traits_tidy(tidy_traits = atraits,
                                  sample_size = 9)
 
 
+
 btraits %>%
   mutate(site = "unknown",
          taxon = scrubbed_species_binomial,
@@ -164,11 +165,26 @@ global_traits <-
 compare_methods(tidy_traits = bien_traits,
                 community = community,
                 distribution_type = "normal")
+
 summary_combined <- 
   rbind(
     data.frame(trait_source = "global",global_traits),
     data.frame(trait_source = "local",local_traits)
     )
+
+#get true values
+atraits %>% 
+group_by(site,trait) %>%
+summarise(true_mean=mean(value),
+          true_variance=var(value),
+          true_skewness = skewness(value),
+          true_kurtosis = e1071::kurtosis(value)) -> true_moments
+
+#Next, append true moments to output data for convenience
+
+summary_combined <- merge(x = summary_combined,
+                          y = true_moments,
+                          by = c("site","trait"))
 
 saveRDS(object = summary_combined,file = "output_data/global_vs_local_summary.RDS")
 
@@ -176,14 +192,63 @@ saveRDS(object = summary_combined,file = "output_data/global_vs_local_summary.RD
 ##########################################################
 library(ape)
 
-list.files("C:/Users/Brian Maitner/Desktop/current_projects/")
+phylo_vector <- list.files("C:/Users/Brian Maitner/Desktop/current_projects/global_plant_phylo/phylomaker_trees_randomly_resolved/",full.names = T)
+phylo_vector <- phylo_vector[sample(x = 1:length(phylo_vector),size = 100,replace = F)]
+
+traits <- bien_traits
+community
 
 
 
 
+#input: phylogenies, traits, species list
+    #toggle to use all traits vs sample
 
+#output: traits
 
-#note: log scale before doing traitstrap
+get_traits_from_phylos <- function(phylo_vector,
+                                   traits,
+                                   species_list,
+                                   subsample_traits = FALSE){
+  
+  
+  
+  
+  for(i in 1:length(phylo_vector)){
+    
+    tree_i <- read.tree(phylo_vector[i])
+    
+    community$present <-  gsub(pattern = " ",replacement = "_",x = community$Accepted_species) %in% tree_i$tip.label
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+  }
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+}
 
 
 
