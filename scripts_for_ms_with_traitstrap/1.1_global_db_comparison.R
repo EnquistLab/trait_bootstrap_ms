@@ -175,10 +175,10 @@ summary_combined <-
 #get true values
 atraits %>% 
 group_by(site,trait) %>%
-summarise(true_mean=mean(value),
-          true_variance=var(value),
-          true_skewness = skewness(value),
-          true_kurtosis = e1071::kurtosis(value)) -> true_moments
+summarise(true_mean=mean(log10(value)),
+          true_variance=var(log10(value)),
+          true_skewness = skewness(log10(value)),
+          true_kurtosis = e1071::kurtosis(log10(value))) -> true_moments
 
 #Next, append true moments to output data for convenience
 
@@ -196,7 +196,6 @@ phylo_vector <- list.files("C:/Users/Brian Maitner/Desktop/current_projects/glob
 phylo_vector <- phylo_vector[sample(x = 1:length(phylo_vector),size = 100,replace = F)]
 
 traits <- bien_traits
-community
 
 
 
