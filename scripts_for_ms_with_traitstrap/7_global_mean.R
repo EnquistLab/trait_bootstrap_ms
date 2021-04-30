@@ -210,22 +210,25 @@ global =
                             method == 'nonparametric bs' ~ 'Non-Parametric BS',
                             method == 'parametric bs' ~ 'Parametric BS',
                             TRUE ~ method)) %>%
+  pivot_longer(cols = contains('true'),
+               names_to = 'true_moment',
+               values_to = 'true_value') %>%
+  mutate(true_moment = str_to_lower(str_extract(true_moment,'[[:alpha:]]*$'))) %>%
+  filter(true_moment == moment) %>%
+  select(-c(true_moment)) %>%
   select(-c(global, ci_low_moment, ci_high_moment)) %>%
   mutate(method = ordered(method,levels = c("Cross-Site CW",
                                             "Site-Specific CW",
                                             "Parametric BS",
                                             "Non-Parametric BS"))) %>%
   left_join(.,
-            simdata %>%
-              select(site, trait, moment, true_value)) %>%
+            readRDS("data/elevations.RDS")) %>%
+  distinct(trait_source, method, site, trait, moment, n, estimate,
+           ci_high, ci_low, true_value, mean_elev) %>%
   mutate(moment = ordered(moment,levels = c("mean",
                                             "variance",
                                             "skewness",
-                                            "kurtosis"))) %>%
-  left_join(.,
-            readRDS("data/elevations.RDS")) %>%
-  distinct(trait_source, method, site, trait, moment, n, estimate,
-           ci_high, ci_low, true_value, mean_elev)
+                                            "kurtosis")))
 
 
 ####
