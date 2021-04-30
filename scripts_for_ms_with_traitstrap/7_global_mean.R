@@ -59,17 +59,28 @@ ggplot(global) +
   geom_line(aes(x = mean_elev,
                 y = true_value),
             linetype = 4,
-            colour = "grey69") +
-  geom_ribbon(aes(x = mean_elev,
+            colour = "grey69",
+            size = 0.9) +
+  geom_ribbon(data = global %>%
+                filter(trait_source == "global"),
+              aes(x = mean_elev,
                   ymin = ci_low,
                   ymax = ci_high,
                   fill = method),
-              alpha = 0.2) +
+              alpha = 0.1)+
+  geom_ribbon(data = global %>%
+                filter(trait_source == "local"),
+              aes(x = mean_elev,
+                  ymin = ci_low,
+                  ymax = ci_high,
+                  fill = method),
+              alpha = 0.1) +
   geom_line(aes(x = mean_elev,
                 y = estimate,
                 colour = method, 
                 linetype = trait_source),
-            size = 0.7) +
+            size = 0.6,
+            alpha = 0.7) +
   facet_grid(rows = vars(moment),
              cols = vars(trait),
              labeller = labeller(
@@ -95,8 +106,8 @@ ggplot(global) +
   theme_moon +
   inset_element(img1,
                 left = 0.0,
-                bottom = 0.93,
-                right = 0.07,
+                bottom = 0.9,
+                right = 0.09,
                 top = 0.99, 
                 align_to = 'full', 
                 ignore_tag = TRUE) + theme_void()
