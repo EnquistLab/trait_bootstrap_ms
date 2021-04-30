@@ -163,26 +163,6 @@ for (i in 1:2) {
   
 }
 
-global_plots[[1]] +
-  inset_element(img1,
-                left = 0.0,
-                bottom = 0.93,
-                right = 0.07,
-                top = 0.99, 
-                align_to = 'full', 
-                ignore_tag = TRUE) + theme_void() +
-  global_plots[[2]] +
-  theme(
-    strip.text.y = element_blank(),
-    axis.title.y = element_blank()) +
-  plot_layout(guides = 'collect') +
-  plot_annotation(theme = theme(
-    plot.background = element_rect(fill = "white", colour = NA),
-    legend.position = 'bottom'))
-
-ggsave(here::here("figures/global_mean.png"),
-       height = 120, width = 180,
-       units = "mm", dpi = 600)
 
 ####
 
