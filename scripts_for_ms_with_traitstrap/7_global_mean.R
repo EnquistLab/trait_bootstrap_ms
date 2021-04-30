@@ -58,19 +58,18 @@ global =
 ggplot(global) +
   geom_line(aes(x = mean_elev,
                 y = true_value),
-            linetype = 2,
+            linetype = 4,
             colour = "grey69") +
-  # geom_ribbon(aes(x = mean_elev,
-  #                 ymin = ci_low,
-  #                 ymax = ci_high,
-  #                 fill = method,
-  #                 group = trait_source),
-  #             alpha = 0.2) +
+  geom_ribbon(aes(x = mean_elev,
+                  ymin = ci_low,
+                  ymax = ci_high,
+                  fill = method),
+              alpha = 0.2) +
   geom_line(aes(x = mean_elev,
                 y = estimate,
                 colour = method, 
                 linetype = trait_source),
-            size = 1.3) +
+            size = 0.7) +
   facet_grid(rows = vars(moment),
              cols = vars(trait),
              labeller = labeller(
@@ -90,8 +89,8 @@ ggplot(global) +
                       values = pal_df$c,
                       labels = pal_df$l) +
   scale_linetype_manual("Data source",
-                        values=c("Biased" = 4,
-                                 "Random" = 1),
+                        values=c(2, 1),
+                        labels = c("Global", "Local"),
                         guide = guide_legend(override.aes = list(colour = "grey69"))) +
   theme_moon +
   inset_element(img1,
