@@ -59,28 +59,30 @@ ggplot(global) +
   geom_line(aes(x = mean_elev,
                 y = true_value),
             linetype = 4,
-            colour = "grey69",
+            colour = "grey30",
             size = 0.9) +
   geom_ribbon(data = global %>%
-                filter(trait_source == "global"),
+                filter(trait_source == "global" &
+                         method == "Non-Parametric BS"),
               aes(x = mean_elev,
                   ymin = ci_low,
                   ymax = ci_high,
                   fill = method),
-              alpha = 0.1)+
+              alpha = 0.2)+
   geom_ribbon(data = global %>%
-                filter(trait_source == "local"),
+                filter(trait_source == "local"&
+                         method == "Non-Parametric BS"),
               aes(x = mean_elev,
                   ymin = ci_low,
                   ymax = ci_high,
                   fill = method),
-              alpha = 0.1) +
+              alpha = 0.2) +
   geom_line(aes(x = mean_elev,
                 y = estimate,
                 colour = method, 
-                linetype = trait_source),
-            size = 0.6,
-            alpha = 0.7) +
+                linetype = trait_source,
+                alpha = method),
+            size = 0.5) +
   facet_grid(rows = vars(moment),
              cols = vars(trait),
              labeller = labeller(
@@ -92,18 +94,29 @@ ggplot(global) +
   scale_fill_manual(guide = guide_legend(title = "Method",
                                          title.position="top",
                                          title.hjust = 0.5),
-                    values = pal_df$c,
-                    labels = pal_df$l) +
+                    values = pal_df$c[4],
+                    labels = pal_df$l[4]) +
   scale_colour_manual(guide = guide_legend(title = "Method",
                                            title.position="top",
                                            title.hjust = 0.5),
                       values = pal_df$c,
                       labels = pal_df$l) +
-  scale_linetype_manual("Data source",
-                        values=c(2, 1),
+  scale_linetype_manual(values=c(3, 1),
                         labels = c("Global", "Local"),
-                        guide = guide_legend(override.aes = list(colour = "grey69"))) +
+                        guide = guide_legend(title = "Data source",
+                                             title.position="top",
+                                             title.hjust = 0.5,
+                                             override.aes = list(colour = "grey69"))) +
+  scale_alpha_manual(values=c(1, 0.6, 0.6, 1)) +
+  guides(fill = 'none',
+         alpha = 'none') +
+  labs(x = "Elevation (m)",
+       y = "Estimate") +
   theme_moon +
+  theme(
+    legend.position = 'bottom',
+    legend.key.size = unit(6, "mm")
+  ) +
   inset_element(img1,
                 left = 0.0,
                 bottom = 0.9,
