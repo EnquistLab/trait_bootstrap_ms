@@ -1,6 +1,6 @@
-#Stupid elevation thing
+#elevation thing
 
-
+#load traits
 atraits <- readRDS(file = "data/all_traits_unscaled_RMBL.rds")
 
 #Removed 7% of records with any missing data
@@ -17,22 +17,29 @@ atraits <- atraits[grep(pattern = "SLA",x = colnames(atraits),invert = T)]
 #Add individual ID column and covert to long form
 atraits$ID <- 1:nrow(atraits)
 
-
 #Convert to tidy/skinny/long form
 atraits <- gather(data = atraits,key = "trait","value",3:7)
 
-#log transform
-#ggplot(data = atraits,mapping = aes(x=value))+geom_histogram()+facet_wrap(trait~site,scales = "free")
-#atraits$value <- log10(atraits$value)
-#ggplot(data = atraits,mapping = aes(x=value))+geom_histogram()+facet_wrap(trait~site,scales = "free")
+#toss traits we aren't using
+atraits %>%
+  filter(trait %in% c("LMA_mg_mm2","height" )) -> atraits
 
+#check names
+species_list <-unique(atraits$taxon)
+TNRS_out <- 
+  TNRS::TNRS(taxonomic_names = species_list)
 
+species_list<-
+merge(x = data.frame(taxon=species_list),
+      y = TNRS_out[c("Name_submitted","Accepted_species")],
+      by.x = 'taxon',
+      by.y="Name_submitted")
 
-#Scale and center traits  
-# atraits <- atraits %>%
-#   group_by(trait) %>% 
-#   mutate(value = as.numeric(scale(value))) %>% 
-#   ungroup() # %>% group_by(trait) %>% summarize(mean=mean(value),sd=sd(value))
+#manually fix some
+
+species_list$Accepted_species[which(species_list$taxon=="Viola nuttallianum")] <- "Viola nuttallii"
+species_list$Accepted_species[which(species_list$taxon=="Carex sp")] <- "Carex"
+species_list$Accepted_species[which(species_list$taxon=="Penstemon 99999")] <- "Penstemon"
 
 #Get community data
 community <- atraits %>% 
@@ -41,28 +48,73 @@ community <- atraits %>%
                    .names = "abundance"),
             .groups="drop")
 
-
-species_list <- unique(community$taxon)
-
 library(BIEN)
-bien_traits <- BIEN_trait_list()
-bien_traits
-unique(atraits$trait)
+source("r_functions/get_consensus_family.R")
+
+species_list <- 
+  get_consensus_family(species_list = species_list,
+                       taxon = "Accepted_species")
+
+#Replace NA's with other information to prevent NA's from being matched
+species_list$consensus_family[which(species_list$taxon=="Grass 1")] <- "Poaceae"
+species_list$Accepted_species[which(species_list$taxon=="Grass 1")] <- "Grass 1"
+species_list$genus[which(species_list$taxon=="Grass 1")] <- "Grass"
+
+
+#update community with higher taxonomy stuff
+
+community <- merge(x = community,
+                   y = species_list,
+                   by.x = "taxon",
+                   by.y = "taxon")
+
+community %>% mutate(family = consensus_family) -> community
+
+#pull relevant traits for the families of interest
+btraits_fam <- 
+  BIEN_trait_traitbyfamily(family = species_list$consensus_family,
+                            trait = c("whole plant height",
+                                      "leaf area per leaf dry mass" ),
+                           all.taxonomy = T)
+
+#pull relevant traits for the genera of interest
+btraits_gen <- 
+  BIEN_trait_traitbygenus(genus = species_list$genus,
+                           trait = c("whole plant height",
+                                     "leaf area per leaf dry mass" ),
+                          all.taxonomy = T)
+
+#pull relevant traits for the species of interest
+btraits_species <-
+BIEN_trait_traitbyspecies(species = species_list$Accepted_species,
+                          trait = c("whole plant height",
+                                    "leaf area per leaf dry mass" ),
+                          all.taxonomy = T)
+
+#Note that hopefully the family level data contains the other two, but this way make sure we get everything
 
 btraits <-
-BIEN_trait_traitbyspecies(species = species_list,
-                          trait = c("whole plant height","leaf area per leaf dry mass" ))
+rbind(btraits_fam[colnames(btraits_species)],
+      btraits_gen[colnames(btraits_species)],
+      btraits_species)
+
+btraits <- unique(btraits)
+#rm(btraits_fam,btraits_gen)
 
 
-#scale a to match b
-unique(btraits$unit)
-unique(atraits$trait)
+#there seem to be some trait values of zero.  rounding error?  who knows.  toss em.
+btraits <- btraits[which(btraits$trait_value > 0),]
+
+#scale b to match a
 #height: amanda = cm, bien = m
-#lma = amanda= m2/kg-1, bien = 
-
-
+#lma = amanda= mg/km^22, bien = m2/kg
 btraits %>%
-  select(scrubbed_species_binomial,trait_name,trait_value,unit)%>%
+  select(scrubbed_species_binomial,
+         scrubbed_genus,
+         scrubbed_family,
+         trait_name,
+         trait_value,
+         unit)%>%
   mutate(trait_val_numeric = as.numeric(trait_value))%>%
   #this converts height to the correct scale and sla to lma
   #no further conversion needed on lma, since kg/m^2 = mg/mm^2
@@ -75,95 +127,50 @@ source("r_functions/draw_traits_tidy.R")
 
 set.seed(2005)
 
-field_traits <- draw_traits_tidy(tidy_traits = atraits,sample_size = 9)
-colnames(field_traits)
+field_traits <- draw_traits_tidy(tidy_traits = atraits,
+                                 sample_size = 9)
 
 
 btraits %>%
   mutate(site = "unknown",
          taxon = scrubbed_species_binomial,
+         genus = scrubbed_genus,
+         family = scrubbed_family,
          ID = 1:n(),
          trait = rmbl_name,
-         value = rmbl_scale) -> bien_traits
+         value = rmbl_scale)%>%
+  select(ID,site,taxon,genus,family,trait,value) -> bien_traits
 
-# Do imputing
-field_imputed <-
-trait_impute(comm = community,
-             traits = atraits,
-             scale_hierarchy = "site",
-             global = TRUE,
-             taxon_col = "taxon",
-             abundance_col = "abundance",
-             trait_col = "trait",
-             value_col = "value",
-             min_n_in_sample = 1)
+#rm(btraits,atraits)
 
-global_imputed <-
-  trait_impute(comm = community,
-               traits = bien_traits,
-               scale_hierarchy = "site",
-               global = TRUE,
-               taxon_col = "taxon",
-               abundance_col = "abundance",
-               trait_col = "trait",
-               value_col = "value",
-               min_n_in_sample = 1)
+bien_traits %>%
+  mutate(value = log10(value)) -> bien_traits
 
-#Do bootstrapping
-field_bootstrapped <-
-trait_np_bootstrap(imputed_traits = field_imputed,
-                   nrep = 200,
-                   sample_size = 200)
-
-global_bootstrapped <-
-  trait_np_bootstrap(imputed_traits = field_imputed,
-                     nrep = 200,
-                     sample_size = 200)
+field_traits %>%
+  mutate(value = log10(value)) -> field_traits
 
 
 
+#comparison
 
-#Do summarizing
-field_summary <-
-trait_summarise_boot_moments(bootstrap_moments = field_bootstrapped,
-                             parametric = T,
-                             ci = 0.95)
+source("r_functions/compare_methods_small.R")#gutted version of a larger function for this particular case
 
-global_summary <-
-  trait_summarise_boot_moments(bootstrap_moments = global_bootstrapped,
-                               parametric = T,
-                               ci = 0.95)
+local_traits <-
+compare_methods(tidy_traits = field_traits,
+                community = community,
+                distribution_type = "normal")
 
-
-atraits %>% 
-  group_by(site,trait) %>%
-  summarise(true_mean=mean(value),
-            true_variance=var(value),
-            true_skewness = skewness(value),
-            true_kurtosis = e1071::kurtosis(value)) -> true_moments
-
-
-summary_combined <-
-  rbind(data.frame(source = "field", field_summary),
-        data.frame(source = "global", global_summary))
-
-
-
-#Next, append true moments to output data for convenience
-summary_combined <- merge(x = summary_combined,
-                y = true_moments,
-                by = c("site","trait"))
-
-
-bootstrapped_combined <-
-  merge(x = bootstrapped_combined,
-        y = true_moments,
-        by = c("site","trait"))
-
+global_traits <-
+compare_methods(tidy_traits = bien_traits,
+                community = community,
+                distribution_type = "normal")
+summary_combined <- 
+  rbind(
+    data.frame(trait_source = "global",global_traits),
+    data.frame(trait_source = "local",local_traits)
+    )
 
 saveRDS(object = summary_combined,file = "output_data/global_vs_local_summary.RDS")
-
-saveRDS(object = summary_combined,file = "output_data/global_vs_local_not_summarized.RDS")
 
 
 ##########################################################
@@ -177,11 +184,6 @@ list.files("C:/Users/Brian Maitner/Desktop/current_projects/")
 
 
 #note: log scale before doing traitstrap
-
-
-
-
-
 
 
 
