@@ -75,9 +75,7 @@ for (i in 1:length(trait_select)) {
                 aes(x = mean_elev,
                     ymin = ci_low,
                     ymax = ci_high,
-                    fill = method,
-                    colour = method, 
-                    linetype = trait_source),
+                    fill = method),
                 alpha = 0.1, size = 0.1,
                 show.legend = FALSE)+
     geom_ribbon(data = global %>%
@@ -86,18 +84,16 @@ for (i in 1:length(trait_select)) {
                 aes(x = mean_elev,
                     ymin = ci_low,
                     ymax = ci_high,
-                    fill = method,
-                    colour = method, 
-                    linetype = trait_source),
+                    fill = method),
                 alpha = 0.1, size = 0.1,
                 show.legend = FALSE) +
     geom_line(aes(x = mean_elev,
                   y = estimate,
                   colour = method, 
                   linetype = trait_source),
-              size = 0.5) +
+              size = 0.6) +
     facet_grid(rows = vars(moment),
-               cols = vars(trait),
+               cols = vars(trait_source),
                labeller = labeller(
                  trait = traits_parsed,
                  .default = capitalize
@@ -126,13 +122,19 @@ for (i in 1:length(trait_select)) {
     theme(
       legend.position = 'bottom',
       legend.key.size = unit(6, "mm"),
-      axis.title = element_text(size = rel(.7))
+      axis.title = element_text(size = rel(.7)),
+      plot.title = element_text(hjust = 0.5,
+                                size = rel(0.8)),
+      axis.text = element_text(size = rel(.5)),
+      plot.margin = margin(7, 5, 5, 5),
+      legend.margin = margin(0, 2, 1, 0)
     )
 }
 
 
 
 global_plots[[1]] +
+  labs(title = "Height")  +
   inset_element(img1,
                 left = 0.0,
                 bottom = 0.9,
@@ -141,6 +143,7 @@ global_plots[[1]] +
                 align_to = 'full', 
                 ignore_tag = TRUE) + theme_void() +
   global_plots[[2]] +
+    labs(title = "LMA") +
   theme(axis.title.y = element_blank(),
         strip.text.y = element_blank()) +
   plot_layout(guides = 'collect') +
@@ -150,5 +153,8 @@ global_plots[[1]] +
     legend.position = 'bottom'))
 
 ggsave(here::here("figures/global_mean.png"),
-       height = 130, width = 180,
+       height = 150, width = 180,
+       units = "mm", dpi = 600)
+ggsave(here::here("figures/pdf/global_mean.pdf"),
+       height = 150, width = 180,
        units = "mm", dpi = 600)
