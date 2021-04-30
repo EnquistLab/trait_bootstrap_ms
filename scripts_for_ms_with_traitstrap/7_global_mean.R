@@ -48,83 +48,107 @@ global =
   mutate(moment = ordered(moment,levels = c("mean",
                                             "variance",
                                             "skewness",
-                                            "kurtosis")))
+                                            "kurtosis"))) %>%
+  filter(method %in% c("Cross-Site CW",
+                       "Non-Parametric BS"))
 
 
 
 ####
 
+trait_select = unique(global$trait)
+global_plots = vector('list', 2)
 
-ggplot(global) +
-  geom_line(aes(x = mean_elev,
-                y = true_value),
-            linetype = 4,
-            colour = "grey30",
-            size = 0.9) +
-  geom_ribbon(data = global %>%
-                filter(trait_source == "global" &
-                         method == "Non-Parametric BS"),
-              aes(x = mean_elev,
-                  ymin = ci_low,
-                  ymax = ci_high,
-                  fill = method),
-              alpha = 0.2)+
-  geom_ribbon(data = global %>%
-                filter(trait_source == "local"&
-                         method == "Non-Parametric BS"),
-              aes(x = mean_elev,
-                  ymin = ci_low,
-                  ymax = ci_high,
-                  fill = method),
-              alpha = 0.2) +
-  geom_line(aes(x = mean_elev,
-                y = estimate,
-                colour = method, 
-                linetype = trait_source,
-                alpha = method),
-            size = 0.5) +
-  facet_grid(rows = vars(moment),
-             cols = vars(trait),
-             labeller = labeller(
-               trait = traits_parsed,
-               .default = capitalize
-             ),
-             switch = 'y',
-             scales = 'free') +
-  scale_fill_manual(guide = guide_legend(title = "Method",
-                                         title.position="top",
-                                         title.hjust = 0.5),
-                    values = pal_df$c[4],
-                    labels = pal_df$l[4]) +
-  scale_colour_manual(guide = guide_legend(title = "Method",
+for (i in 1:length(trait_select)) {
+  
+  global_plots[[i]] = 
+    ggplot(global %>%
+             filter(trait == trait_select[i])) +
+    geom_line(aes(x = mean_elev,
+                  y = true_value),
+              linetype = 4,
+              colour = "grey30",
+              size = 0.8) +
+    geom_ribbon(data = global %>%
+                  filter(trait == trait_select[i]) %>%
+                  filter(trait_source == "global"),
+                aes(x = mean_elev,
+                    ymin = ci_low,
+                    ymax = ci_high,
+                    fill = method,
+                    colour = method, 
+                    linetype = trait_source),
+                alpha = 0.1, size = 0.1,
+                show.legend = FALSE)+
+    geom_ribbon(data = global %>%
+                  filter(trait == trait_select[i]) %>%
+                  filter(trait_source == "local"),
+                aes(x = mean_elev,
+                    ymin = ci_low,
+                    ymax = ci_high,
+                    fill = method,
+                    colour = method, 
+                    linetype = trait_source),
+                alpha = 0.1, size = 0.1,
+                show.legend = FALSE) +
+    geom_line(aes(x = mean_elev,
+                  y = estimate,
+                  colour = method, 
+                  linetype = trait_source),
+              size = 0.5) +
+    facet_grid(rows = vars(moment),
+               cols = vars(trait),
+               labeller = labeller(
+                 trait = traits_parsed,
+                 .default = capitalize
+               ),
+               switch = 'y',
+               scales = 'free') +
+    scale_fill_manual(guide = guide_legend(title = "Method",
                                            title.position="top",
                                            title.hjust = 0.5),
-                      values = pal_df$c,
-                      labels = pal_df$l) +
-  scale_linetype_manual(values=c(3, 1),
-                        labels = c("Global", "Local"),
-                        guide = guide_legend(title = "Data source",
+                      values = c(pal_df$c[1], pal_df$c[4]),
+                      labels = c(pal_df$l[1], pal_df$l[4])) +
+    scale_colour_manual(guide = guide_legend(title = "Method",
                                              title.position="top",
-                                             title.hjust = 0.5,
-                                             override.aes = list(colour = "grey69"))) +
-  scale_alpha_manual(values=c(1, 0.6, 0.6, 1)) +
-  guides(fill = 'none',
-         alpha = 'none') +
-  labs(x = "Elevation (m)",
-       y = "Estimate") +
-  theme_moon +
-  theme(
-    legend.position = 'bottom',
-    legend.key.size = unit(6, "mm")
-  ) +
+                                             title.hjust = 0.5),
+                        values = c(pal_df$c[1], pal_df$c[4]),
+                        labels = c(pal_df$l[1], pal_df$l[4])) +
+    scale_linetype_manual(values=c(3, 1),
+                          labels = c("Global", "Local"),
+                          guide = guide_legend(title = "Data source",
+                                               title.position="top",
+                                               title.hjust = 0.5,
+                                               override.aes = list(colour = "grey69"))) +
+    labs(x = "Elevation (m)",
+         y = "Estimate") +
+    theme_moon +
+    theme(
+      legend.position = 'bottom',
+      legend.key.size = unit(6, "mm"),
+      axis.title = element_text(size = rel(.7))
+    )
+}
+
+
+
+global_plots[[1]] +
   inset_element(img1,
                 left = 0.0,
                 bottom = 0.9,
                 right = 0.09,
                 top = 0.99, 
                 align_to = 'full', 
-                ignore_tag = TRUE) + theme_void()
+                ignore_tag = TRUE) + theme_void() +
+  global_plots[[2]] +
+  theme(axis.title.y = element_blank(),
+        strip.text.y = element_blank()) +
+  plot_layout(guides = 'collect') +
+  plot_annotation(theme = theme(
+    plot.background = element_rect(fill = "white", colour = NA),
+    panel.background = element_rect(fill = "white", colour = NA),
+    legend.position = 'bottom'))
 
 ggsave(here::here("figures/global_mean.png"),
-       height = 120, width = 180,
+       height = 130, width = 180,
        units = "mm", dpi = 600)
