@@ -11,12 +11,35 @@ library(ggtext)
 
 #read in data
 cwm_methods =
-  readRDS("output_data/CWM_methods_comparison.RDS")
+  readRDS("output_data/CWM_methods_comparison.RDS") %>%
+  mutate(ci_low = predict(lm(bootstrap_CWM~traditional_CWM), 
+                          interval = "confidence",
+                          level = 0.95)[,2],
+         ci_high = predict(lm(bootstrap_CWM~traditional_CWM), 
+                           interval = "confidence",
+                           level = 0.95)[,3])
 
 cwm_corr =
   readRDS("output_data/CWM_methods_comparison.RDS") %>%
   group_by(trait, moment) %>%
-  summarise(corr = sprintf('%.2f',(summary(lm(bootstrap_CWM~traditional_CWM))$r.squared)))
+  summarise(corr = sprintf('%.2f',(summary(lm(bootstrap_CWM~traditional_CWM))$r.squared)),
+            yint = round(lm(bootstrap_CWM~traditional_CWM)$coefficients[[1]],
+                         digits = 2),
+            grad = round(lm(bootstrap_CWM~traditional_CWM)$coefficients[[2]],
+                         digits = 2))
+
+cwm_CI = 
+  readRDS("output_data/CWM_methods_comparison.RDS") %>%
+  group_by(trait, moment) %>%
+  mutate(ci_low = predict(lm(bootstrap_CWM~traditional_CWM), 
+                          interval = "confidence",
+                          level = 0.95)[,2],
+         ci_high = predict(lm(bootstrap_CWM~traditional_CWM), 
+                           interval = "confidence",
+                           level = 0.95)[,3]) %>%
+  group_by(trait, moment, traditional_CWM) %>%
+  summarise(ci_high = mean(ci_high),
+            ci_low  = mean(ci_low))
 
 cwm_methods$moment <- factor(cwm_methods$moment,
                              levels = c("mean",
@@ -30,48 +53,90 @@ cwm_corr$moment <- factor(cwm_corr$moment,
                                      "skewness",
                                      "kurtosis"))
 
-#### Traditinal CWM ####
+cwm_CI$moment <- factor(cwm_CI$moment,
+                        levels = c("mean",
+                                   "variance",
+                                   "skewness",
+                                   "kurtosis"))
+
+#### Traditional CWM ####
 
 cowplot::ggdraw(
   ggplot(cwm_methods) +
-  geom_abline(aes(slope = 1, 
-                  intercept = 0),
-              colour = "grey69") +
-  geom_point(aes(x = log10(abs(traditional_CWM)),
-                 y = log10(abs(bootstrap_CWM))),
-             colour = "grey69",
-             fill = pal_df$c[1],
-             shape = 21,
-             size = 2) +
-  geom_textbox(data = cwm_corr,
-               aes(x = min(log10(abs(cwm_methods$traditional_CWM))),
-                   y = max(log10(abs(cwm_methods$bootstrap_CWM))),
-                   label = glue::glue("R^2 = {corr}")),
-               hjust = 0,
-               size = 1.6,
-               vjust = 1,
-               width = unit(0.27, "npc"),
-               family = "Noto") +
-  facet_grid(rows = vars(trait),
-             cols = vars(moment),
-             labeller = labeller(
-               trait = traits_parsed,
-               .default = capitalize
-             ),
-             switch = 'y') +
-  labs(x = "Traditional CWM; log-transformed",
-       y = "Bootstrapped CWM; log-transformed") +
-  scale_x_continuous(breaks = c(-1,0,1)) +
-  theme_moon +
-  theme(axis.ticks.length=unit(.5, "mm"),
-        axis.text = element_text(size = rel(.55)))
-  )  +
+    geom_abline(aes(slope = 1, 
+                    intercept = 0,
+                    linetype = "1:1 line"),
+                colour = "black") +
+    geom_ribbon(data = cwm_CI,
+                aes(x = traditional_CWM,
+                    ymin = ci_low,
+                    ymax = ci_high),
+                alpha = 0.15) +
+    geom_abline(data = cwm_corr,
+                aes(slope = grad, 
+                    intercept = yint,
+                    linetype = "Regression slope"),
+                colour = "grey69") +
+    geom_point(aes(x = traditional_CWM,
+                   y = bootstrap_CWM),
+               colour = "grey69",
+               fill = pal_df$c[1],
+               shape = 21,
+               size = 2,
+               alpha = 0.6) +
+    geom_point(aes(x = traditional_CWM,
+                   y = bootstrap_CWM),
+               colour = "grey69",
+               fill = NA,
+               shape = 21,
+               size = 2,
+               alpha = 0.5) +
+    geom_textbox(data = cwm_corr,
+                 aes(x = min(cwm_methods$traditional_CWM),
+                     y = max(cwm_methods$bootstrap_CWM),
+                     label = paste0(glue::glue("R^2 = {corr} Slope = {grad}"))),
+                 hjust = 0,
+                 size = 1.6,
+                 vjust = 1,
+                 width = unit(0.27, "npc"),
+                 box.padding = unit(c(2.7, 0.9, 2.3, 2.3), "pt")) +
+    # facet_wrap(vars(trait, moment),
+    #            labeller = labeller(
+    #              trait = traits_parsed,
+    #              .default = capitalize
+    #            ),
+    #            scale = 'free',
+    #            switch = 'y') +
+    facet_grid(rows = vars(trait),
+               cols = vars(moment),
+               labeller = labeller(
+                 trait = traits_parsed,
+                 .default = capitalize
+               ),
+               scale = 'free',
+               switch = 'y') +
+    labs(x = "Traditional CW estimate",
+         y = "Bootstrapped CW estimate") +
+    scale_linetype_manual("",
+                          values=c("1:1 line" = 2,
+                                   "Regression slope" = 1),
+                          guide = guide_legend(override.aes = list(colour = c("black","grey69")))) +
+    coord_cartesian(clip = "off") +
+    theme_moon +
+    theme(axis.ticks.length=unit(.5, "mm"),
+          axis.text = element_text(size = rel(.55)),
+          legend.position = 'bottom',
+          legend.text = element_text(size = rel(.7)),
+          legend.key.size = unit(3, "mm")))  +
   cowplot::draw_image(
     img1, x = 0.03, y = 0.93, hjust = 0.5, vjust = 0.5,
     width = 0.045
   )
 
-ggsave(here::here("figures/CWM_comparison.png"),
+ggsave(here::here("figures/Figure_SI_1.png"),
+       height = 110, width = 180,
+       units = "mm", dpi = 600)
+ggsave(here::here("figures/pdf/Figure_SI_1.pdf"),
        height = 110, width = 180,
        units = "mm", dpi = 600)
 
@@ -86,7 +151,7 @@ moon_means =
   mutate(hit = ifelse(ci_low <= true_value & true_value <= ci_high,
                       2,
                       1)) %>%
-  filter(boot_sample_size %in% c(200, 400, 800, 1600)) %>%
+  filter(boot_sample_size %in% c(50, 100, 200, 400, 800, 1600)) %>%
   group_by(boot_sample_size, method, moment, trait_sample_size) %>%
   #calcualte proportion of 'hits' per trait, methods, moment
   summarise(percentage = sum(hit - 1)/n(),
@@ -99,10 +164,10 @@ moon_means$moment =
                                        "skewness",
                                        "kurtosis"))
 
-plots <- vector('list', 4)
-samp_size = c(200, 400, 800, 1600)
+plots <- vector('list', 6)
+samp_size = c(50, 100, 200, 400, 800, 1600)
 
-for (i in 1:4) {
+for (i in 1:length(samp_size)) {
   
   plots[[i]] = 
     ggplot(moon_means %>%
@@ -122,7 +187,7 @@ for (i in 1:4) {
       y = deviation,
       color = method
     ),
-    size = 1.3,
+    size = 1.1,
     alpha = 0.9) +
     geom_moon(aes(
       x = trait_sample_size,
@@ -186,20 +251,109 @@ for (i in 1:4) {
 }
 
 (plots[[1]] +
-    labs(title = "A: Bootstrap sample size = 200") + 
+    labs(title = "A: Bootstrap sample size: 50") +
+    inset_element(img1,
+                  left = 0.02,
+                  bottom = 0.85,
+                  right = 0.1,
+                  top = 0.97, 
+                  align_to = 'full', 
+                  ignore_tag = TRUE) + theme_void() +
     plots[[2]] +
-    labs(title = "B: Bootstrap sample size = 400"))/
+    labs(title = "B: Bootstrap sample size: 100")) /
   (plots[[3]] +
-     labs(title = "C: Bootstrap sample size = 800") + 
+     labs(title = "C: Bootstrap sample size: 200") + 
      plots[[4]] +
-     labs(title = "D: Bootstrap sample size = 1 600")) +
+     labs(title = "D: Bootstrap sample size: 400"))/
+  (plots[[5]] +
+     labs(title = "E: Bootstrap sample size: 800") + 
+     plots[[6]] +
+     labs(title = "F: Bootstrap sample size: 1 600")) +
   plot_layout(guides = 'collect') +
   plot_annotation(theme = theme(
-    plot.background = element_rect(fill = "white", colour = NA),
-    panel.background = element_rect(fill = "white", colour = NA),
-    legend.position = 'none',
-  )) 
+                    plot.background = element_rect(fill = "white", colour = NA),
+                    panel.background = element_rect(fill = "white", colour = NA),
+                    legend.position = 'none')
+  ) 
 
-ggsave(here::here("figures/bs_samplesize.png"),
-       height = 130, width = 180,
+ggsave(here::here("figures/Figure_SI_11.png"),
+       height = 190, width = 180,
+       units = "mm", dpi = 600)
+ggsave(here::here("figures/pdf/Figure_SI_11.pdf"),
+       height = 190, width = 180,
+       units = "mm", dpi = 600)
+
+#### Bootstrap sample sizes with CI ####
+
+bs_ci = 
+  bs_methods %>%
+  filter(trait_sample_size == 9) %>% 
+  group_by(method, boot_sample_size, moment) %>%
+  summarise(true_value = mean(true_value),
+            estimate = mean(estimate),
+            ci_high = mean(ci_high),
+            ci_low = mean(ci_low)) %>%
+  na.omit()
+
+ggplot(bs_ci) +
+  geom_ribbon(aes(x = boot_sample_size,
+                  ymin = ci_low,
+                  ymax = ci_high,
+                  fill = method),
+              alpha = 0.2) +
+  geom_line(aes(x = boot_sample_size,
+                y = true_value,
+                linetype = "True value"),
+            colour = 'grey69',
+            size = 0.5) +
+  geom_bump(aes(x = boot_sample_size,
+                y = estimate,
+                colour = method,
+                linetype = "Mean estimate"),
+            size = 0.6, smooth = 2)+
+  coord_cartesian(clip = 'off') +
+  scale_fill_manual(guide = guide_legend(title = "Method",
+                                         title.position="top",
+                                         title.hjust = 0.5),
+                    values = colorspace::darken(pal_df$c, amount = 0.2),
+                    labels = pal_df$l) +
+  scale_linetype_manual(values=c("True value" = 1,
+                                 "Mean estimate" = 1),
+                        guide = guide_legend(title = "Estimate",
+                                             title.position="top",
+                                             title.hjust = 0.5,
+                                             override.aes = 
+                                               list(colour = c("black","grey69")))) +
+  scale_colour_manual(guide = guide_legend(title = "Method",
+                                           title.position="top"),
+                      values = colorspace::lighten(pal_df$c, amount = 0.2),
+                      labels = pal_df$l) +
+  facet_grid(rows = vars(moment),
+             cols = vars(method),
+             labeller = labeller(
+               trait = traits_parsed,
+               .default = capitalize
+             ),
+             switch = 'y',
+             scales = 'free') +
+  labs(x = "BS sample size",
+       y = "Estimate") +
+  # Theme
+  theme_moon +
+  theme(legend.key.size = unit(5, "mm"),
+        axis.text = element_text(size = rel(.55)),
+        legend.position = 'bottom') +
+  inset_element(img1,
+                left = 0.0,
+                bottom = 0.89,
+                right = 0.07,
+                top = 0.99, 
+                align_to = 'full', 
+                ignore_tag = TRUE) + theme_void()
+
+ggsave(here::here("figures/Figure_SI_12.png"),
+       height = 120, width = 180,
+       units = "mm", dpi = 600)
+ggsave(here::here("figures/pdf/Figure_SI_12.pdf"),
+       height = 120, width = 180,
        units = "mm", dpi = 600)

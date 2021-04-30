@@ -23,9 +23,8 @@ simdata_rats <-
 simdata_frogs <-
   tidy_simdata(readRDS("output_data/simulation_results_treefrogs.RDS"))
 
-##TODO
 simdata_plankton <- 
-  tidy_simdata(readRDS("output_data/simulation_results_treefrogs.RDS"))
+  tidy_simdata(readRDS("output_data/simulation_results_phyto_subset_scaled.RDS"))
 
 
 ### Accuracy but using absolutes ----
@@ -58,14 +57,15 @@ cowplot::ggdraw(
                      yend = method),
                  color = "grey69",
                  size = 0.3) +
-    geom_jitter(data = simdata_lollipop,
-                aes(x = deviation,
-                    y = method,
-                    fill = method,
-                    alpha = hit),
-                color = colorspace::lighten("#5e5e5e", 0.3),
-                size = 1, stroke = 0.2,
-                width = 0, height = 0.2, shape = 21) +
+    geom_point(data = simdata_lollipop,
+               aes(x = deviation,
+                   y = method,
+                   fill = method,
+                   alpha = hit),
+               color = colorspace::lighten("#5e5e5e", 0.3),
+               size = 1, stroke = 0.2,
+               position = position_jitternormal(sd_x = 0, sd_y = 0.1), 
+               shape = 21) +
     geom_point(data = simmeans,
                aes(x = estimate,
                    y = method,
@@ -108,13 +108,16 @@ cowplot::ggdraw(
                                                     colour = "#5e5e5e"))) +
     theme_lollipop +
     theme(plot.margin = margin(15, 15, 10, 20))
-  ) +
+) +
   cowplot::draw_image(
     img1, x = 0.03, y = 0.94, hjust = 0.5, vjust = 0.5,
     width = 0.04
   )
 
-ggsave(here::here("figures/Lollipops_deviation.png"),
+ggsave(here::here("figures/Figure_SI_3.png"),
+       height = 120, width = 180,
+       units = "mm", dpi = 600)
+ggsave(here::here("figures/pdf/Figure_SI_3.png"),
        height = 120, width = 180,
        units = "mm", dpi = 600)
 
@@ -192,14 +195,15 @@ lollipop_all =
                    yend = method),
                color = "grey69",
                size = 0.3) +
-  geom_jitter(data = simdata_lollipop,
-              aes(x = deviation,
-                  y = method,
-                  fill = method,
-                  alpha = hit),
-              color = colorspace::lighten("#5e5e5e", 0.3),
-              size = 1, stroke = 0.2,
-              width = 0, height = 0.2, shape = 21) +
+  geom_point(data = simdata_lollipop,
+             aes(x = deviation,
+                 y = method,
+                 fill = method,
+                 alpha = hit),
+             color = colorspace::lighten("#5e5e5e", 0.3),
+             size = 1, stroke = 0.2,
+             position = position_jitternormal(sd_x = 0, sd_y = 0.1), 
+             shape = 21) +
   geom_point(data = simmeans,
              aes(x = estimate,
                  y = method,
@@ -237,13 +241,42 @@ lollipop_all =
     y = NULL
   ) +
   #guides(size = 'none') +
-  theme_lollipop +
-  theme(strip.text.y.left = element_text(margin = margin(0, 2, 2, 0),
-                                         size = rel(0.8), vjust = 0,
-                                         angle = 0))
+  theme_lollipop
+
+lollipop_all  +
+  inset_element(img5,
+                left = 0.0,
+                bottom = 0.26,
+                right = 0.07,
+                top = 0.35, 
+                align_to = 'full') + theme_void() +
+  inset_element(img4,
+                left = 0.0,
+                bottom = 0.4,
+                right = 0.07,
+                top = 0.47, 
+                align_to = 'full') + theme_void() +
+  inset_element(img3,
+                left = 0.01,
+                bottom = 0.54,
+                right = 0.08,
+                top = 0.63, 
+                align_to = 'full') + theme_void() +
+  inset_element(img2,
+                left = 0.01,
+                bottom = 0.67,
+                right = 0.08,
+                top = 0.78, 
+                align_to = 'full') + theme_void() +
+  inset_element(img1,
+                left = 0.0,
+                bottom = 0.83,
+                right = 0.07,
+                top = 0.92, 
+                align_to = 'full') + theme_void()
+
 
 ggsave(here::here("figures/Lollipops_Datsets.png"),
-       lollipop_all,
        height = 115, width = 180,
        units = "mm", dpi = 600)
 
@@ -471,16 +504,44 @@ sim_win_text$dataset <- factor(sim_win_text$dataset,
 ### a) BumpPlots ----
 
 bumps =
-  rbind(simdata %>%
-          mutate(dataset = rep("Herbs", nrow(.))),
-        simdata_frogs %>%
-          mutate(dataset = rep("Tadpoles", nrow(.))),
-        simdata_panama %>%
-          mutate(dataset = rep("Trees", nrow(.))),
-        simdata_rats %>%
-          mutate(dataset = rep("Rodents", nrow(.))),
-        simdata_plankton %>%
-          mutate(dataset = rep("Plankton", nrow(.)))) %>%
+  # rbind(simdata %>%
+  #         mutate(dataset = rep("Herbs", nrow(.))),
+  #       simdata_frogs %>%
+  #         mutate(dataset = rep("Tadpoles", nrow(.))),
+  #       simdata_panama %>%
+  #         mutate(dataset = rep("Trees", nrow(.))),
+  #       simdata_rats %>%
+  #         mutate(dataset = rep("Rodents", nrow(.))),
+  #       simdata_plankton %>%
+  #         mutate(dataset = rep("Plankton", nrow(.)))) %>%
+  # mutate(hit = ifelse(ci_low <= true_value & true_value <= ci_high,
+#                     2,
+#                     1),
+#        deviation = ifelse(abs(estimate) > abs(true_value),
+#                           abs(estimate) - abs(true_value),
+#                           abs(true_value) - abs(estimate))) %>%
+# group_by(dataset, moment, sample_size, site, trait) %>%
+# filter(hit == 2) %>%
+# filter(deviation == min(deviation)) %>%
+# group_by(dataset, method, moment, sample_size) %>%
+# count()%>%
+# group_by(dataset, moment, sample_size) %>%
+# mutate(rank = rank(-n,
+#                    ties.method = 'random')) %>%
+# mutate(rank = ifelse(is.na(rank),
+#                      5,
+#                      rank))
+
+rbind(simdata %>%
+        mutate(dataset = rep("Herbs", nrow(.))),
+      simdata_frogs %>%
+        mutate(dataset = rep("Tadpoles", nrow(.))),
+      simdata_panama %>%
+        mutate(dataset = rep("Trees", nrow(.))),
+      simdata_rats %>%
+        mutate(dataset = rep("Rodents", nrow(.))),
+      simdata_plankton %>%
+        mutate(dataset = rep("Plankton", nrow(.)))) %>%
   mutate(hit = ifelse(ci_low <= true_value & true_value <= ci_high,
                       2,
                       1),
@@ -489,8 +550,10 @@ bumps =
                             abs(true_value) - abs(estimate))) %>%
   # group_by(dataset, moment, sample_size, site, trait) %>%
   filter(hit == 2)  %>%
+  group_by(dataset, method, moment, trait, site, sample_size) %>%
+  summarise(n = min(deviation)) %>%
   group_by(dataset, method, moment, sample_size) %>%
-  summarise(n = mean(deviation)) %>%
+  summarise(n = mean(n)) %>%
   group_by(dataset, moment, sample_size) %>%
   mutate(rank = rank(n)) %>%
   mutate(rank = ifelse(is.na(rank),
@@ -507,7 +570,7 @@ bumps$dataset <- factor(bumps$dataset,
 sub_bump =
   ggplot(bumps %>%
            filter(sample_size < 50 &&
-                  dataset == "Herbs")) +
+                    dataset == "Herbs")) +
   with_blur(
     geom_bump(aes(x = sample_size,
                   y = -rank,
@@ -533,8 +596,8 @@ sub_bump =
   scale_x_continuous(trans = 'sqrt', breaks = c(1,4,9,16,25, 36,49),
                      limits = c(1, 50)) +
   scale_y_continuous(breaks = c(-1,-4),
-                   labels = c("Best", "Worst"),
-                   limits = c(-4.25, -0.75)) +
+                     labels = c("Best", "Worst"),
+                     limits = c(-4.25, -0.75)) +
   # Theme
   figure_theme +
   theme(panel.background = element_rect(colour = colorspace::darken("#dddddd", 0.1),
@@ -552,7 +615,7 @@ sub_bump =
         legend.title = element_text(size = rel(1.5)))
 
 ggplot(bumps %>%
-           filter(sample_size < 50)) +
+         filter(sample_size < 50)) +
   with_blur(
     geom_bump(aes(x = sample_size,
                   y = -rank,
@@ -599,7 +662,37 @@ ggplot(bumps %>%
         axis.ticks.y = element_blank(),
         axis.title.y = element_blank(),
         legend.position = 'bottom',
-        legend.key.size = unit(3, "mm"))
+        legend.key.size = unit(3, "mm")) +
+  inset_element(img5,
+                left = 0.0,
+                bottom = 0.21,
+                right = 0.07,
+                top = 0.30, 
+                align_to = 'full') + theme_void() +
+  inset_element(img4,
+                left = 0.0,
+                bottom = 0.37,
+                right = 0.07,
+                top = 0.44, 
+                align_to = 'full') + theme_void() +
+  inset_element(img3,
+                left = 0.01,
+                bottom = 0.52,
+                right = 0.08,
+                top = 0.61, 
+                align_to = 'full') + theme_void() +
+  inset_element(img2,
+                left = 0.01,
+                bottom = 0.66,
+                right = 0.08,
+                top = 0.78, 
+                align_to = 'full') + theme_void() +
+  inset_element(img1,
+                left = 0.0,
+                bottom = 0.83,
+                right = 0.07,
+                top = 0.92, 
+                align_to = 'full') + theme_void()
 
 ggsave(here::here("figures/bumps.png"),
        height = 130, width = 180,
@@ -621,15 +714,16 @@ lollipop_CO =
                    yend = method),
                color = "grey69",
                size = 0.3) +
-  geom_jitter(data = simdata_lollipop %>%
-                filter(dataset == "Herbs"),
-              aes(x = deviation,
-                  y = method,
-                  fill = method,
-                  alpha = hit),
-              color = colorspace::lighten("#5e5e5e", 0.3),
-              size = 1, stroke = 0.2,
-              width = 0, height = 0.2, shape = 21) +
+  geom_point(data = simdata_lollipop %>%
+               filter(dataset == "Herbs"),
+             aes(x = deviation,
+                 y = method,
+                 fill = method,
+                 alpha = hit),
+             color = colorspace::lighten("#5e5e5e", 0.3),
+             size = 1, stroke = 0.2,
+             position = position_jitternormal(sd_x = 0, sd_y = 0.1), 
+             shape = 21) +
   geom_point(data = simmeans %>%
                filter(dataset == "Herbs"),
              aes(x = estimate,
@@ -700,6 +794,7 @@ lollipop_CO =
                                           title.hjust = 0.5),
                      values = pal_df$c,
                      breaks = pal_df$l) +
+   labs(tag = "A") +
    # Theme
    theme_doughnut +
    theme(strip.text.y.left = element_text(margin = margin(0, -1, 5, 0),
@@ -708,32 +803,85 @@ lollipop_CO =
          strip.text.x.top = element_text(size = rel(1.3)),
          legend.position = 'top',
          legend.background = element_rect(colour = colorspace::darken("#dddddd", 0.1),
-                                                                 size = 0.4),
+                                          size = 0.4),
          legend.margin = margin(3, 5, 3, 5),
          plot.margin = margin(5, 0, 7, 0))
-) /
-  (sub_bump +
+ +
+   inset_element(img5,
+                 left = 0.02,
+                 bottom = 0.05,
+                 right = 0.1,
+                 top = 0.14, 
+                 align_to = 'full', 
+                 ignore_tag = TRUE) + theme_void() +
+   inset_element(img4,
+                 left = 0.02,
+                 bottom = 0.23,
+                 right = 0.1,
+                 top = 0.32, 
+                 align_to = 'full', 
+                 ignore_tag = TRUE) + theme_void() +
+   inset_element(img3,
+                 left = 0.03,
+                 bottom = 0.42,
+                 right = 0.1,
+                 top = 0.5, 
+                 align_to = 'full', 
+                 ignore_tag = TRUE) + theme_void() +
+   inset_element(img2,
+                 left = 0.02,
+                 bottom = 0.6,
+                 right = 0.1,
+                 top = 0.67, 
+                 align_to = 'full', 
+                 ignore_tag = TRUE) + theme_void() +
+   inset_element(img1,
+                 left = 0.02,
+                 bottom = 0.78,
+                 right = 0.1,
+                 top = 0.85, 
+                 align_to = 'full', 
+                 ignore_tag = TRUE) + theme_void()) /
+  (sub_bump+
+     labs(tag = "B") +
      theme(legend.position = 'none',
            strip.text.x.top = element_blank(),
            strip.text.y = element_blank(),
            axis.title.y = element_text(size = rel(0.9)),
-           plot.margin = margin(0, 2, 0, 0)))/
-  lollipop_CO +
+           plot.margin = margin(0, 2, 0, 0)) +
+     inset_element(img1,
+                   left = 0.0,
+                   bottom = 0.4,
+                   right = 0.1,
+                   top = 0.7, 
+                   align_to = 'full', 
+                   ignore_tag = TRUE) + theme_void())/
+  lollipop_CO+
+  labs(tag = "C") +
   theme(
-    strip.text.y = element_blank(),
+    strip.text.y.left = element_blank(),
     strip.text.x.top = element_blank(),
     axis.title.y = element_text(size = rel(0.9)),
     legend.position = 'none',
     plot.margin = margin(0, 2, 0, 0)
-  )  +
-  plot_annotation(tag_levels = 'A',
-                  theme = theme(
+  ) +
+  inset_element(img1,
+                left = 0.0,
+                bottom = 0.4,
+                right = 0.1,
+                top = 0.7, 
+                align_to = 'full', 
+                ignore_tag = TRUE) + theme_void()  +
+  plot_annotation(theme = theme(
                     plot.background = element_rect(fill = "white", colour = NA),
                     panel.background = element_rect(fill = "white", colour = NA),
                     text = element_text(face = 'bold'))) +
   plot_layout(heights = c(1, 0.15, 0.15))
 
-ggsave(here::here("figures/Fig2_panel.png"),
+ggsave(here::here("figures/Figure_2.png"),
+       height = 310, width = 180,
+       units = "mm", dpi = 600)
+ggsave(here::here("figures/pdf/Figure_2.pdf"),
        height = 310, width = 180,
        units = "mm", dpi = 600)
 
