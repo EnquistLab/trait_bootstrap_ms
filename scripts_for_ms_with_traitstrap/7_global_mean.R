@@ -231,6 +231,7 @@ global =
                                             "kurtosis")))
 
 
+
 ####
 
 
@@ -268,5 +269,15 @@ ggplot(global) +
                                            title.hjust = 0.5),
                       values = pal_df$c,
                       labels = pal_df$l) +
-  theme_moon
+  theme_moon +
+  inset_element(img1,
+                left = 0.0,
+                bottom = 0.93,
+                right = 0.07,
+                top = 0.99, 
+                align_to = 'full', 
+                ignore_tag = TRUE) + theme_void()
 
+ggsave(here::here("figures/global_mean.png"),
+       height = 120, width = 180,
+       units = "mm", dpi = 600)
