@@ -89,6 +89,10 @@ ggplot(global) +
                                            title.hjust = 0.5),
                       values = pal_df$c,
                       labels = pal_df$l) +
+  scale_linetype_manual("Data source",
+                        values=c("Biased" = 4,
+                                 "Random" = 1),
+                        guide = guide_legend(override.aes = list(colour = "grey69"))) +
   theme_moon +
   inset_element(img1,
                 left = 0.0,
