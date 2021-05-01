@@ -65,8 +65,8 @@ for (i in 1:length(trait_select)) {
     ggplot(global %>%
              filter(trait == trait_select[i])) +
     geom_line(aes(x = mean_elev,
-                  y = true_value),
-              linetype = 4,
+                  y = true_value,
+                  linetype = "True value"),
               colour = "grey30",
               size = 0.8) +
     geom_ribbon(data = global %>%
@@ -76,7 +76,7 @@ for (i in 1:length(trait_select)) {
                     ymin = ci_low,
                     ymax = ci_high,
                     fill = method),
-                alpha = 0.1, size = 0.1,
+                alpha = 0.2,
                 show.legend = FALSE)+
     geom_ribbon(data = global %>%
                   filter(trait == trait_select[i]) %>%
@@ -85,7 +85,7 @@ for (i in 1:length(trait_select)) {
                     ymin = ci_low,
                     ymax = ci_high,
                     fill = method),
-                alpha = 0.1, size = 0.1,
+                alpha = 0.2,
                 show.legend = FALSE) +
     geom_line(aes(x = mean_elev,
                   y = estimate,
@@ -110,18 +110,21 @@ for (i in 1:length(trait_select)) {
                                              title.hjust = 0.5),
                         values = c(pal_df$c[1], pal_df$c[4]),
                         labels = c(pal_df$l[1], pal_df$l[4])) +
-    scale_linetype_manual(values=c(3, 1),
-                          labels = c("Global", "Local"),
+    scale_linetype_manual(values=c(3, 1, 4),
+                          labels = c("Global", "Local", "True value"),
                           guide = guide_legend(title = "Data source",
                                                title.position="top",
                                                title.hjust = 0.5,
-                                               override.aes = list(colour = "grey69"))) +
+                                               override.aes = list(colour = c("grey69",
+                                                                              "grey69",
+                                                                              "grey30"),
+                                                                   size = 0.5))) +
     labs(x = "Elevation (m)",
          y = "Estimate") +
     theme_moon +
     theme(
       legend.position = 'bottom',
-      legend.key.size = unit(6, "mm"),
+      legend.key.size = unit(7, "mm"),
       axis.title = element_text(size = rel(.7)),
       plot.title = element_text(hjust = 0.5,
                                 size = rel(0.8)),
