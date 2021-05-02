@@ -155,9 +155,9 @@ global_plots[[1]] +
     panel.background = element_rect(fill = "white", colour = NA),
     legend.position = 'bottom'))
 
-ggsave(here::here("figures/global_mean.png"),
+ggsave(here::here("figures/Figure_4.png"),
        height = 150, width = 180,
        units = "mm", dpi = 600)
-ggsave(here::here("figures/pdf/global_mean.pdf"),
+ggsave(here::here("figures/pdf/Figure_4.pdf"),
        height = 150, width = 180,
        units = "mm", dpi = 600)
