@@ -49,7 +49,7 @@ cowplot::ggdraw(
       y = estimate ,
       color = method,
       linetype = "Mean estimate"),
-      alpha = 0.8,
+      alpha = 0.7,
       size = 0.5, smooth = 3) +
     coord_cartesian(clip = 'off') +
     scale_fill_manual(guide = guide_legend(title = "Method",
