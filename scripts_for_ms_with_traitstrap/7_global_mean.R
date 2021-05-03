@@ -65,8 +65,8 @@ for (i in 1:length(trait_select)) {
     ggplot(global %>%
              filter(trait == trait_select[i])) +
     geom_line(aes(x = mean_elev,
-                  y = true_value),
-              linetype = 4,
+                  y = true_value,
+                  linetype = "True value"),
               colour = "grey30",
               size = 0.8) +
     geom_ribbon(data = global %>%
@@ -75,10 +75,8 @@ for (i in 1:length(trait_select)) {
                 aes(x = mean_elev,
                     ymin = ci_low,
                     ymax = ci_high,
-                    fill = method,
-                    colour = method, 
-                    linetype = trait_source),
-                alpha = 0.1, size = 0.1,
+                    fill = method),
+                alpha = 0.2,
                 show.legend = FALSE)+
     geom_ribbon(data = global %>%
                   filter(trait == trait_select[i]) %>%
@@ -86,18 +84,16 @@ for (i in 1:length(trait_select)) {
                 aes(x = mean_elev,
                     ymin = ci_low,
                     ymax = ci_high,
-                    fill = method,
-                    colour = method, 
-                    linetype = trait_source),
-                alpha = 0.1, size = 0.1,
+                    fill = method),
+                alpha = 0.2,
                 show.legend = FALSE) +
     geom_line(aes(x = mean_elev,
                   y = estimate,
                   colour = method, 
                   linetype = trait_source),
-              size = 0.5) +
+              size = 0.6) +
     facet_grid(rows = vars(moment),
-               cols = vars(trait),
+               cols = vars(trait_source),
                labeller = labeller(
                  trait = traits_parsed,
                  .default = capitalize
@@ -114,25 +110,34 @@ for (i in 1:length(trait_select)) {
                                              title.hjust = 0.5),
                         values = c(pal_df$c[1], pal_df$c[4]),
                         labels = c(pal_df$l[1], pal_df$l[4])) +
-    scale_linetype_manual(values=c(3, 1),
-                          labels = c("Global", "Local"),
+    scale_linetype_manual(values=c(3, 1, 4),
+                          labels = c("Global", "Local", "True value"),
                           guide = guide_legend(title = "Data source",
                                                title.position="top",
                                                title.hjust = 0.5,
-                                               override.aes = list(colour = "grey69"))) +
+                                               override.aes = list(colour = c("grey69",
+                                                                              "grey69",
+                                                                              "grey30"),
+                                                                   size = 0.5))) +
     labs(x = "Elevation (m)",
          y = "Estimate") +
     theme_moon +
     theme(
       legend.position = 'bottom',
-      legend.key.size = unit(6, "mm"),
-      axis.title = element_text(size = rel(.7))
+      legend.key.size = unit(7, "mm"),
+      axis.title = element_text(size = rel(.7)),
+      plot.title = element_text(hjust = 0.5,
+                                size = rel(0.8)),
+      axis.text = element_text(size = rel(.5)),
+      plot.margin = margin(7, 5, 5, 5),
+      legend.margin = margin(0, 2, 1, 0)
     )
 }
 
 
 
 global_plots[[1]] +
+  labs(title = "Height")  +
   inset_element(img1,
                 left = 0.0,
                 bottom = 0.9,
@@ -141,6 +146,7 @@ global_plots[[1]] +
                 align_to = 'full', 
                 ignore_tag = TRUE) + theme_void() +
   global_plots[[2]] +
+    labs(title = "LMA") +
   theme(axis.title.y = element_blank(),
         strip.text.y = element_blank()) +
   plot_layout(guides = 'collect') +
@@ -149,6 +155,9 @@ global_plots[[1]] +
     panel.background = element_rect(fill = "white", colour = NA),
     legend.position = 'bottom'))
 
-ggsave(here::here("figures/global_mean.png"),
-       height = 130, width = 180,
+ggsave(here::here("figures/Figure_4.png"),
+       height = 150, width = 180,
+       units = "mm", dpi = 600)
+ggsave(here::here("figures/pdf/Figure_4.pdf"),
+       height = 150, width = 180,
        units = "mm", dpi = 600)

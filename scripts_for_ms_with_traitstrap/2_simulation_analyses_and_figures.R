@@ -114,10 +114,10 @@ cowplot::ggdraw(
     width = 0.04
   )
 
-ggsave(here::here("figures/Figure_SI_3.png"),
+ggsave(here::here("figures/Figure_SI_4.png"),
        height = 120, width = 180,
        units = "mm", dpi = 600)
-ggsave(here::here("figures/pdf/Figure_SI_3.png"),
+ggsave(here::here("figures/pdf/Figure_SI_4.pdf"),
        height = 120, width = 180,
        units = "mm", dpi = 600)
 
@@ -276,7 +276,10 @@ lollipop_all  +
                 align_to = 'full') + theme_void()
 
 
-ggsave(here::here("figures/Lollipops_Datsets.png"),
+ggsave(here::here("figures/Figure_SI_3.png"),
+       height = 115, width = 180,
+       units = "mm", dpi = 600)
+ggsave(here::here("figures/pdf/Figure_SI_3.pdf"),
        height = 115, width = 180,
        units = "mm", dpi = 600)
 
@@ -419,7 +422,10 @@ cowplot::ggdraw(doughnut_CO) +
     width = 0.08
   )
 
-ggsave(here::here("figures/WinnerDoughnuts.png"),
+ggsave(here::here("figures/Figure_SI_6.png"),
+       height = 180, width = 147,
+       units = "mm", dpi = 600)
+ggsave(here::here("figures/pdf/Figure_SI_6.pdf"),
        height = 180, width = 147,
        units = "mm", dpi = 600)
 
@@ -694,7 +700,10 @@ ggplot(bumps %>%
                 top = 0.92, 
                 align_to = 'full') + theme_void()
 
-ggsave(here::here("figures/bumps.png"),
+ggsave(here::here("figures/Figure_SI_2.png"),
+       height = 130, width = 180,
+       units = "mm", dpi = 600)
+ggsave(here::here("figures/pdf/Figure_SI_2.pdf"),
        height = 130, width = 180,
        units = "mm", dpi = 600)
 
@@ -1054,6 +1063,9 @@ cowplot::ggdraw(doughnut) +
     width = 0.07
   )
 
-ggsave(here::here("figures/WinnerDoughnuts_panama.png"),
+ggsave(here::here("figures/Figure_SI_5.png"),
+       height = 314, width = 180,
+       units = "mm", dpi = 600)
+ggsave(here::here("figures/pdf/Figure_SI_5.pdf"),
        height = 314, width = 180,
        units = "mm", dpi = 600)

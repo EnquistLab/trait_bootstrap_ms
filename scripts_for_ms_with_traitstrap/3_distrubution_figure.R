@@ -191,6 +191,16 @@ joy_plot =
                       scale = 0.9,
                       alpha = 0.4,
                       size = 0.3) +
+  stat_density_ridges(data = all_dists,
+                      aes(x = value,
+                          y = factor(paste(mean_elev,"m")),
+                          colour = method,
+                          linetype = method),
+                      fill = NA,
+                      rel_min_height = 0.01,
+                      scale = 0.9,
+                      alpha = 0.4,
+                      size = 0.35) +
   scale_y_discrete(expand = c(0.01, 0)) +
   scale_x_continuous(expand = c(0.1, 0)) +
   coord_cartesian(clip = 'off') +
@@ -238,10 +248,12 @@ cowplot::ggdraw(
     width = 0.045
   )
 
-ggsave(here::here("figures/densityestimate_joy.png"),
+ggsave(here::here("figures/Figure_SI_1.png"),
        height = 120, width = 180,
        units = "mm", dpi = 600)
-
+ggsave(here::here("figures/pdf/Figure_SI_1.pdf"),
+       height = 120, width = 180,
+       units = "mm", dpi = 600)
 
 ###################################################################################
 

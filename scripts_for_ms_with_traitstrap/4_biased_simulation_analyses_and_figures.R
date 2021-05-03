@@ -850,7 +850,10 @@ for (i in 1:5) {
     panel.background = element_rect(fill = "white", colour = NA),
     legend.position = 'bottom')) 
 
-ggsave(here::here("figures/restricted_sample_datasets.png"),
+ggsave(here::here("figures/Figure_SI_7.png"),
+       height = 140, width = 180,
+       units = "mm", dpi = 600)
+ggsave(here::here("figures/pdf/Figure_SI_7.pdf"),
        height = 140, width = 180,
        units = "mm", dpi = 600)
 
@@ -1030,7 +1033,10 @@ moons_pa +
                 top = 1, 
                 align_to = 'full') + theme_void()
 
-ggsave(here::here("figures/moons_pct_abund_panama.png"),
+ggsave(here::here("figures/Figure_SI_8.png"),
+       height = 100, width = 160,
+       units = "mm", dpi = 600)
+ggsave(here::here("figures/pdf/Figure_SI_8.pdf"),
        height = 100, width = 160,
        units = "mm", dpi = 600)
 

@@ -35,8 +35,8 @@ cowplot::ggdraw(
                   y = true_value,
                   group = method,
                   linetype = "True value"),
-              colour = 'grey69',
-              size = 0.3, smooth = 3) +
+              colour = 'grey30',
+              size = 0.4, smooth = 3) +
     geom_ribbon(aes(
       x = as.numeric(site),
       ymin = ci_low,
@@ -49,7 +49,7 @@ cowplot::ggdraw(
       y = estimate ,
       color = method,
       linetype = "Mean estimate"),
-      alpha = 0.8,
+      alpha = 0.7,
       size = 0.5, smooth = 3) +
     coord_cartesian(clip = 'off') +
     scale_fill_manual(guide = guide_legend(title = "Method",
@@ -58,16 +58,17 @@ cowplot::ggdraw(
                       values = colorspace::darken(pal_df$c, amount = 0.2),
                       labels = pal_df$l) +
     scale_colour_manual(guide = guide_legend(title = "Method",
-                                             title.position="top"),
+                                             title.position="top",
+                                             title.hjust = 0.5),
                         values = colorspace::lighten(pal_df$c, amount = 0.2),
                         labels = pal_df$l) +
-    scale_linetype_manual(values=c("True value" = 1,
+    scale_linetype_manual(values=c("True value" = 4,
                                    "Mean estimate" = 1),
                           guide = guide_legend(title = "Estimate",
                                                title.position="top",
                                                title.hjust = 0.5,
                                                override.aes = 
-                                                 list(colour = c("black","grey69")))) +
+                                                 list(colour = c("grey69","grey30")))) +
     facet_grid(rows = vars(moment),
                cols = vars(method),
                labeller = labeller(
@@ -78,6 +79,7 @@ cowplot::ggdraw(
                scales = 'free') +
     labs(x = "Day of year",
          y = "Estimate") +
+    guides(fill = 'none') +
     # Theme
     theme_moon +
     theme(legend.key.size = unit(5, "mm"),
@@ -89,10 +91,10 @@ cowplot::ggdraw(
     width = 0.06
   )
 
-ggsave(here::here("figures/Figure_4.png"),
+ggsave(here::here("figures/Figure_5.png"),
        height = 120, width = 180,
        units = "mm", dpi = 600)
-ggsave(here::here("figures/pdf/Figure_4.pdf"),
+ggsave(here::here("figures/pdf/Figure_5.pdf"),
        height = 120, width = 180,
        units = "mm", dpi = 600)
 

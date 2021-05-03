@@ -76,14 +76,15 @@ cowplot::ggdraw(
                 aes(slope = grad, 
                     intercept = yint,
                     linetype = "Regression slope"),
-                colour = "grey69") +
+                colour = "grey69",
+                alpha = 0.9) +
     geom_point(aes(x = traditional_CWM,
                    y = bootstrap_CWM),
                colour = "grey69",
                fill = pal_df$c[1],
                shape = 21,
                size = 2,
-               alpha = 0.6) +
+               alpha = 0.5) +
     geom_point(aes(x = traditional_CWM,
                    y = bootstrap_CWM),
                colour = "grey69",
@@ -133,10 +134,10 @@ cowplot::ggdraw(
     width = 0.045
   )
 
-ggsave(here::here("figures/Figure_SI_1.png"),
+ggsave(here::here("figures/Figure_SI_9.png"),
        height = 110, width = 180,
        units = "mm", dpi = 600)
-ggsave(here::here("figures/pdf/Figure_SI_1.pdf"),
+ggsave(here::here("figures/pdf/Figure_SI_9.pdf"),
        height = 110, width = 180,
        units = "mm", dpi = 600)
 
@@ -276,10 +277,10 @@ for (i in 1:length(samp_size)) {
                     legend.position = 'none')
   ) 
 
-ggsave(here::here("figures/Figure_SI_11.png"),
+ggsave(here::here("figures/Figure_SI_10.png"),
        height = 190, width = 180,
        units = "mm", dpi = 600)
-ggsave(here::here("figures/pdf/Figure_SI_11.pdf"),
+ggsave(here::here("figures/pdf/Figure_SI_10.pdf"),
        height = 190, width = 180,
        units = "mm", dpi = 600)
 
@@ -304,7 +305,7 @@ ggplot(bs_ci) +
   geom_line(aes(x = boot_sample_size,
                 y = true_value,
                 linetype = "True value"),
-            colour = 'grey69',
+            colour = 'grey30',
             size = 0.5) +
   geom_bump(aes(x = boot_sample_size,
                 y = estimate,
@@ -317,15 +318,16 @@ ggplot(bs_ci) +
                                          title.hjust = 0.5),
                     values = colorspace::darken(pal_df$c, amount = 0.2),
                     labels = pal_df$l) +
-  scale_linetype_manual(values=c("True value" = 1,
+  scale_linetype_manual(values=c("True value" = 4,
                                  "Mean estimate" = 1),
                         guide = guide_legend(title = "Estimate",
                                              title.position="top",
                                              title.hjust = 0.5,
                                              override.aes = 
-                                               list(colour = c("black","grey69")))) +
+                                               list(colour = c("grey69","grey30")))) +
   scale_colour_manual(guide = guide_legend(title = "Method",
-                                           title.position="top"),
+                                           title.position="top",
+                                           title.hjust = 0.5),
                       values = colorspace::lighten(pal_df$c, amount = 0.2),
                       labels = pal_df$l) +
   facet_grid(rows = vars(moment),
@@ -336,6 +338,7 @@ ggplot(bs_ci) +
              ),
              switch = 'y',
              scales = 'free') +
+  guides(fill = 'none') +
   labs(x = "BS sample size",
        y = "Estimate") +
   # Theme
@@ -351,9 +354,9 @@ ggplot(bs_ci) +
                 align_to = 'full', 
                 ignore_tag = TRUE) + theme_void()
 
-ggsave(here::here("figures/Figure_SI_12.png"),
+ggsave(here::here("figures/Figure_SI_11.png"),
        height = 120, width = 180,
        units = "mm", dpi = 600)
-ggsave(here::here("figures/pdf/Figure_SI_12.pdf"),
+ggsave(here::here("figures/pdf/Figure_SI_11.pdf"),
        height = 120, width = 180,
        units = "mm", dpi = 600)
