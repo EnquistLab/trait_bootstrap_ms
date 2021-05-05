@@ -1,0 +1,527 @@
+@ARTICLE{Enquist_undated-aw, 
+title  = "Botanical big data shows that plant diversity in the New World is driven by climatic-linked differences in evolutionary rates and   biotic exclusion", 
+author = "Enquist, B J and Sandel, B and Boyle, B and Svenning, J-C and McGill, B J and Donoghue, J C and Hinchliff, C E and Jorgensen, P M and Kraft, N J B and Marcuse-Kubitza, A and Merow, C and Morueta-Holme, N and Peet, R K and Schildhauer, M and Spencer, N and Regetz, J and Simova, I and Smith, S A and Thiers, B and Violle, C and Wiser, S K and Andelman, S and Casler, N and Condit, R and Dolins, S and Guaderrama, D and Maitner, B S and Narro, M L and Ott, J E and Phillips, O and Sloat, L L and ter   Steege, H"}
+@article{doi:10.1111/2041-210X.12861,  
+author = {Maitner Brian S. and Boyle Brad and Casler Nathan and Condit Rick and Donoghue John and Duran Sandra M. and Guaderrama Daniel and Hinchliff Cody E. and Jorgensen Peter M. and Kraft Nathan J.B. and McGill Brian and Merow Cory and Morueta-Holme Naia and Peet Robert K. and Sandel Brody and Schildhauer Mark and Smith Stephen A. and Svenning Jens-Christian and Thiers Barbara and Violle Cyrille and Wiser Susan and Enquist Brian J.},  
+title = {The bien r package: A tool to access the Botanical Information and Ecology Network (BIEN) database},  
+journal = {Methods in Ecology and Evolution},  volume = {9},  number = {2},  pages = {373-379},  keywords = {biodiversity, community plot, ecoinformatics, functional traits, herbarium records, occurrence, phylogeny, plants, presence, R, range maps},  doi = {10.1111/2041-210X.12861},  
+url = {https://bes
+journals.onlinelibrary.wiley.com/doi/abs/10.1111/2041-210X.12861},  eprint = {https://bes
+journals.onlinelibrary.wiley.com/doi/pdf/10.1111/2041-210X.12861},  abstract = {Abstract There is an urgent need for large-scale botanical data to improve our understanding of community assembly, coexistence, biogeography, evolution, and many other fundamental biological processes. Understanding these processes is critical for predicting and handling human-biodiversity interactions and global change dynamics such as food and energy security, ecosystem services, climate change, and species invasions. The Botanical Information and Ecology Network (BIEN) database comprises an unprecedented wealth of cleaned and standardised botanical data, containing roughly 81 million occurrence records from c. 375,000 species, c. 915,000 trait observations across 28 traits from c. 93,000 species, and co-occurrence records from 110,000 ecological plots globally, as well as 100,000 range maps and 100 replicated phylogenies (each containing 81,274 species) for New World species. Here, we describe an r package that provides easy access to these data. The bien r package allows users to access the multiple types of data in the BIEN database. Functions in this package query the BIEN database by turning user inputs into optimised PostgreSQL functions. Function names follow a convention designed to make it easy to understand what each function does. We have also developed a protocol for providing customised citations and herbarium acknowledgements for data downloaded through the bien r package. The development of the BIEN database represents a significant achievement in biological data integration, cleaning and standardization. Likewise, the bien r package represents an important tool for open science that makes the BIEN database freely and easily accessible to everyone.}}
+@misc{dryad_pt7n3, 
+title = {Data from: Evidence of local adaptation to fine- and coarse-grained environmental variability in Poa alpina in the Swiss Alps}, 
+author = {Hamann, E and Kesselring, H and Armbruster, GFJ and Scheepens, JF and StAfA?cklin, J}, 
+year = {2016}, 
+journal = {Journal of Ecology}, URL = {http://dx.doi.org/10.5061/dryad.pt7n3}, doi = {doi:10.5061/dryad.pt7n3}, publisher = {Dryad Digital Repository}}
+@misc{dryad_7s7r1, 
+title = {Data from: Seed size predicts community composition and carbon storage potential of tree communities in rainforest fragments in IndiaA,A's Western Ghats}, 
+author = {Osuri, AM and Sankaran, M}, 
+year = {2016}, 
+journal = {Journal of Applied Ecology}, URL = {http://dx.doi.org/10.5061/dryad.7s7r1}, doi = {doi:10.5061/dryad.7s7r1}, publisher = {Dryad Digital Repository}}
+@misc{dryad_512p5, 
+title = {Data from: Trait-mediated community assembly: distinguishing the signatures of biotic and abiotic filters}, 
+author = {Loughnan, D and Gilbert, B}, 
+year = {2017}, 
+journal = {Oikos}, URL = {http://dx.doi.org/10.5061/dryad.512p5}, doi = {doi:10.5061/dryad.512p5}, publisher = {Dryad Digital Repository}}
+@misc{dryad_r3n45, 
+title = {Data from: Are leaf functional traits A,A"invariantA,A" with plant size, and what is A,A"invarianceA,A" anyway?}, 
+author = {Price, CA and Wright, IJ and Ackerly, DD and Niinemets, AfAo and Reich, PB and Veneklaas, EJ}, 
+year = {2014}, 
+journal = {Functional Ecology}, URL = {http://dx.doi.org/10.5061/dryad.r3n45}, doi = {doi:10.5061/dryad.r3n45}, publisher = {Dryad Digital Repository}}
+@misc{dryad_n3s2m, 
+title = {Data from: Urban trees reduce nutrient leaching to groundwater}, 
+author = {Nidzgorski, DA and Hobbie, SE}, 
+year = {2016}, 
+journal = {Ecological Applications}, URL = {http://dx.doi.org/10.5061/dryad.n3s2m}, doi = {doi:10.5061/dryad.n3s2m}, publisher = {Dryad Digital Repository}}
+@misc{dryad_223p4, 
+title = {Data from: Multiple reproductive barriers separate recently diverged sunflower ecotypes}, 
+author = {Ostevik, KL and Andrew, RL and Otto, SP and Rieseberg, LH}, 
+year = {2016}, 
+journal = {Evolution}, URL = {http://dx.doi.org/10.5061/dryad.223p4}, doi = {doi:10.5061/dryad.223p4}, publisher = {Dryad Digital Repository}}
+@misc{dryad_750df, 
+title = {Data from: Selection for niche differentiation in mixed plant communities increases biodiversity effects}, 
+author = {Zuppinger-Dingley, D and Schmid, B and Petermann, JS and Yadav, V and De, Deyn, GB and Flynn, DFB}, 
+year = {2014}, 
+journal = {Nature}, URL = {http://dx.doi.org/10.5061/dryad.750df}, doi = {doi:10.5061/dryad.750df}, publisher = {Dryad Digital Repository}}
+@misc{dryad_q2n8p, 
+title = {Data from: Forest disturbance accelerates thermophilization of understory plant communities}, 
+author = {Stevens, JT and Safford, HD and Harrison, S and Latimer, AM}, 
+year = {2015}, 
+journal = {Journal of Ecology}, URL = {http://dx.doi.org/10.5061/dryad.q2n8p}, doi = {doi:10.5061/dryad.q2n8p}, publisher = {Dryad Digital Repository}}
+@misc{dryad_fr2k8, 
+title = {Data from: Epigenetic variation predicts regional and local intraspecific functional diversity in a perennial herb}, 
+author = {Medrano, M and Herrera, CM and Bazaga, P}, 
+year = {2014}, 
+journal = {Molecular Ecology}, URL = {http://dx.doi.org/10.5061/dryad.fr2k8}, doi = {doi:10.5061/dryad.fr2k8}, publisher = {Dryad Digital Repository}}
+@article{shugart1980development,
+  
+title={Development of a succession model for subtropical rain forest and its application to assess the effects of timber harvest at Wiangaree State Forest, New South Wales},
+  
+author={Shugart Jr, HH and Hopkins, MS and Burgess, IP and Mortlock, AT},
+  
+journal={J. Environ. Manage.;(United States)},
+  volume={11},
+  number={3},
+  
+year={1980}
+}
+@misc{dryad_4b95c_2, 
+title = {Data from: Determinants of litter decomposition rates in a tropical forest: functional traits, phylogeny and ecological succession}, 
+author = {Szefer, P and Carmona, CP and Chmel, K and KonecnAfA!, M and Libra, M and Molem, K and Novotny, V and Segar, ST and A,ASvamberkovAfA!, E and Topliceanu, T and Leps, J}, 
+year = {2016}, 
+journal = {Oikos}, URL = {http://dx.doi.org/10.5061/dryad.4b95c.2}, doi = {doi:10.5061/dryad.4b95c.2}, publisher = {Dryad Digital Repository}}
+@Article{DeWalt1999,
+
+author="DeWalt, Saara J.
+and Bourdy, Genevieve
+and Chavez de Michel, Lia R.
+and Quenevo, Celin",
+
+title="Ethnobotany of the Tacana: Quantitative inventories of two permanent plots of Northwestern Bolivia",
+
+journal="Economic Botany",
+
+year="1999",
+volume="53",
+number="3",
+pages="237--260",
+abstract="We present ecological and ethnobotanical descriptions of two permanent 1-ha plots located in Amazonian forest near two Tacana communities situated north and west of the Madidi National Park in the Iturralde Province, Department of La Paz of northwestern Bolivia. We interviewed 13 Tacana men and women to identify and enumerate uses of all of the trees, palms, and lianas AcA?AY 10 cm dbh in these plots. Of the 185 species found in both plots, 115 species are used by the Tacana: 59 species for construction, 9 as sources of fiber, 33 for technology and crafts, 66 as firewood, 32 for food or water, 40 for medicine, 8 for hunting or fishing, 9 for commercial purposes, and 11 for miscellaneous uses. Sixty-four percent of useful species had multiple uses. This utilization of the forest corresponds with that of other Amazonian indigenous groups and shows a high reliance on the forest for vegetative materials, especially medicine, technology and crafts, and construction.",
+issn="1874-9364",
+doi="10.1007/BF02866635",
+
+url="http://dx.doi.org/10.1007/BF02866635"
+}
+@misc{dryad_b5tr9, 
+title = {Data from: Reducing soil erosion by improving community functional diversity in semi-arid grasslands}, 
+author = {Zhu, H and Fu, B and Wang, S and Zhu, L and Jiao, L and Wang, C}, 
+year = {2015}, 
+journal = {Journal of Applied Ecology}, URL = {http://dx.doi.org/10.5061/dryad.b5tr9}, doi = {doi:10.5061/dryad.b5tr9}, publisher = {Dryad Digital Repository}}
+@misc{dryad_h9083, 
+title = {Data from: Globally, functional traits are weak predictors of juvenile tree growth, and we do not know why}, 
+author = {Paine, CET and Amissah, L and Auge, H and Baraloto, C and Baruffol, M and Bo
+urland, N and Bruelheide, H and DaAfA?nou, K and de, Gouvenain, RC and Doucet, J and Doust, S and Fine, PVA and Fortunel, C and Haase, J and Holl, KD and Jactel, H and li, X and Kitajima, K and Koricheva, J and MartAfA-nez-Garza, C and Messier, C and Paquette, A and Philipson, C and Piotto, D and Poorter, L and Posada, JM and Potvin, C and Rainio, K and Russo, SE and Ruiz-Jaen, M and Scherer-Lorenzen, M and Webb, CO and Wright, SJ and Zahawi, RA and Hector, A}, 
+year = {2015}, 
+journal = {Journal of Ecology}, URL = {http://dx.doi.org/10.5061/dryad.h9083}, doi = {doi:10.5061/dryad.h9083}, publisher = {Dryad Digital Repository}}
+@misc{dryad_hf5rh, 
+title = {Data from: Tree-centric mapping of forest carbon density from airborne laser scanning and hyperspectral data}, 
+author = {Dalponte, M and Coomes, DA}, 
+year = {2016}, 
+journal = {Methods in Ecology and Evolution}, URL = {http://dx.doi.org/10.5061/dryad.hf5rh}, doi = {doi:10.5061/dryad.hf5rh}, publisher = {Dryad Digital Repository}}
+@article{doi:10.1093/aob/mcn103,
+author = {Poorter, Lourens},
+title = {The Relationships of Wood-, Gas- and Water Fractions of Tree Stems to Performance and Life History Variation in Tropical Trees},
+journal = {Annals of Botany},volume = {102},number = {3},pages = {367},
+year = {2008},doi = {10.1093/aob/mcn103},URL = { + http://dx.doi.org/10.1093/aob/mcn103},eprint = {/oup/backfile/Content_public/Journal/aob/102/3/10.1093/aob/mcn103/2/mcn103.pdf}}"
+@misc{dryad_p3057, 
+title = {Data from: No evidence for larger leaf trait plasticity in ecological generalists compared to specialists}, 
+author = {DostAfA!l, P and Fischer, M and ChytrAfA?, M and Prati, D}, 
+year = {2016}, 
+journal = {Journal of Biogeography}, URL = {http://dx.doi.org/10.5061/dryad.p3057}, doi = {doi:10.5061/dryad.p3057}, publisher = {Dryad Digital Repository}}
+@misc{dryad_50hd2, 
+title = {Data from: Structural, compositional and trait differences between native and non-native dominated grassland patches}, 
+author = {Molinari, NA and D'Antonio, CM}, 
+year = {2013}, 
+journal = {Functional Ecology}, URL = {http://dx.doi.org/10.5061/dryad.50hd2}, doi = {doi:10.5061/dryad.50hd2}, publisher = {Dryad Digital Repository}}
+@article{blonder2012leaf, 
+title={The leaf-area shrinkage effect can bias paleoclimate and ecology research}, 
+author={Blonder, Benjamin and Buzzard, Vanessa and Simova, Irena and Sloat, Lindsey and Boyle, Brad and Lipson, Rebecca and Aguilar-Beaucage, Brianna and Andrade, Angelina and Barber, Benjamin and Barnes, Chris and others}, 
+journal={American Journal of Botany}, volume={99}, number={11}, pages={1756--1763}, 
+year={2012}, publisher={Botanical Soc America}}"
+@misc{dryad_m41f1, 
+title = {Data from: Burn or rot: leaf traits explain why flammability and decomposability are decoupled across species}, 
+author = {Grootemaat, S and Wright, IJ and van, Bodegom, PM and Cornelissen, JHC and Cornwell, WK}, 
+year = {2015}, 
+journal = {Functional Ecology}, URL = {http://dx.doi.org/10.5061/dryad.m41f1}, doi = {doi:10.5061/dryad.m41f1}, publisher = {Dryad Digital Repository}}
+@misc{dryad_9n859, 
+title = {Data from: Patterns and thresholds of grazing-induced changes in community structure and ecosystem functioning: species-level responses and the critical role of species traits}, 
+author = {Li, W and Xu, F and Zheng, S and Taube, F and Bai, Y}, 
+year = {2016}, 
+journal = {Journal of Applied Ecology}, URL = {http://dx.doi.org/10.5061/dryad.9n859}, doi = {doi:10.5061/dryad.9n859}, publisher = {Dryad Digital Repository}}
+@misc{dryad_k67j5, 
+title = {Data from: Introducing resprouters to enhance Mediterranean forest resilience: importance of functional traits to select species according to a gradient of pine density}, 
+author = {Gavinet, J and PrAfACvosto, B and Fernandez, C}, 
+year = {2016}, 
+journal = {Journal of Applied Ecology}, URL = {http://dx.doi.org/10.5061/dryad.k67j5}, doi = {doi:10.5061/dryad.k67j5}, publisher = {Dryad Digital Repository}}
+@article{cornwell2006trait,
+  
+title={A trait-based test for habitat filtering: convex hull volume},
+  
+author={Cornwell, William K and Schwilk, Dylan W and Ackerly, David D},
+  
+journal={Ecology},
+  volume={87},
+  number={6},
+  pages={1465--1471},
+  
+year={2006},
+  publisher={Wiley Online Library}
+}
+@article{mazer1989ecological,
+  
+title={Ecological, taxonomic, and life history correlates of seed mass among Indiana dune angiosperms},
+  
+author={Mazer, Susan J},
+  
+journal={Ecological Monographs},
+  volume={59},
+  number={2},
+  pages={153--175},
+  
+year={1989},
+  publisher={Wiley Online Library}
+}
+@misc{dryad_h32p6, 
+title = {Data from: Spartina alterniflora genotypic identity affects plant and consumer responses in an experimental marsh community}, 
+author = {Zerebecki, RA and Crutsinger, GM and Hughes, AR}, 
+year = {2016}, 
+journal = {Journal of Ecology}, URL = {http://dx.doi.org/10.5061/dryad.h32p6}, doi = {doi:10.5061/dryad.h32p6}, publisher = {Dryad Digital Repository}}
+@article{kraft2008functional, 
+title={Functional traits and niche-based tree community assembly in an Amazonian forest}, 
+author={Kraft, Nathan JB and Valencia, Renato and Ackerly, David D}, 
+journal={Science}, volume={322}, number={5901}, pages={580--582}, 
+year={2008}, publisher={American Association for the Advancement of Science}}"
+@misc{dryad_6nc8c, 
+title = {Data from: Size-related scaling of tree form and function in a mixed-age forest}, 
+author = {Anderson-Teixeira, KJ and McGarvey, JC and Muller-Landau, HC and Park, JY and Gonzalez-Akre, EB and Herrmann, V and Bennett, AC and So, CV and Bourg, NA and Thompson, JR and McMahon, SM and McShea, WJ}, 
+year = {2015}, 
+journal = {Functional Ecology}, URL = {http://dx.doi.org/10.5061/dryad.6nc8c}, doi = {doi:10.5061/dryad.6nc8c}, publisher = {Dryad Digital Repository}}
+@misc{dryad_356v3, 
+title = {Data from: The role of habitat filtering in the leaf economics spectrum and plant susceptibility to pathogen infection}, 
+author = {Welsh, ME and Cronin, JP and Mitchell, CE}, 
+year = {2016}, 
+journal = {Journal of Ecology}, URL = {http://dx.doi.org/10.5061/dryad.356v3}, doi = {doi:10.5061/dryad.356v3}, publisher = {Dryad Digital Repository}}
+@misc{dryad_b3q08,
+  
+title = {Data from: A deteriorating state of affairs: how endogenous and exogenous factors determine plant decay rates},
+  
+author = {Zanne, AE and Oberle, B and Dunham, KM and Milo, AM and Walton, ML and Young, DF},
+  
+year = {2015},
+  
+journal = {Journal of Ecology},
+  URL = {http://dx.doi.org/10.5061/dryad.b3q08},
+  doi = {doi:10.5061/dryad.b3q08},
+  publisher = {Dryad Digital Repository}
+}
+@article{royer2005correlations,
+  
+title={Correlations of climate and plant ecology to leaf size and shape: potential proxies for the fossil record},
+  
+author={Royer, Dana L and Wilf, Peter and Janesko, David A and Kowalski, Elizabeth A and Dilcher, David L},
+  
+journal={American Journal of Botany},
+  volume={92},
+  number={7},
+  pages={1141--1151},
+  
+year={2005},
+  publisher={Botanical Soc America}
+}
+@misc{dryad_2c506, 
+title = {Data from: Determinants of flammability in savanna grass species}, 
+author = {Simpson, KJ and Ripley, BS and Christin, P and Belcher, CM and Lehmann, CER and Thomas, GH and Osborne, CP}, 
+year = {2015}, 
+journal = {Journal of Ecology}, URL = {http://dx.doi.org/10.5061/dryad.2c506}, doi = {doi:10.5061/dryad.2c506}, publisher = {Dryad Digital Repository}}
+@article{russo2010interspecific,
+  
+title={Interspecific relationships among growth, mortality and xylem traits of woody species from New Zealand},
+  
+author={Russo, Sabrina E and Jenkins, Kerry L and Wiser, Susan K and Uriarte, Maria and Duncan, Richard P and Coomes, David A},
+  
+journal={Functional Ecology},
+  volume={24},
+  number={2},
+  pages={253--262},
+  
+year={2010},
+  publisher={Wiley Online Library}
+}
+@misc{dryad_2dj32, 
+title = {Data from: Evidence for shifts to faster growth strategies in the new ranges of invasive alien plants}, 
+author = {Leishman, MR and Cooke, J and Richardson, DM}, 
+year = {2014}, 
+journal = {Journal of Ecology}, URL = {http://dx.doi.org/10.5061/dryad.2dj32}, doi = {doi:10.5061/dryad.2dj32}, publisher = {Dryad Digital Repository}}
+@article{zheng2010effects,
+  
+title={Effects of grazing on leaf traits and ecosystem functioning in Inner Mongolia grasslands: scaling from species to community},
+  
+author={Zheng, SX and Ren, HY and Lan, ZC and Li, WH and Wang, KB and Bai, YF},
+  
+journal={Biogeosciences},
+  volume={7},
+  number={3},
+  pages={1117--1132},
+  
+year={2010},
+  publisher={Copernicus GmbH}
+}
+@misc{dryad_dg85v, 
+title = {Data from: Shifts and disruptions in resource-use trait syndromes during the evolution of herbaceous crops}, 
+author = {Milla, R and Morente-LAfA3pez, J and Alonso-Rodrigo, JM and MartAfA-n-Robles, N and Chapin, III, FS}, 
+year = {2014}, 
+journal = {Proceedings of the Royal Society B}, URL = {http://dx.doi.org/10.5061/dryad.dg85v}, doi = {doi:10.5061/dryad.dg85v}, publisher = {Dryad Digital Repository}}
+@misc{dryad_rj480, 
+title = {Data from: Relationships between resprouting ability, species traits, and resource allocation patterns in woody species in a temperate forest}, 
+author = {Shibata, R and Kurokawa, H and Shibata, M and Tanaka, H and Iida, S and Masaki, T and Nakashizuka, T}, 
+year = {2015}, 
+journal = {Functional Ecology}, URL = {http://dx.doi.org/10.5061/dryad.rj480}, doi = {doi:10.5061/dryad.rj480}, publisher = {Dryad Digital Repository}}
+@misc{dryad_bs332, 
+title = {Data from: Tropical trees in a wind-exposed island ecosystem: height-diameter allometry and size at onset of maturity}, 
+author = {Thomas, SC and Martin, AR and Mycroft, EE}, 
+year = {2015}, 
+journal = {Journal of Ecology}, URL = {http://dx.doi.org/10.5061/dryad.bs332}, doi = {doi:10.5061/dryad.bs332}, publisher = {Dryad Digital Repository}}
+@article{meers2010conversion,
+  
+title={Conversion of native forest to exotic Pinus radiata plantation: Response of understorey plant composition using a plant functional trait approach},
+  
+author={Meers, Trevor L and Kasel, Sabine and Bell, Tina L and Enright, Neal J},
+  
+journal={Forest Ecology and Management},
+  volume={259},
+  number={3},
+  pages={399--409},
+  
+year={2010},
+  publisher={Elsevier}
+}
+@misc{dryad_53550, 
+title = {Data from: More for less: sampling strategies of plant functional traits across local environmental gradients}, 
+author = {Carmona, CP and Rota, C and AzcAfA!rate, FM and Peco, B}, 
+year = {2014}, 
+journal = {Functional Ecology}, URL = {http://dx.doi.org/10.5061/dryad.53550}, doi = {doi:10.5061/dryad.53550}, publisher = {Dryad Digital Repository}}
+@misc{dryad_qj3mg, 
+title = {Data from: Engineering a plant community to deliver multiple ecosystem services}, 
+author = {Storkey, J and DAfA?ring, T and Baddeley, J and Collins, R and Roderick, S and Jones, H and Watson, C}, 
+year = {2014}, 
+journal = {Ecological Applications}, URL = {http://dx.doi.org/10.5061/dryad.qj3mg}, doi = {doi:10.5061/dryad.qj3mg}, publisher = {Dryad Digital Repository}}
+@misc{dryad_k7729, 
+title = {Data from: Limitation of seedling growth by potassium and magnesium supply for two ectomycorrhizal tree species of a Central African rain forest and its implication for their recruitment}, 
+author = {Neba, GA and Newbery, DM and Chuyong, GB}, 
+year = {2015}, 
+journal = {Ecology and Evolution}, URL = {http://dx.doi.org/10.5061/dryad.k7729}, doi = {doi:10.5061/dryad.k7729}, publisher = {Dryad Digital Repository}}
+@article{Easdale2009203,
+title = "Resource-use-related traits correlate with population turnover rates, but not stem diameter growth rates, in 29 subtropical montane tree species ",
+journal = "Perspectives in Plant Ecology, Evolution and Systematics ",volume = "11",number = "3",pages = "203 - 218",
+year = "2009",
+note = "",issn = "1433-8319",doi = "http://dx.doi.org/10.1016/j.ppees.2009.03.001",
+url = "http://www.sciencedirect.com/science/article/pii/S1433831909000080",
+author = "TomAfA!s A. Easdale and John R. Healey",keywords = "Demography",keywords = "Functional significance",keywords = "Morphology",keywords = "rA,A-K selection",keywords = "Shade tolerance "}"
+@misc{dryad_rr4pm, 
+title = {Data from: When does intraspecific trait variation contribute to functional beta-diversity?}, 
+author = {Spasojevic, MJ and Turner, BL and Myers, JA}, 
+year = {2015}, 
+journal = {Journal of Ecology}, URL = {http://dx.doi.org/10.5061/dryad.rr4pm}, doi = {doi:10.5061/dryad.rr4pm}, publisher = {Dryad Digital Repository}}
+@misc{dryad_d87v7, 
+title = {Data from: Environmental gradients and the evolution of successional habitat specialization: a test case with 14 Neotropical forest sites}, 
+author = {Letcher, SG and Lasky, JR and Chazdon, RL and Norden, N and Wright, SJ and Meave, JA and PAfACrez-GarcAfA-a, EA and MuAfA?oz, R and Romero-PAfACrez, E and Andrade, A and Andrade, JL and Balvanera, P and Becknell, JM and Bentos, TV and Bhaskar, R and Bongers, F and Boukili, V and Brancalion, PHS and CAfACsar, RG and Clark, DA and Clark, DB and Craven, D and DeFrancesco, A and Dupuy, JM and Finegan, B and GonzAfA!lez-JimAfACnez, E and Hall, JS and Harms, KE and HernAfA!ndez-Stefanoni, JL and Hietz, P and Kennard, D and Killeen, TJ and Laurance, SG and Lebrija-Trejos, EE and Lohbeck, M and MartAfA-nez-Ramos, M and Massoca, PES and Mesquita, RCG and Muscarella, R and Mora, F and Paz, H and Pineda-GarcAfA-a, F and Powers, JS and Quesada-Monge, R and Rodrigues, RR and Sandor, ME and Sanaphre-Villanueva, L and SchAfA?ller, E and Swenson, NG and Tauro, A and Uriarte, M and van, Breugel, M and Vargas-RamAfA-rez, O and Viani, RAG and Wendt, AL and Williamson, GB}, 
+year = {2015}, 
+journal = {Journal of Ecology}, URL = {http://dx.doi.org/10.5061/dryad.d87v7}, doi = {doi:10.5061/dryad.d87v7}, publisher = {Dryad Digital Repository}}
+@article{ackerly2004adaptation,
+  
+title={Adaptation, niche conservatism, and convergence: comparative studies of leaf evolution in the California chaparral},
+  
+author={Ackerly, David D},
+  
+journal={The American Naturalist},
+  volume={163},
+  number={5},
+  pages={654--671},
+  
+year={2004},
+  publisher={The University of Chicago Press}
+}
+@misc{dryad_r5m20, 
+title = {Data from: Grazing-induced shifts in community functional composition and soil nutrient availability in Tibetan alpine meadows}, 
+author = {Niu, K and He, J and Lechowicz, MJ}, 
+year = {2016}, 
+journal = {Journal of Applied Ecology}, URL = {http://dx.doi.org/10.5061/dryad.r5m20}, doi = {doi:10.5061/dryad.r5m20}, publisher = {Dryad Digital Repository}}
+@misc{dryad_129vg, 
+title = {Data from: Seedling resistance, tolerance and escape from herbivores: insights from co-dominant canopy tree species in a resource-poor African rain forest}, 
+author = {Norghauer, JM and Glauser, G and Newbery, DM}, 
+year = {2014}, 
+journal = {Functional Ecology}, URL = {http://dx.doi.org/10.5061/dryad.129vg}, doi = {doi:10.5061/dryad.129vg}, publisher = {Dryad Digital Repository}}
+@misc{dryad_j42m7_2, 
+title = {Data from: Global effects of soil and climate on leaf photosynthetic traits and rates}, 
+author = {Maire, V and Wright, IJ and Prentice, IC and Batjes, NH and Bhaskar, R and van, Bodegom, PM and Cornwell, WK and Ellsworth, D and Niinemets, AfAo and OrdoAfA?ez, A and Reich, PB and Santiago, LS}, 
+year = {2015}, 
+journal = {Global Ecology and Biogeography}, URL = {http://dx.doi.org/10.5061/dryad.j42m7.2}, doi = {doi:10.5061/dryad.j42m7.2}, publisher = {Dryad Digital Repository}}
+@article{king1996allometry,
+  
+title={Allometry and life history of tropical trees},
+  
+author={King, David A},
+  
+journal={Journal of tropical ecology},
+  volume={12},
+  number={01},
+  pages={25--44},
+  
+year={1996},
+  publisher={Cambridge Univ Press}
+}
+@misc{dryad_12b0h, 
+title = {Data from: Shade tolerance and the functional trait - demography relationship in temperate and boreal forests}, 
+author = {Ameztegui, A and Paquette, A and Shipley, B and Heym, M and Messier, C and Gravel, D}, 
+year = {2016}, 
+journal = {Functional Ecology}, URL = {http://dx.doi.org/10.5061/dryad.12b0h}, doi = {doi:10.5061/dryad.12b0h}, publisher = {Dryad Digital Repository}}
+@misc{dryad_2598k, 
+title = {Data from: Effects of soil resources on expression of a sexual conflict over timing of stigma receptivity in a mixed-mating plant}, 
+author = {Lankinen, A and Hydbom, S}, 
+year = {2016}, 
+journal = {Oikos}, URL = {http://dx.doi.org/10.5061/dryad.2598k}, doi = {doi:10.5061/dryad.2598k}, publisher = {Dryad Digital Repository}}
+@article{wright2004worldwide, 
+title={The worldwide leaf economics spectrum}, 
+author={Wright, Ian J and Reich, Peter B and Westoby, Mark and Ackerly, David D and Baruch, Zdravko and Bongers, Frans and Cavender-Bares, Jeannine and Chapin, Terry and Cornelissen, Johannes HC and Diemer, Matthias and others}, 
+journal={Nature}, volume={428}, number={6985}, pages={821--827}, 
+year={2004}, publisher={Nature Publishing Group}}"
+@article{he2006test, 
+title={A test of the generality of leaf trait relationships on the Tibetan Plateau}, 
+author={He, Jin-Sheng and Wang, Zhiheng and Wang, Xiangping and Schmid, Bernhard and Zuo, Wenyun and Zhou, Meng and Zheng, Chengyang and Wang, Mingfeng and Fang, Jingyun}, 
+journal={New Phytologist}, volume={170}, number={4}, pages={835--848}, 
+year={2006}, publisher={Wiley Online Library}}"
+@misc{dryad_512m0, 
+title = {Data from: Different-sized grazers have distinctive effects on plant functional composition of an African savannah}, 
+author = {van, der, Plas, F and Howison, RA and Mpanza, N and Cromsigt, JPGM and Olff, H}, 
+year = {2016}, 
+journal = {Journal of Ecology}, URL = {http://dx.doi.org/10.5061/dryad.512m0}, doi = {doi:10.5061/dryad.512m0}, publisher = {Dryad Digital Repository}}
+ @article{poorter2006leaf, 
+title={Leaf traits are good predictors of plant performance across 53 rain forest species}, 
+author={Poorter, Lourens and Bongers, Frans}, 
+journal={Ecology}, volume={87}, number={7}, pages={1733--1743}, 
+year={2006}, publisher={Wiley Online Library}}"
+@misc{dryad_dh11k,
+  
+title = {Data from: Hollows in living trees develop slowly but considerably influence the estimate of forest biomass},
+  
+author = {Zheng, Z and Zhang, S and Baskin, C and Baskin, J and Schaefer, D and Yang, X and Yang, L},
+  
+year = {2015},
+  
+journal = {Functional Ecology},
+  URL = {http://dx.doi.org/10.5061/dryad.dh11k},
+  doi = {doi:10.5061/dryad.dh11k},
+  publisher = {Dryad Digital Repository}
+}
+
+@misc{dryad_f2b52, 
+title = {Data from: Closing a gap in tropical forest biomass estimation: taking crown mass variation into account in pantropical allometries}, 
+author = {Ploton, P and Barbier, N and Momo, ST and RAfACjou-MAfACchain, M and Boyemba, Bosela, F and Chuyong, G and Dauby, G and Droissart, V and Fayolle, A and Goodman, RC and Henry, M and Kamdem, NG and Katembo, Mukirania, J and Kenfack, D and Libalah, M and Ngomanda, A and Rossi, V and SonkAfAC, B and Texier, N and Thomas, D and Zebaze, D and Couteron, P and Berger, U and PAfAClissier, R}, 
+year = {2016}, 
+journal = {Biogeosciences}, URL = {http://dx.doi.org/10.5061/dryad.f2b52}, doi = {doi:10.5061/dryad.f2b52}, publisher = {Dryad Digital Repository}}
+@BOOK{Grime2014-pf,
+  
+title     = "Comparative Plant Ecology: A Functional Approach to Common
+               British Species",
+  
+author    = "Grime, J P and Hodgson, J G and Hunt, R",
+  publisher = "Springer",
+  month     =  "14~" # nov,
+  
+year      =  2014,
+  language  = "en"
+}
+@misc{dryad_51p4f, 
+title = {Data from: How persistent are the impacts of logging roads on Central African forest vegetation?}, 
+author = {Kleinschroth, F and Healey, JR and Sist, P and Mortier, F and Go
+urlet-Fleury, S}, 
+year = {2016}, 
+journal = {Journal of Applied Ecology}, URL = {http://dx.doi.org/10.5061/dryad.51p4f}, doi = {doi:10.5061/dryad.51p4f}, publisher = {Dryad Digital Repository}}
+@misc{dryad_83g9k, 
+title = {Data from: Plasticity in plant functional traits is shaped by variability in neighbourhood species composition}, 
+author = {Abakumova, M and Zobel, K and Lepik, A and Semchenko, M}, 
+year = {2016}, 
+journal = {New Phytologist}, URL = {http://dx.doi.org/10.5061/dryad.83g9k}, doi = {doi:10.5061/dryad.83g9k}, publisher = {Dryad Digital Repository}}
+@misc{dryad_j25t0, 
+title = {Data from: Modelling short-rotation coppice and tree planting for urban carbon management A,A- a city-wide analysis}, 
+author = {McHugh, N and Edmondson, JL and Gaston, KJ and Leake, JR and OA,A'Sullivan, OS}, 
+year = {2015}, 
+journal = {Journal of Applied Ecology}, URL = {http://dx.doi.org/10.5061/dryad.j25t0}, doi = {doi:10.5061/dryad.j25t0}, publisher = {Dryad Digital Repository}}
+@article{louda1987herbivory,
+  
+title={Herbivory in sun versus shade at a natural meadow-woodland ecotone in the Rocky Mountains},
+  
+author={Louda, Svat'a M and Dixon, Philip M and Huntly, Nancy J},
+  
+journal={Plant Ecology},
+  volume={72},
+  number={3},
+  pages={141--149},
+  
+year={1987},
+  publisher={Springer}
+}
+@misc{dryad_jg8r0, 
+title = {Data from: Biotic and abiotic variables influencing plant litter breakdown in streams: a global study}, 
+author = {Boyero, L and Pearson, R and Hui, C and Gessner, M and Perez, J and Alexandrou, M and GraAfA?a, M and Cardinale, B and AlbariAfA?o, R and Arunachalam, M and Barmuta, L and Boulton, A and Bruder, A and Callisto, M and Chauvet, E and Death, R and Dudgeon, D and Encalada, A and Ferreira, V and Figueroa, R and Flecker, A and GonAfA?alves, Jr., JF and Helson, J and Iwata, T and Jinggut, T and Mathooko, J and Mathuriau, C and M'Erimba, C and Moretti, M and Pringle, C and Ramirez, A and Ratnarajah, L and Rincon, J and Yule, C}, 
+year = {2016}, 
+journal = {Proceedings of the Royal Society B}, URL = {http://dx.doi.org/10.5061/dryad.jg8r0}, doi = {doi:10.5061/dryad.jg8r0}, publisher = {Dryad Digital Repository}}
+@misc{dryad_110s9, 
+title = {Data from: Evolution of the leaf economics spectrum in herbs: evidence from environmental divergences in leaf physiology across Helianthus (Asteraceae)}, 
+author = {Mason, CM and Donovan, LA}, 
+year = {2015}, 
+journal = {Evolution}, URL = {http://dx.doi.org/10.5061/dryad.110s9}, doi = {doi:10.5061/dryad.110s9}, publisher = {Dryad Digital Repository}}
+@article{poorter2008leaf, 
+title={Leaf size and leaf display of thirty-eight tropical tree species}, 
+author={Poorter, Lourens and Rozendaal, Dana{\"e} MA}, 
+journal={Oecologia}, volume={158}, number={1}, pages={35--46}, 
+year={2008}, publisher={Springer}}"
+@misc{dryad_6p9v5, 
+title = {Data from: Community assembly and functional diversity along succession post-management}, 
+author = {Bhaskar, R and Dawson, TE and Balvanera, P}, 
+year = {2014}, 
+journal = {Functional Ecology}, URL = {http://dx.doi.org/10.5061/dryad.6p9v5}, doi = {doi:10.5061/dryad.6p9v5}, publisher = {Dryad Digital Repository}}
+@misc{dryad_s652h, 
+title = {Data from: Phylogenetic structural equation modelling reveals no need for an 'origin' of the leaf economics spectrum}, 
+author = {Mason, CM and Goolsby, EW and Humphreys, DP and Donovan, LA}, 
+year = {2015}, 
+journal = {Ecology Letters}, URL = {http://dx.doi.org/10.5061/dryad.s652h}, doi = {doi:10.5061/dryad.s652h}, publisher = {Dryad Digital Repository}}
+@article{price2014leaf, 
+title={Are leaf functional traits A,A'invariantA,A'with plant size and what is A,A'invarianceA,A'anyway?}, 
+author={Price, Charles A and Wright, Ian J and Ackerly, David D and Niinemets, {\"U}lo and Reich, Peter B and Veneklaas, Erik J}, 
+journal={Functional ecology}, volume={28}, number={6}, pages={1330--1343}, 
+year={2014}, publisher={Wiley Online Library}}"
+@misc{dryad_p281g, 
+title = {Data from: The importance of crown dimensions to improve tropical tree biomass estimates}, 
+author = {Goodman, RC and Phillips, OL and Baker, TR}, 
+year = {2013}, 
+journal = {Ecological Applications}, URL = {http://dx.doi.org/10.5061/dryad.p281g}, doi = {doi:10.5061/dryad.p281g}, publisher = {Dryad Digital Repository}}
+@misc{dryad_0672g, 
+title = {Data from: Phylogenetic and functional mechanisms of direct and indirect interactions among alien and native plants}, 
+author = {Feng, Y and van, Kleunen, M}, 
+year = {2016}, 
+journal = {Journal of Ecology}, URL = {http://dx.doi.org/10.5061/dryad.0672g}, doi = {doi:10.5061/dryad.0672g}, publisher = {Dryad Digital Repository}}
+@article{kleyer2008leda, 
+title={The LEDA Traitbase: a database of life-history traits of the Northwest European flora}, 
+author={Kleyer, Michael and Bekker, RM and Knevel, IC and Bakker, JP and Thompson, K and Sonnenschein, M and Poschlod, P and Van Groenendael, JM and Klime{\v{s}}, L and Klime{\v{s}}ov{\'a}, J and others}, 
+journal={Journal of Ecology}, volume={96}, number={6}, pages={1266--1274}, 
+year={2008}, publisher={Wiley Online Library}}"
+@misc{dryad_v240b, 
+title = {Data from: Leaf traits of African woody savanna species across climate and soil fertility gradients: evidence for conservative vs. acquisitive resource use strategies}, 
+author = {Wigley, BJ and Slingsby, JA and Diaz, S and Bond, WJ and Fritz, H and Coetsee, C}, 
+year = {2016}, 
+journal = {Journal of Ecology}, URL = {http://dx.doi.org/10.5061/dryad.v240b}, doi = {doi:10.5061/dryad.v240b}, publisher = {Dryad Digital Repository}}
+@MISC{no
+author_2013-mm,
+  
+title        = "Forest Inventory and Analysis National Program",
+  
+year         =  2013,
+  howpublished = "\url{http://www.fia.fs.fed.us/}",
+  
+note         = "Accessed: 2013-1-19"
+}
+@misc{dryad_m88g7, 
+title = {Data from: Deconstructing DarwinA,A's naturalization conundrum in the San Juan Islands using community phylogenetics and functional traits}, 
+author = {Marx, HE and Giblin, DE and Dunwiddie, PW and Tank, DC}, 
+year = {2015}, 
+journal = {Diversity and Distributions}, URL = {http://dx.doi.org/10.5061/dryad.m88g7}, doi = {doi:10.5061/dryad.m88g7}, publisher = {Dryad Digital Repository}}
+@misc{dryad_dr275_2, 
+title = {Data from: Disentangling the relative importance of species occurrence, abundance and intraspecific variability in community assembly: a trait-based approach at the whole-plant level in Mediterranean forests}, 
+author = {de, la, Riva, EG and PAfACrez-Ramos, IM and Tosto, A and Navarro-FernAfA!ndez, CM and Olmo, M and MaraAfA?AfA3n, T and Villar, R}, 
+year = {2015}, 
+journal = {Oikos}, URL = {http://dx.doi.org/10.5061/dryad.dr275.2}, doi = {doi:10.5061/dryad.dr275.2}, publisher = {Dryad Digital Repository}}
+@misc{dryad_np6b8, 
+title = {Data from: Vegetation as self-adaptive coastal protection: reduction of current velocity and morphologic plasticity of a brackish marsh pioneer}, 
+author = {Carus, J and Paul, M and SchrAfA?der, B}, 
+year = {2016}, 
+journal = {Ecology and Evolution}, URL = {http://dx.doi.org/10.5061/dryad.np6b8}, doi = {doi:10.5061/dryad.np6b8}, publisher = {Dryad Digital Repository}}

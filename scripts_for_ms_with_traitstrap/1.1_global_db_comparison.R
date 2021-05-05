@@ -29,7 +29,7 @@ species_list <-unique(atraits$taxon)
 TNRS_out <- 
   TNRS::TNRS(taxonomic_names = species_list)
 
-species_list<-
+species_list <-
 merge(x = data.frame(taxon=species_list),
       y = TNRS_out[c("Name_submitted","Accepted_species")],
       by.x = 'taxon',
@@ -104,6 +104,12 @@ btraits <- unique(btraits)
 
 #there seem to be some trait values of zero.  rounding error?  who knows.  toss em.
 btraits <- btraits[which(btraits$trait_value > 0),]
+
+#get citations
+bien_cites <- 
+BIEN_metadata_citation(trait.dataframe = btraits,
+                       bibtex_file = "output_data/bien_citations.txt")
+
 
 #scale b to match a
 #height: amanda = cm, bien = m
