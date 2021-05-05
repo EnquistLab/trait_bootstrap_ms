@@ -76,7 +76,7 @@ for (i in 1:length(trait_select)) {
                     ymin = ci_low,
                     ymax = ci_high,
                     fill = method),
-                alpha = 0.2,
+                alpha = 0.15,
                 show.legend = FALSE)+
     geom_ribbon(data = global %>%
                   filter(trait == trait_select[i]) %>%
@@ -85,13 +85,13 @@ for (i in 1:length(trait_select)) {
                     ymin = ci_low,
                     ymax = ci_high,
                     fill = method),
-                alpha = 0.2,
+                alpha = 0.15,
                 show.legend = FALSE) +
     geom_line(aes(x = mean_elev,
                   y = estimate,
                   colour = method, 
                   linetype = trait_source),
-              size = 0.6) +
+              size = 0.65) +
     facet_grid(rows = vars(moment),
                cols = vars(trait_source),
                labeller = labeller(
@@ -110,7 +110,7 @@ for (i in 1:length(trait_select)) {
                                              title.hjust = 0.5),
                         values = c(pal_df$c[1], pal_df$c[4]),
                         labels = c(pal_df$l[1], pal_df$l[4])) +
-    scale_linetype_manual(values=c(3, 1, 4),
+    scale_linetype_manual(values=c(2, 1, 4),
                           labels = c("Global", "Local", "True value"),
                           guide = guide_legend(title = "Data source",
                                                title.position="top",
