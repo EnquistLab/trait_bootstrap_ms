@@ -310,5 +310,3 @@ ggplot() +
        y = NULL) +
   guides(alpha = 'none')  +
   figure_theme
-
-biomass_per_ind     dry_mass_mg          height   leaf_area_mm2      LMA_mg_mm2
