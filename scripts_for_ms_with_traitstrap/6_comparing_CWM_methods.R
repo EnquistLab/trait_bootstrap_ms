@@ -134,10 +134,10 @@ cowplot::ggdraw(
     width = 0.045
   )
 
-ggsave(here::here("figures/Figure_SI_9.png"),
+ggsave(here::here("figures/Figure_SI_10.png"),
        height = 110, width = 180,
        units = "mm", dpi = 600)
-ggsave(here::here("figures/pdf/Figure_SI_9.pdf"),
+ggsave(here::here("figures/pdf/Figure_SI_10.pdf"),
        height = 110, width = 180,
        units = "mm", dpi = 600)
 
@@ -277,10 +277,10 @@ for (i in 1:length(samp_size)) {
                     legend.position = 'none')
   ) 
 
-ggsave(here::here("figures/Figure_SI_10.png"),
+ggsave(here::here("figures/Figure_SI_11.png"),
        height = 190, width = 180,
        units = "mm", dpi = 600)
-ggsave(here::here("figures/pdf/Figure_SI_10.pdf"),
+ggsave(here::here("figures/pdf/Figure_SI_11.pdf"),
        height = 190, width = 180,
        units = "mm", dpi = 600)
 
@@ -354,9 +354,9 @@ ggplot(bs_ci) +
                 align_to = 'full', 
                 ignore_tag = TRUE) + theme_void()
 
-ggsave(here::here("figures/Figure_SI_11.png"),
+ggsave(here::here("figures/Figure_SI_12.png"),
        height = 120, width = 180,
        units = "mm", dpi = 600)
-ggsave(here::here("figures/pdf/Figure_SI_11.pdf"),
+ggsave(here::here("figures/pdf/Figure_SI_12.pdf"),
        height = 120, width = 180,
        units = "mm", dpi = 600)

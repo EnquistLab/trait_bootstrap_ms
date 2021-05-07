@@ -1033,10 +1033,10 @@ moons_pa +
                 top = 1, 
                 align_to = 'full') + theme_void()
 
-ggsave(here::here("figures/Figure_SI_8.png"),
+ggsave(here::here("figures/Figure_SI_9.png"),
        height = 100, width = 160,
        units = "mm", dpi = 600)
-ggsave(here::here("figures/pdf/Figure_SI_8.pdf"),
+ggsave(here::here("figures/pdf/Figure_SI_9.pdf"),
        height = 100, width = 160,
        units = "mm", dpi = 600)
 
