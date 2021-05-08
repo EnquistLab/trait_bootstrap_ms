@@ -101,7 +101,7 @@ ggplot(sim_moon_means %>%
                                title.hjust = 0.5)) +
   labs(x = "Sample Size",
        y = "Average deviation from true moment",
-       tag = "A") +
+       title = "A: Herbs") +
   theme_moon +
   theme(
     axis.ticks = element_blank(),
@@ -128,9 +128,9 @@ ggplot(sim_moon_means %>%
     axis.ticks.length=unit(0.25, "mm")
   ) +
   inset_element(img1,
-                left = 0.05,
+                left = 0.01,
                 bottom = 0.92,
-                right = 0.09,
+                right = 0.05,
                 top = 1, 
                 align_to = 'full') + theme_void() +
   #AZ Rodents
@@ -190,7 +190,7 @@ ggplot(sim_moon_means %>%
                                title.hjust = 0.5)) +
   labs(x = "Sample Size",
        y = "Average deviation from true moment",
-       tag = "B") +
+       title = "B: Rodents") +
   theme_moon +
   theme(
     axis.ticks = element_blank(),
@@ -217,9 +217,9 @@ ggplot(sim_moon_means %>%
     axis.ticks.length=unit(0.25, "mm")
   ) +
   inset_element(img4,
-                left = 0.1,
+                left = 0.01,
                 bottom = 0.93,
-                right = 0.3,
+                right = 0.22,
                 top = 1, 
                 align_to = 'full') + theme_void() +
   plot_layout(guides = 'collect',
