@@ -129,9 +129,9 @@ ggplot(sim_moon_means %>%
   ) +
   inset_element(img1,
                 left = 0.01,
-                bottom = 0.92,
+                bottom = 0.90,
                 right = 0.05,
-                top = 1, 
+                top = 0.98, 
                 align_to = 'full') + theme_void() +
   #AZ Rodents
   ggplot(sim_moon_means_AZ %>%
@@ -218,9 +218,9 @@ ggplot(sim_moon_means %>%
   ) +
   inset_element(img4,
                 left = 0.01,
-                bottom = 0.93,
-                right = 0.22,
-                top = 1, 
+                bottom = 0.90,
+                right = 0.23,
+                top = 0.98, 
                 align_to = 'full') + theme_void() +
   plot_layout(guides = 'collect',
               widths = c(1, 0.21)) +
@@ -229,8 +229,8 @@ ggplot(sim_moon_means %>%
     legend.position = 'bottom')) 
 
 ggsave(here::here("figures/Figure_SI_8.png"),
-       height = 120, width = 180,
+       height = 80, width = 130,
        units = "mm", dpi = 600)
 ggsave(here::here("figures/pdf/Figure_SI_8.pdf"),
-       height = 120, width = 180,
+       height = 80, width = 130,
        units = "mm", dpi = 600)  
