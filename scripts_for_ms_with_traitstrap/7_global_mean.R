@@ -27,7 +27,7 @@ global =
                             TRUE ~ moment),
          method = case_when(method == 'global cwm' ~ 'Cross-Site CW',
                             method == 'site-specic CWM' ~ 'Site-Specific CW',
-                            method == 'nonparametric bs' ~ 'Non-Parametric BS',
+                            method == 'nonparametric bs' ~ 'Nonparametric BS',
                             method == 'parametric bs' ~ 'Parametric BS',
                             TRUE ~ method)) %>%
   pivot_longer(cols = contains('true'),
@@ -40,7 +40,7 @@ global =
   mutate(method = ordered(method,levels = c("Cross-Site CW",
                                             "Site-Specific CW",
                                             "Parametric BS",
-                                            "Non-Parametric BS"))) %>%
+                                            "Nonparametric BS"))) %>%
   left_join(.,
             readRDS("data/elevations.RDS")) %>%
   distinct(trait_source, method, site, trait, moment, n, estimate,
@@ -50,7 +50,7 @@ global =
                                             "skewness",
                                             "kurtosis"))) %>%
   filter(method %in% c("Cross-Site CW",
-                       "Non-Parametric BS"))
+                       "Nonparametric BS"))
 
 
 

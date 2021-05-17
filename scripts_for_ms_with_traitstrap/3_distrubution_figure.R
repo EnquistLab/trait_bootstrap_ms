@@ -125,7 +125,7 @@ np_dist <- get_distributions(imputed_traits = imputed_full,nrep = n_distribution
 
 
 
-np_dist$method <- "Non-parametric BS"
+np_dist$method <- "Nonparametric BS"
 pbs_dist$method <- "Parametric BS"
 cwm_dist$method <- "Cross-Site WM"
 cwm_site_dist$method <- "Site-Specific WM"
@@ -151,7 +151,7 @@ rm(atraits_dist)
 all_dists$method <- factor(all_dists$method,
                            levels = c("Cross-Site WM",
                                       "Site-Specific WM",
-                                      "Non-parametric BS",
+                                      "Nonparametric BS",
                                       "Parametric BS",
                                       "True"))
 
@@ -263,7 +263,7 @@ ggsave(here::here("figures/pdf/Figure_SI_1.pdf"),
 
 np_dist_3x <- get_distributions(imputed_traits = imputed_full,nrep = 3,sample_size = sample_size_dist)
 np_dist_3x <- merge(np_dist_3x,elev)
-np_dist_3x$method <- "Non-parametric BS"
+np_dist_3x$method <- "Nonparametric BS"
 np_dist_3x$n <- paste("Replicate",np_dist_3x$n)
 
 atraits_dist <- atraits

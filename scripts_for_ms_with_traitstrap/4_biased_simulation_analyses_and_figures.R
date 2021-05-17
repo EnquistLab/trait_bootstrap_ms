@@ -385,29 +385,32 @@ inset_AZ <-
 colorado_percent <- readRDS("output_data/Colorado_percent_community_sims.RDS")
 
 colorado_percent$method = fct_recode(colorado_percent$method, `Cross-Site CW` = "Cross-Site CWM", 
-                                     `Site-Specific CW` = "Site-Specific CWM")
+                                     `Site-Specific CW` = "Site-Specific CWM",
+                                     `Nonparametric BS` = 'Non-Parametric BS')
 
 panama_percent <- readRDS("output_data/Panama_percent_community_sims.RDS")
 
 panama_percent$method = fct_recode(panama_percent$method, `Cross-Site CW` = "Cross-Site CWM", 
-                                   `Site-Specific CW` = "Site-Specific CWM")
+                                   `Site-Specific CW` = "Site-Specific CWM",
+                                   `Nonparametric BS` = 'Non-Parametric BS')
 
 rodent_percent <- readRDS("output_data/Rodent_percent_community_sims.RDS")
 
 rodent_percent$method = fct_recode(rodent_percent$method, `Cross-Site CW` = "Cross-Site CWM", 
-                                   `Site-Specific CW` = "Site-Specific CWM")
+                                   `Site-Specific CW` = "Site-Specific CWM",
+                                   `Nonparametric BS` = 'Non-Parametric BS')
 
 
 rodent_percent$method <- ordered(rodent_percent$method,
                                  levels = c("Cross-Site CW",
                                             "Site-Specific CW",
                                             "Parametric BS",
-                                            "Non-Parametric BS"))
+                                            "Nonparametric BS"))
 
 colorado_percent$method <- ordered(colorado_percent$method,
-                                   levels = c("Cross-Site CW","Site-Specific CW","Parametric BS","Non-Parametric BS"))
+                                   levels = c("Cross-Site CW","Site-Specific CW","Parametric BS","Nonparametric BS"))
 panama_percent$method <- ordered(panama_percent$method,
-                                 levels = c("Cross-Site CW","Site-Specific CW","Parametric BS","Non-Parametric BS"))
+                                 levels = c("Cross-Site CW","Site-Specific CW","Parametric BS","Nonparametric BS"))
 
 colorado_percent$moment =
   ordered(colorado_percent$moment,levels = c("mean",

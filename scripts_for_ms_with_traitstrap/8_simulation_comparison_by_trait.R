@@ -44,7 +44,7 @@ sim_moon_means_AZ =
 
 ggplot(sim_moon_means %>%
          filter(sample_size %in% c(1,9,49,100,196,441) &
-                  method == "Non-Parametric BS")) +
+                  method == "Nonparametric BS")) +
   geom_hline(aes(yintercept = 0),
              color = "grey50",
              size = 0.3) +
@@ -135,7 +135,7 @@ ggplot(sim_moon_means %>%
                 align_to = 'full') + theme_void() +
   #AZ Rodents
   ggplot(sim_moon_means_AZ %>%
-           filter(method == "Non-Parametric BS")) +
+           filter(method == "Nonparametric BS")) +
   geom_hline(aes(yintercept = 0),
              color = "grey50",
              size = 0.3) +

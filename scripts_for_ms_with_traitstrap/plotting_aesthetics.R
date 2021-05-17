@@ -118,7 +118,7 @@ theme_lollipop =
 colors <- c("Cross-Site CW" = "#ff4ccc",
             "Site-Specific CW" = "#4c79ff",
             "Parametric BS" = "#90ff4c",
-            "Non-Parametric BS" = "#f3b155",
+            "Nonparametric BS" = "#f3b155",
             "True" = "#ACBAF5")
 
 # Join colors with categories
