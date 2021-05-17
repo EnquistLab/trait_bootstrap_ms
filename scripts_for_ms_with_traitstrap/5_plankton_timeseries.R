@@ -35,7 +35,7 @@ cowplot::ggdraw(
                   y = true_value,
                   group = method,
                   linetype = "True value"),
-              colour = 'grey30',
+              colour = 'grey69',
               size = 0.4, smooth = 3) +
     geom_ribbon(aes(
       x = as.numeric(site),
@@ -68,7 +68,7 @@ cowplot::ggdraw(
                                                title.position="top",
                                                title.hjust = 0.5,
                                                override.aes = 
-                                                 list(colour = c("grey69","grey30")))) +
+                                                 list(colour = c("grey90","grey69")))) +
     facet_grid(rows = vars(moment),
                cols = vars(method),
                labeller = labeller(

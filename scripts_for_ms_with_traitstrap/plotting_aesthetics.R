@@ -30,20 +30,20 @@ figure_theme =
   theme(
     panel.grid.minor = element_blank(),
     panel.grid.major.x = element_blank(),
-    panel.grid.major.y = element_line(size = 0.1, color = "#5e5e5e"),
-    axis.text = element_text(size = rel(.7)),
+    panel.grid.major.y = element_line(size = 0.1, color = "grey69"),
+    axis.text = element_text(color = "grey69", size = rel(.7)),
     axis.title= element_text(size = rel(.9)),
     axis.line = element_blank(),
-    axis.ticks = element_line(colour = colorspace::darken("#dddddd", 0.1),
+    axis.ticks = element_line(colour = "grey69",
                               size = 0.3),
-    plot.background = element_rect(fill = "white", colour = NA),
-    panel.background = element_rect(fill = "white", colour = NA),
-    legend.background = element_rect(fill = "white", colour = NA),
+    plot.background = element_rect(fill = "#141438", colour = NA),
+    panel.background = element_rect(fill = "#141438", colour = NA),
+    legend.background = element_rect(fill = "#141438", colour = NA),
     legend.position = 'bottom',
     legend.key = element_blank(),
     legend.text = element_text(size = rel(.6)),
     legend.title = element_text(size = rel(.7)),
-    text = element_text(color = "#5e5e5e"), #font change
+    text = element_text(color = "grey69"), #font change
     plot.margin = margin(10, 5, 5, 10),
     legend.margin = margin(1, 2, 1, 2)
     )
@@ -54,9 +54,11 @@ figure_theme =
 theme_doughnut =
   theme_void() +
   theme(
-    plot.background = element_rect(fill = "white",
+    plot.background = element_rect(fill = "#141438",
                                    colour = NA),
-    panel.background = element_rect(fill = "white",
+    panel.background = element_rect(fill = "#141438",
+                                    colour = NA),
+    legend.background = element_rect(fill = "#141438",
                                     colour = NA),
     strip.text.y.left = element_text(margin = margin(0, 0, 10, 0),
                                 size = rel(1), face = "bold", vjust = 0,
@@ -67,7 +69,7 @@ theme_doughnut =
     legend.title = element_text(size = rel(.9)),
     plot.margin = margin(15, 15, 10, 15),
     legend.position = 'bottom',
-    text = element_text(color = "#5e5e5e"),
+    text = element_text(color = "grey69"),
     legend.key.size = unit(4, "mm")
   )
 
@@ -86,7 +88,7 @@ theme_moon =
     strip.background = element_blank(),
     axis.line = element_blank(),
     strip.placement = 'outside',
-    panel.background = element_rect(colour = colorspace::darken("#dddddd", 0.1),
+    panel.background = element_rect(colour = colorspace::lighten("#141438", 0.2),
                                     size = 0.6),
     plot.title.position = "panel",
     plot.title = element_text(margin = margin(0, 0, 10, 0),
@@ -98,7 +100,7 @@ theme_moon =
 theme_lollipop = 
   figure_theme +
   theme(axis.text.y = element_blank(),
-        panel.background = element_rect(colour = colorspace::darken("#dddddd", 0.1),
+        panel.background = element_rect(colour = colorspace::lighten("#141438", 0.2),
                                         size = 0.6),
         strip.text.y.left = element_text(margin = margin(0, 2, 2, 0),
                                          size = rel(0.7), vjust = 0,
@@ -115,10 +117,10 @@ theme_lollipop =
         legend.title = element_text(size = rel(.9)))
 
 ##Colour palete----
-colors <- c("Cross-Site CW" = "#ff4ccc",
-            "Site-Specific CW" = "#4c79ff",
-            "Parametric BS" = "#90ff4c",
-            "Non-Parametric BS" = "#f3b155",
+colors <- c("Cross-Site CW" = "#F235B0",
+            "Site-Specific CW" = "#65B4E6",
+            "Parametric BS" = "#D4F294",
+            "Nonparametric BS" = "#F29472",
             "True" = "#ACBAF5")
 
 # Join colors with categories
@@ -170,11 +172,11 @@ moon_legend =
                                       size = rel(1.7)),
         plot.title.position = "panel")
 
-moon_legend = png::readPNG("images/moons_legend.png", native = TRUE)
+moon_legend = png::readPNG("images/moons_legend_light.png", native = TRUE)
 
 ## Inset images ----
-img1 = png::readPNG("images/Colorado_dark.png", native = TRUE)
-img2 = png::readPNG("images/Frogs_dark.png", native = TRUE)
-img3 = png::readPNG("images/Panama_dark.png", native = TRUE)
-img4 = png::readPNG("images/AZ_dark.png", native = TRUE)
-img5 = png::readPNG("images/Phyto_dark.png", native = TRUE)
+img1 = png::readPNG("images/Colorado.png", native = TRUE)
+img2 = png::readPNG("images/Frogs.png", native = TRUE)
+img3 = png::readPNG("images/Panama.png", native = TRUE)
+img4 = png::readPNG("images/AZ.png", native = TRUE)
+img5 = png::readPNG("images/Phyto.png", native = TRUE)

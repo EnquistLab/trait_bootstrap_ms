@@ -44,7 +44,7 @@ sim_moon_means_AZ =
 
 ggplot(sim_moon_means %>%
          filter(sample_size %in% c(1,9,49,100,196,441) &
-                  method == "Non-Parametric BS")) +
+                  method == "Nonparametric BS")) +
   geom_hline(aes(yintercept = 0),
              color = "grey50",
              size = 0.3) +
@@ -110,9 +110,11 @@ ggplot(sim_moon_means %>%
     legend.text = element_text(size = rel(.3)),
     legend.title = element_text(size = rel(.5)),
     strip.text.y = element_text(margin = margin(0, 0, 3, 0),
-                                size = rel(.5), face = "bold"),
+                                size = rel(.5), face = "bold",
+                                colour = "grey69"),
     strip.text.x.top = element_text(margin = margin(0, 0, 3, 0),
-                                    size = rel(.5), face = "bold"),
+                                    size = rel(.5), face = "bold",
+                                    colour = "grey69"),
     panel.grid.major.y = element_line(size = 0.03),
     strip.background = element_blank(),
     axis.line = element_blank(),
@@ -135,7 +137,7 @@ ggplot(sim_moon_means %>%
                 align_to = 'full') + theme_void() +
   #AZ Rodents
   ggplot(sim_moon_means_AZ %>%
-           filter(method == "Non-Parametric BS")) +
+           filter(method == "Nonparametric BS")) +
   geom_hline(aes(yintercept = 0),
              color = "grey50",
              size = 0.3) +
@@ -201,7 +203,8 @@ ggplot(sim_moon_means %>%
     legend.title = element_text(size = rel(.5)),
     strip.text.y = element_blank(),
     strip.text.x.top = element_text(margin = margin(0, 0, 3, 0),
-                                    size = rel(.5), face = "bold"),
+                                    size = rel(.5), face = "bold",
+                                    colour = "grey69"),
     panel.grid.major.y = element_line(size = 0.03),
     strip.background = element_blank(),
     axis.line = element_blank(),
@@ -225,7 +228,7 @@ ggplot(sim_moon_means %>%
   plot_layout(guides = 'collect',
               widths = c(1, 0.21)) +
   plot_annotation(theme = theme(
-    plot.background = element_rect(fill = "white", colour = NA),
+    plot.background = element_rect(fill = "#141438", colour = NA),
     legend.position = 'bottom')) 
 
 ggsave(here::here("figures/Figure_SI_8.png"),

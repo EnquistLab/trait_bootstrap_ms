@@ -28,7 +28,7 @@ tidy_simdata <-function(data){
                               TRUE ~ moment),
            method = case_when(method == 'global cwm' ~ 'Cross-Site CW',
                               method == 'site-specic CWM' ~ 'Site-Specific CW',
-                              method == 'nonparametric bs' ~ 'Non-Parametric BS',
+                              method == 'nonparametric bs' ~ 'Nonparametric BS',
                               method == 'parametric bs' ~ 'Parametric BS',
                               TRUE ~ method)) %>%
     filter(true_moment == moment) %>%
@@ -36,7 +36,7 @@ tidy_simdata <-function(data){
     mutate(method = ordered(method,levels = c("Cross-Site CW",
                                               "Site-Specific CW",
                                               "Parametric BS",
-                                              "Non-Parametric BS")),
+                                              "Nonparametric BS")),
            overunder = ifelse(true_value <= estimate,
                               "over",
                               "under"),

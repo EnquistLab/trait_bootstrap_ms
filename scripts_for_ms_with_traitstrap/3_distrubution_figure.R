@@ -125,7 +125,7 @@ np_dist <- get_distributions(imputed_traits = imputed_full,nrep = n_distribution
 
 
 
-np_dist$method <- "Non-parametric BS"
+np_dist$method <- "Nonparametric BS"
 pbs_dist$method <- "Parametric BS"
 cwm_dist$method <- "Cross-Site WM"
 cwm_site_dist$method <- "Site-Specific WM"
@@ -151,7 +151,7 @@ rm(atraits_dist)
 all_dists$method <- factor(all_dists$method,
                            levels = c("Cross-Site WM",
                                       "Site-Specific WM",
-                                      "Non-parametric BS",
+                                      "Nonparametric BS",
                                       "Parametric BS",
                                       "True"))
 
@@ -167,7 +167,7 @@ joy_plot =
   scale_colour_manual(guide = guide_legend(title = "Method",
                                            title.position="top",
                                            title.hjust = 0.5),
-                      values = c(pal_df$c, "#5e5e5e"),
+                      values = c(pal_df$c, "grey69"),
                       labels = c(pal_df$l, "True")) +
   guides(colour = guide_legend(override.aes = list(linetype = c(1, 1, 1, 1, 3)),
                                title = "Method",
@@ -216,14 +216,14 @@ joy_plot =
   guides(alpha = 'none')  +
   figure_theme +
   theme(axis.text.x = element_blank(),
-        panel.background = element_rect(colour = '#5e5e5e',
+        panel.background = element_rect(colour = "grey69",
                                         size = 0.3),
         strip.text.y = element_text(margin = margin(0, 0, 10, 0),
                                     size = rel(.9), face = "bold",
-                                    colour = "#5e5e5e"),
+                                    colour = "grey69"),
         strip.text.x.top = element_text(margin = margin(0, 0, 10, 0),
                                         size = rel(.9), face = "bold",
-                                        colour = "#5e5e5e"),
+                                        colour = "grey69"),
         strip.background = element_blank(),
         axis.line = element_blank(),
         strip.placement = 'outside',
@@ -263,7 +263,7 @@ ggsave(here::here("figures/pdf/Figure_SI_1.pdf"),
 
 np_dist_3x <- get_distributions(imputed_traits = imputed_full,nrep = 3,sample_size = sample_size_dist)
 np_dist_3x <- merge(np_dist_3x,elev)
-np_dist_3x$method <- "Non-parametric BS"
+np_dist_3x$method <- "Nonparametric BS"
 np_dist_3x$n <- paste("Replicate",np_dist_3x$n)
 
 atraits_dist <- atraits

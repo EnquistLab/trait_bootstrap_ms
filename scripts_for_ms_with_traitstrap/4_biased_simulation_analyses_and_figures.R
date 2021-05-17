@@ -675,7 +675,7 @@ CC
               # heights = c(1, 0.7),
               design = layout) +
   plot_annotation(theme = theme(
-    plot.background = element_rect(fill = "white", colour = NA),
+    plot.background = element_rect(fill = "#141438", colour = NA),
     legend.position = 'right')) +
   inset_element(moon_legend,
                 left = 0.87,
@@ -846,8 +846,8 @@ for (i in 1:5) {
                    align_to = 'full') + theme_void()) +
   plot_layout(guides = 'collect') +
   plot_annotation(theme = theme(
-    plot.background = element_rect(fill = "white", colour = NA),
-    panel.background = element_rect(fill = "white", colour = NA),
+    plot.background = element_rect(fill = "#141438", colour = NA),
+    panel.background = element_rect(fill = "#141438", colour = NA),
     legend.position = 'bottom')) 
 
 ggsave(here::here("figures/Figure_SI_7.png"),

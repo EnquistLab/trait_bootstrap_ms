@@ -27,7 +27,7 @@ global =
                             TRUE ~ moment),
          method = case_when(method == 'global cwm' ~ 'Cross-Site CW',
                             method == 'site-specic CWM' ~ 'Site-Specific CW',
-                            method == 'nonparametric bs' ~ 'Non-Parametric BS',
+                            method == 'nonparametric bs' ~ 'Nonparametric BS',
                             method == 'parametric bs' ~ 'Parametric BS',
                             TRUE ~ method)) %>%
   pivot_longer(cols = contains('true'),
@@ -40,7 +40,7 @@ global =
   mutate(method = ordered(method,levels = c("Cross-Site CW",
                                             "Site-Specific CW",
                                             "Parametric BS",
-                                            "Non-Parametric BS"))) %>%
+                                            "Nonparametric BS"))) %>%
   left_join(.,
             readRDS("data/elevations.RDS")) %>%
   distinct(trait_source, method, site, trait, moment, n, estimate,
@@ -50,7 +50,7 @@ global =
                                             "skewness",
                                             "kurtosis"))) %>%
   filter(method %in% c("Cross-Site CW",
-                       "Non-Parametric BS"))
+                       "Nonparametric BS"))
 
 
 
@@ -67,7 +67,7 @@ for (i in 1:length(trait_select)) {
     geom_line(aes(x = mean_elev,
                   y = true_value,
                   linetype = "True value"),
-              colour = "grey30",
+              colour = "grey69",
               size = 0.8) +
     geom_ribbon(data = global %>%
                   filter(trait == trait_select[i]) %>%
@@ -115,9 +115,9 @@ for (i in 1:length(trait_select)) {
                           guide = guide_legend(title = "Data source",
                                                title.position="top",
                                                title.hjust = 0.5,
-                                               override.aes = list(colour = c("grey69",
-                                                                              "grey69",
-                                                                              "grey30"),
+                                               override.aes = list(colour = c("grey90",
+                                                                              "grey90",
+                                                                              "grey69"),
                                                                    size = 0.5))) +
     labs(x = "Elevation (m)",
          y = "Estimate") +
@@ -151,8 +151,8 @@ global_plots[[1]] +
         strip.text.y = element_blank()) +
   plot_layout(guides = 'collect') +
   plot_annotation(theme = theme(
-    plot.background = element_rect(fill = "white", colour = NA),
-    panel.background = element_rect(fill = "white", colour = NA),
+    plot.background = element_rect(fill = "#141438", colour = NA),
+    panel.background = element_rect(fill = "#141438", colour = NA),
     legend.position = 'bottom'))
 
 ggsave(here::here("figures/Figure_4.png"),

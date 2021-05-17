@@ -66,7 +66,7 @@ cowplot::ggdraw(
     geom_abline(aes(slope = 1, 
                     intercept = 0,
                     linetype = "1:1 line"),
-                colour = "black") +
+                colour = "white") +
     geom_ribbon(data = cwm_CI,
                 aes(x = traditional_CWM,
                     ymin = ci_low,
@@ -76,7 +76,7 @@ cowplot::ggdraw(
                 aes(slope = grad, 
                     intercept = yint,
                     linetype = "Regression slope"),
-                colour = "grey69",
+                colour = "grey60",
                 alpha = 0.9) +
     geom_point(aes(x = traditional_CWM,
                    y = bootstrap_CWM),
@@ -87,7 +87,7 @@ cowplot::ggdraw(
                alpha = 0.5) +
     geom_point(aes(x = traditional_CWM,
                    y = bootstrap_CWM),
-               colour = "grey69",
+               colour = "grey60",
                fill = NA,
                shape = 21,
                size = 2,
@@ -121,7 +121,7 @@ cowplot::ggdraw(
     scale_linetype_manual("",
                           values=c("1:1 line" = 2,
                                    "Regression slope" = 1),
-                          guide = guide_legend(override.aes = list(colour = c("black","grey69")))) +
+                          guide = guide_legend(override.aes = list(colour = c("white","grey60")))) +
     coord_cartesian(clip = "off") +
     theme_moon +
     theme(axis.ticks.length=unit(.5, "mm"),
@@ -222,18 +222,18 @@ for (i in 1:length(samp_size)) {
     # Theme
     figure_theme +
     theme(
-      axis.text = element_text(color = "#5e5e5e", size = rel(.4)),
-      axis.title = element_text(color = "#5e5e5e", size = rel(.5)),
-      legend.text = element_text(color = "#5e5e5e", size = rel(.5)),
-      legend.title = element_text(color = "#5e5e5e", size = rel(.6)),
+      axis.text = element_text(color = "grey69", size = rel(.4)),
+      axis.title = element_text(color = "grey69", size = rel(.5)),
+      legend.text = element_text(color = "grey69", size = rel(.5)),
+      legend.title = element_text(color = "grey69", size = rel(.6)),
       strip.text.y = element_text(margin = margin(0, 0, 3, 0),
                                   size = rel(.6), face = "bold",
-                                  color = "#5e5e5e"),
+                                  color = "grey69"),
       strip.text.x.top = element_text(margin = margin(0, 0, 3, 0),
                                       size = rel(.6),
-                                      color = "#5e5e5e", face = "bold"),
+                                      color = "grey69", face = "bold"),
       panel.grid.major.y = element_line(size = 0.03,
-                                        color = "#5e5e5e"),
+                                        color = "grey69"),
       strip.background = element_blank(),
       axis.line = element_blank(),
       strip.placement = 'outside',
@@ -242,7 +242,7 @@ for (i in 1:length(samp_size)) {
       plot.title.position = "panel",
       plot.title = element_text(margin = margin(0, 0, 10, 0),
                                 size = rel(.5), face = "bold",
-                                color = "#5e5e5e"),
+                                color = "grey69"),
       legend.position = 'bottom',
       plot.margin = margin(2, 2, 2, 2),
       legend.key.size = unit(3, "mm"),
@@ -272,8 +272,8 @@ for (i in 1:length(samp_size)) {
      labs(title = "F: Bootstrap sample size: 1 600")) +
   plot_layout(guides = 'collect') +
   plot_annotation(theme = theme(
-                    plot.background = element_rect(fill = "white", colour = NA),
-                    panel.background = element_rect(fill = "white", colour = NA),
+                    plot.background = element_rect(fill = "#141438", colour = NA),
+                    panel.background = element_rect(fill = "#141438", colour = NA),
                     legend.position = 'none')
   ) 
 
@@ -305,7 +305,7 @@ ggplot(bs_ci) +
   geom_line(aes(x = boot_sample_size,
                 y = true_value,
                 linetype = "True value"),
-            colour = 'grey30',
+            colour = 'grey90',
             size = 0.5) +
   geom_bump(aes(x = boot_sample_size,
                 y = estimate,
@@ -324,7 +324,7 @@ ggplot(bs_ci) +
                                              title.position="top",
                                              title.hjust = 0.5,
                                              override.aes = 
-                                               list(colour = c("grey69","grey30")))) +
+                                               list(colour = c("grey69","grey90")))) +
   scale_colour_manual(guide = guide_legend(title = "Method",
                                            title.position="top",
                                            title.hjust = 0.5),

@@ -62,7 +62,7 @@ cowplot::ggdraw(
                    y = method,
                    fill = method,
                    alpha = hit),
-               color = colorspace::lighten("#5e5e5e", 0.3),
+               color = colorspace::lighten("grey69", 0.3),
                size = 1, stroke = 0.2,
                position = position_jitternormal(sd_x = 0, sd_y = 0.1), 
                shape = 21) +
@@ -811,8 +811,8 @@ lollipop_CO =
                                           angle = 0),
          strip.text.x.top = element_text(size = rel(1.3)),
          legend.position = 'top',
-         legend.background = element_rect(colour = colorspace::darken("#dddddd", 0.1),
-                                          size = 0.4),
+         # legend.background = element_rect(colour = colorspace::darken("#dddddd", 0.1),
+         #                                  size = 0.4),
          legend.margin = margin(3, 5, 3, 5),
          plot.margin = margin(5, 0, 7, 0))
  +
@@ -882,8 +882,9 @@ lollipop_CO =
                 align_to = 'full', 
                 ignore_tag = TRUE) + theme_void()  +
   plot_annotation(theme = theme(
-                    plot.background = element_rect(fill = "white", colour = NA),
-                    panel.background = element_rect(fill = "white", colour = NA),
+                    plot.background = element_rect(fill = "#141438", colour = NA),
+                    panel.background = element_rect(fill = "#141438", colour = NA),
+                    legend.background = element_rect(fill = "#141438", colour = NA),
                     text = element_text(face = 'bold'))) +
   plot_layout(heights = c(1, 0.15, 0.15))
 
@@ -1069,3 +1070,4 @@ ggsave(here::here("figures/Figure_SI_5.png"),
 ggsave(here::here("figures/pdf/Figure_SI_5.pdf"),
        height = 314, width = 180,
        units = "mm", dpi = 600)
+
