@@ -120,7 +120,7 @@ ggplot(sim_moon_means %>%
     panel.background = element_rect(colour = colorspace::lighten("#141438", 0.1),
                                     size = 0.3),
     plot.title.position = "panel",
-    plot.title = element_text(margin = margin(0, 0, 10, 0),
+    plot.title = element_text(margin = margin(0, 1, 10, 0),
                               size = rel(.7), face = "bold"),
     legend.position = 'bottom',
     plot.margin = margin(2, 0, 2, 2),
@@ -229,8 +229,8 @@ ggplot(sim_moon_means %>%
     legend.position = 'bottom')) 
 
 ggsave(here::here("figures/Figure_SI_8.png"),
-       height = 80, width = 130,
+       height = 90, width = 150,
        units = "mm", dpi = 600)
 ggsave(here::here("figures/pdf/Figure_SI_8.pdf"),
-       height = 80, width = 130,
+       height = 90, width = 150,
        units = "mm", dpi = 600)  
