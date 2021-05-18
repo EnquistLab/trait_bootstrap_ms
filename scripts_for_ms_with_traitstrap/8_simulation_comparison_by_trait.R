@@ -25,7 +25,8 @@ sim_moon_means =
   group_by(method, moment, sample_size, trait) %>%
   #calcualte proportion of 'hits' per trait, methods, moment
   summarise(percentage = sum(hit - 1)/n(),
-            deviation = mean(abs(deviation)))
+            deviation = mean(abs(deviation))) %>%
+  filter(sample_size < 51)
 
 sim_moon_means_AZ =
   simdata_rats %>%
@@ -37,26 +38,25 @@ sim_moon_means_AZ =
   #calcualte proportion of 'hits' per trait, methods, moment
   summarise(percentage = sum(hit - 1)/n(),
             deviation = mean(abs(deviation))) %>%
-  filter(sample_size %in% c(1,9,25,49,100,169)) %>%
+  filter(sample_size < 51) %>%
   mutate(trait = case_when(trait == "log10_weight" ~ "Weight"))
 
 #### Moon plots ####
 
 ggplot(sim_moon_means %>%
-         filter(sample_size %in% c(1,9,49,100,196,441) &
-                  method == "Nonparametric BS")) +
+         filter(method == "Nonparametric BS")) +
   geom_hline(aes(yintercept = 0),
              color = "grey50",
              size = 0.3) +
-  geom_smooth(data = sim_moon_means %>%
-                filter(sample_size %in% c(1,9,49,100,196,441)),
+  geom_smooth(data = sim_moon_means,
               aes(
                 x = sample_size,
                 y = deviation,
                 color = method,
                 linetype = method),
               se = FALSE,
-              size = 0.4) +
+              size = 0.4,
+              alpha = 0.5) +
   geom_point(aes(
     x = sample_size,
     y = deviation,
@@ -83,8 +83,6 @@ ggplot(sim_moon_means %>%
                       breaks = pal_df$l) +
   scale_linetype_manual(values=c(2,2,2,1),
                         guide = guide_legend(override.aes = list(colour = "grey69"))) +
-  scale_x_continuous(trans = 'sqrt', breaks = c(0,10,50,100,200,500),
-                     limits = c(0, 500)) +
   facet_grid(rows = vars(moment),
              cols = vars(trait),
              labeller = labeller(
@@ -146,7 +144,8 @@ ggplot(sim_moon_means %>%
                 color = method,
                 linetype = method),
               se = FALSE,
-              size = 0.4) +
+              size = 0.4,
+              alpha = 0.5) +
   geom_point(aes(
     x = sample_size,
     y = deviation,
@@ -173,8 +172,6 @@ ggplot(sim_moon_means %>%
                       breaks = pal_df$l) +
   scale_linetype_manual(values=c(2,2,2,1),
                         guide = guide_legend(override.aes = list(colour = "grey69"))) +
-  scale_x_continuous(trans = 'sqrt', breaks = c(0,10,50,100,200),
-                     limits = c(0, 200)) +
   facet_grid(rows = vars(moment),
              cols = vars(trait),
              labeller = labeller(
