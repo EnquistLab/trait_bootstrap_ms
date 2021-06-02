@@ -15,6 +15,7 @@ library(ggplot2)
 source("r_functions/parametric_bs.R")
 source("r_functions/draw_traits_tidy.R")
 source("scripts_for_ms_with_traitstrap/plotting_aesthetics.R")
+source("r_functions/tidy_simdata.R")
 
 ##TODO
 simdata_plankton <- 
