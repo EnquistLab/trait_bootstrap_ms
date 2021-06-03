@@ -161,3 +161,32 @@ ggsave(here::here("figures/Figure_4.png"),
 ggsave(here::here("figures/pdf/Figure_4.pdf"),
        height = 150, width = 180,
        units = "mm", dpi = 600)
+
+
+# Vertical
+
+(global_plots[[1]] +
+  labs(title = "Height") +
+    theme(legend.key.size = unit(5, "mm")) +
+  inset_element(img1,
+                left = 0.0,
+                bottom = 0.88,
+                right = 0.12,
+                top = 0.99, 
+                align_to = 'full', 
+                ignore_tag = TRUE) + theme_void()) /
+  (global_plots[[2]] +
+  labs(title = "LMA")) +
+  theme(legend.key.size = unit(5, "mm")) +
+  plot_layout(guides = 'collect') +
+  plot_annotation(theme = theme(
+    plot.background = element_rect(fill = "white", colour = NA),
+    panel.background = element_rect(fill = "white", colour = NA),
+    legend.position = 'bottom'))
+
+ggsave(here::here("figures/Figure_4_vert.png"),
+       height = 230, width = 125,
+       units = "mm", dpi = 600)
+ggsave(here::here("figures/pdf/Figure_4_vert.pdf"),
+       height = 230, width = 125,
+       units = "mm", dpi = 600)
