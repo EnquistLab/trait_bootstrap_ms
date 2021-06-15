@@ -1,5 +1,37 @@
-# Trait Bootstrapping Manuscript Code
+![Header](images/Traitstrap_vice.png)
 
-This project contains code associated with work that compares the performance of parametric boostrapping, non-parametric bootstrapping and mean-field approaches to inferring trait distribution.
+# On estimating the shape and dynamics of phenotypic distributions in ecology and evolution
 
-Associated manuscript: https://doi.org/10.22541/au.162196147.76797968/v1
+This project contains code associated with work that compares 
+the performance of parametric boostrapping, non-parametric 
+bootstrapping and mean-field approaches to inferring trait 
+distribution.
+
+:tada: Associated preprint: https://doi.org/10.22541/au.162196147.76797968/v1
+
+## Repo structure
+
++ /data
+  + associated datsets
++ /figures
+  + figures featured in the manuscript/supplementary documents
++ /images
+  + additional images used within figures as insets
++ /output_data
+  + 'traitstrapped' outputs of the datasets
++ /scritps_for_ms_with_traitstrap
+  + scripts for simulations as well as figures generation
++ example_traitstrap.RMD
+  + a vignette for {traitstrap}
+
+## Why bootstrap?
+
+Bootstrapping is a resampling method that uses random sampling 
+with replacement to generate a set of replicated 
+distributions, thereby characterising uncertainty. 
+This leverages the variation within the data to better estimate trait distributions provides estimates of 
+uncertainty. Bootstrapping also encourages us to conceptualize 
+trait values as distributions, and in doing so highlights 
+issues that are present in many common sampling protocols.
+
+![](figures/Figure_1.png)
