@@ -11,17 +11,24 @@ distribution.
 
 ## Repo structure
 
-+ /data
-  + associated datsets
-+ /figures
-  + figures featured in the manuscript/supplementary documents
-+ /images
-  + additional images used within figures as insets
-+ /output_data
-  + 'traitstrapped' outputs of the datasets
-+ /scritps_for_ms_with_traitstrap
-  + scripts for simulations as well as figures generation
-+ example_traitstrap.RMD
+:file_folder: /data
+
++ associated datsets
+
+:file_folder: /figures
+
++ figures featured in the manuscript/supplementary documents
+
+:file_folder: /images
++ additional images used within figures as insets
+
+:file_folder:/output_data
++ 'traitstrapped' outputs of the datasets
+
+:file_folder: /scritps_for_ms_with_traitstrap
++ scripts for simulations as well as figures generation
+
+:page_facing_up: example_traitstrap.RMD
   + a vignette for {traitstrap}
 
 ## Why bootstrap?
