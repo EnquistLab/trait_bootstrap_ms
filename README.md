@@ -7,29 +7,7 @@ the performance of parametric boostrapping, non-parametric
 bootstrapping and mean-field approaches to inferring trait 
 distribution.
 
-:tada: Associated preprint: https://doi.org/10.22541/au.162196147.76797968/v1
-
-## Repo structure
-
-:file_folder: /data
-
-+ associated datsets
-
-:file_folder: /figures
-
-+ figures featured in the manuscript/supplementary documents
-
-:file_folder: /images
-+ additional images used within figures as insets
-
-:file_folder:/output_data
-+ 'traitstrapped' outputs of the datasets
-
-:file_folder: /scritps_for_ms_with_traitstrap
-+ scripts for simulations as well as figures generation
-
-:page_facing_up: example_traitstrap.RMD
-  + a vignette for {traitstrap}
+:books: Associated preprint: https://doi.org/10.22541/au.162196147.76797968/v1
 
 ## Why bootstrap?
 
