@@ -2,7 +2,7 @@ library(e1071)
 library(tidyverse)
 
 # Note that this applies sample sizes at the species x site level.
-# This function assumes that one ID is one sample.  
+# This function assumes that one ID is one sample.
   # So assigning IDs to individuals could return multiple samples per individual.
   # Assigning IDs to traits taken from the same organ returns 
   # multiple traits form the same organ (e.g. leaf)
@@ -17,7 +17,7 @@ sim_sample_size <- function(tidy_traits,
                             distribution_type = "normal", #distribution for fitting the parametric
                             min_n_in_sample = 1,
                             focal_trait = "leaf_area_mm2", #trait used for biased sampling
-                            large_biased =T #should sampling be biased towards large individuals?
+                            large_biased = TRUE #should sampling be biased towards large individuals?
 ){
 
   
