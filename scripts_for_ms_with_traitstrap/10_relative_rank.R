@@ -10,10 +10,13 @@ source("r_functions/tidy_simdata.R")
 herbs =
   tidy_simdata(readRDS("output_data/simulation_results.RDS"))
 
+
+#### 1:1 style plotting ####
 # plotting true val vs estimated val
 
 ggplot(herbs %>%
-         filter(trait == "LMA_mg_mm2")) +
+         #filter(trait == "LMA_mg_mm2") %>%
+         filter(sample_size == 9)) +
   geom_abline(aes(slope = 1,
                   intercept = 0),
               colour = "grey69",
@@ -57,3 +60,6 @@ ggsave(here::here("figures/Rel_rank.png"),
 # ggsave(here::here("figures/pdf/Rel_rank.pdf"),
 #        height = 100, width = 180,
 #        units = "mm", dpi = 600)
+
+#### Lollipop style plotting ####
+
