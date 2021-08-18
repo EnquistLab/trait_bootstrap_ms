@@ -43,7 +43,13 @@ ggplot(herbs %>%
         axis.text = element_text(size = rel(.55)),
         legend.position = 'bottom',
         legend.text = element_text(size = rel(.7)),
-        legend.key.size = unit(3, "mm"))
+        legend.key.size = unit(3, "mm")) +
+  inset_element(img1,
+                left = 0.01,
+                bottom = 0.89,
+                right = 0.08,
+                top = 1, 
+                align_to = 'full') + theme_void()
 
 ggsave(here::here("figures/Rel_rank.png"),
        height = 120, width = 180,
