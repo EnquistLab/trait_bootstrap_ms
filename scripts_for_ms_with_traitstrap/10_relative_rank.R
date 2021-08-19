@@ -10,22 +10,54 @@ source("r_functions/tidy_simdata.R")
 herbs =
   tidy_simdata(readRDS("output_data/simulation_results.RDS"))
 
+herbs_corr =
+  herbs %>%
+  group_by(moment, method) %>%
+  summarise(corr = sprintf('%.2f',(summary(lm(estimate~true_value))$r.squared)),
+            yint = round(lm(estimate~true_value)$coefficients[[1]],
+                         digits = 2),
+            grad = round(lm(estimate~true_value)$coefficients[[2]],
+                         digits = 2))
+
+herbs_lims =
+  herbs %>%
+  group_by(moment, method) %>%
+  summarise(x_min = min(true_value),
+            y_max = max(estimate)) %>%
+  ungroup() %>%
+  mutate(x_min = min(x_min)) %>%
+  group_by(moment) %>%
+  mutate(y_max = max(y_max))
+
 
 #### 1:1 style plotting ####
 # plotting true val vs estimated val
 
 ggplot(herbs %>%
-         #filter(trait == "LMA_mg_mm2") %>%
          filter(sample_size == 9)) +
   geom_abline(aes(slope = 1,
-                  intercept = 0),
+                  intercept = 0,
+                  linetype = "1:1 line"),
+              colour = "black") +
+  geom_abline(data = herbs_corr,
+              aes(slope = grad, 
+                  intercept = yint,
+                  linetype = "Regression slope"),
               colour = "grey69",
-              alpha = 0.9,
-              linetype = 2) +
+              alpha = 0.9) +
   geom_point(aes(x = true_value,
                  y = estimate,
                  colour = method),
              alpha = 0.7) +
+  geom_textbox(data = herbs_corr,
+               aes(x = herbs_lims$x_min,
+                   y = herbs_lims$y_max,
+                   label = paste0(glue::glue("R^2 = {corr} Slope = {grad}"))),
+               hjust = 0,
+               size = 1.6,
+               vjust = 1,
+               width = unit(0.27, "npc"),
+               box.padding = unit(c(2.7, 0.9, 2.3, 2.3), "pt")) +
   facet_grid(cols = vars(method),
              rows = vars(moment),
              labeller = labeller(
@@ -39,6 +71,11 @@ ggplot(herbs %>%
                                            override.aes = list(shape = 21)),
                       values = pal_df$c,
                       breaks = pal_df$l) +
+  scale_linetype_manual(values=c("1:1 line" = 2,
+                                 "Regression slope" = 1),
+                        guide = guide_legend(title = " ",
+                                             title.position="top",
+                                             override.aes = list(colour = c("black","grey69")))) +
   labs(x = "True value",
        y = "Estimated value") +
   theme_moon +
@@ -58,5 +95,5 @@ ggsave(here::here("figures/Rel_rank.png"),
        height = 120, width = 180,
        units = "mm", dpi = 600)
 # ggsave(here::here("figures/pdf/Rel_rank.pdf"),
-#        height = 100, width = 180,
+#        height = 120, width = 180,
 #        units = "mm", dpi = 600)
