@@ -48,7 +48,8 @@ ggplot(herbs %>%
   geom_point(aes(x = true_value,
                  y = estimate,
                  colour = method),
-             alpha = 0.7) +
+             alpha = 0.7,
+             shape = 16) +
   geom_textbox(data = herbs_corr,
                aes(x = herbs_lims$x_min,
                    y = herbs_lims$y_max,
@@ -67,8 +68,7 @@ ggplot(herbs %>%
              scales = 'free')  +
   scale_colour_manual(guide = guide_legend(title = "Method",
                                            title.position="top",
-                                           title.hjust = 0.5,
-                                           override.aes = list(shape = 21)),
+                                           title.hjust = 0.5),
                       values = pal_df$c,
                       breaks = pal_df$l) +
   scale_linetype_manual(values=c("1:1 line" = 2,
