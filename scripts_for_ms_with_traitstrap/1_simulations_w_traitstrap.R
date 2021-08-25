@@ -16,6 +16,7 @@ library(ggplot2)
 source("r_functions/draw_traits_tidy.R")
 source("r_functions/sim_percent_sampling.R")
 source("r_functions/sim_sample_size.R")
+source("r_functions/sim_sample_size_abd_biased.R")
 
 
 #####################################################################################################################
@@ -120,8 +121,74 @@ atraits <- readRDS(file = "data/all_traits_unscaled_RMBL.rds")
   #save output
   saveRDS(object = output_co_biased,
           file = "output_data/simulation_results_biased.RDS")
-  
 
+
+#Figure out maximum number of individuals per site  
+community %>%
+  group_by(site) %>%
+  summarise(total_abd = sum(abundance)) %>%
+  summarize(max(total_abd))
+
+
+    
+  
+#Run abundance_biased sampling  
+  # Note: the bias needs to be low enough, and the sample size high enough, that bootstrapping of mean traits is unlikely 
+  # to produce a sample of identical values (which throws errors due to NAs in higher moments)
+  
+  output_co_abd_common_bias <- 
+    sim_sample_size_abundance_biased(tidy_traits = atraits,
+                                     community = community,
+                                     n_to_sample = (6:ceiling(x = 917^.5))^2,
+                                     n_reps_trait = 10,
+                                     n_reps_boot = 200,
+                                     seed = 2005,
+                                     distribution_type = "normal",
+                                     min_n_in_sample = 1,
+                                     abd_bias = "common",
+                                     weight_exponent = 1.5)
+  
+  output_co_abd_rare_bias <- 
+    sim_sample_size_abundance_biased(tidy_traits = atraits,
+                                     community = community,
+                                     n_to_sample = (6:ceiling(x = 917^.5))^2,
+                                     n_reps_trait = 10,
+                                     n_reps_boot = 200,
+                                     seed = 2005,
+                                     distribution_type = "normal",
+                                     min_n_in_sample = 1,
+                                     abd_bias = "rare",
+                                     weight_exponent = 1.5)
+  
+  
+  output_co_abd_no_bias <- 
+    sim_sample_size_abundance_biased(tidy_traits = atraits,
+                                     community = community,
+                                     n_to_sample = (6:ceiling(x = 917^.5))^2,
+                                     n_reps_trait = 10,
+                                     n_reps_boot = 200,
+                                     seed = 2005,
+                                     distribution_type = "normal",
+                                     min_n_in_sample = 1,
+                                     abd_bias = "random",
+                                     weight_exponent = 1.5)  
+    
+
+  #add code here to combine abundance outputs into a single dataframe
+      #- add a column for bias type
+  
+  output_co_abundunce_bias <-
+  rbind(data.frame(sampling_bias = "rare",output_co_abd_rare_bias),
+        data.frame(sampling_bias = "none",output_co_abd_no_bias),
+        data.frame(sampling_bias = "common",output_co_abd_common_bias))
+  
+  
+  #save output
+  saveRDS(object = output_co_abundunce_bias,
+          file = "output_data/simulation_results_abundance_biased.RDS")
+  
+  
+  
 #############################################################################
 
 # Messier Panama Data
@@ -310,6 +377,70 @@ saveRDS(object = output_rodents_biased,
         file = "output_data/simulation_results_rodents_biased.RDS")
 
 
+
+
+#Run abundance_biased sampling  
+
+#Figure out maximum number of individuals per site  
+portal_community %>%
+  group_by(site) %>%
+  summarise(total_abd = sum(abundance)) %>%
+  summarize(max(total_abd))
+
+
+# Note: the bias needs to be low enough, and the sample size high enough, that bootstrapping of mean traits is unlikely 
+# to produce a sample of identical values (which throws errors due to NAs in higher moments)
+
+output_rodents_abd_common_bias <- 
+  sim_sample_size_abundance_biased(tidy_traits = portal_traits,
+                                   community = portal_community,
+                                   n_to_sample = (2:ceiling(x = 277^.5))^2,
+                                   n_reps_trait = 10,
+                                   n_reps_boot = 200,
+                                   seed = 2005,
+                                   distribution_type = "normal",
+                                   min_n_in_sample = 1,
+                                   abd_bias = "common",
+                                   weight_exponent = 1.5)
+
+output_rodents_abd_rare_bias <- 
+  sim_sample_size_abundance_biased(tidy_traits = portal_traits,
+                                   community = portal_community,
+                                   n_to_sample = (2:ceiling(x = 277^.5))^2,
+                                   n_reps_trait = 10,
+                                   n_reps_boot = 200,
+                                   seed = 2005,
+                                   distribution_type = "normal",
+                                   min_n_in_sample = 1,
+                                   abd_bias = "rare",
+                                   weight_exponent = 1.5)
+
+
+output_rodents_abd_no_bias <- 
+  sim_sample_size_abundance_biased(tidy_traits = portal_traits,
+                                   community = portal_community,
+                                   n_to_sample = (2:ceiling(x = 277^.5))^2,
+                                   n_reps_trait = 10,
+                                   n_reps_boot = 200,
+                                   seed = 2005,
+                                   distribution_type = "normal",
+                                   min_n_in_sample = 1,
+                                   abd_bias = "random",
+                                   weight_exponent = 1.5)  
+
+
+#add code here to combine abundance outputs into a single dataframe
+#- add a column for bias type
+
+output_rodents_abundunce_bias <-
+  rbind(data.frame(sampling_bias = "rare", output_rodents_abd_rare_bias),
+        data.frame(sampling_bias = "none", output_rodents_abd_no_bias),
+        data.frame(sampling_bias = "common", output_rodents_abd_common_bias))
+
+
+#save output
+saveRDS(object = output_rodents_abundunce_bias,
+        file = "output_data/simulation_results_rodents_abundance_biased.RDS")
 
 
 ###############################################################################
