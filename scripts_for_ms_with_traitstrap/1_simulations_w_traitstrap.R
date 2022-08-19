@@ -745,6 +745,148 @@ trait_np_bootstrap(imputed_traits = imputed_plankton,
 saveRDS(object = plankton_dist,
          file = "output_data/raw_plankton_distributions.RDS")
 
+###############################################################################
+
+# Phytoplankton with multiple traits
+    
+    
+    #2019
+    phyto <- read.table(file = "data/plankton/zooplankton_2019.csv",
+                        sep = ";",
+                        header = T)
+    
+    #convert area into numeric
+    phyto$area <- noquote(phyto$area)
+    phyto$area <- gsub(pattern = ",",
+                       replacement = ".",
+                       x = phyto$area)
+    phyto$area <- as.numeric(phyto$area)
+    
+    #convert aspect ratio into numeric
+    phyto$aspect_ratio <- noquote(phyto$aspect_ratio)
+    phyto$aspect_ratio <- gsub(pattern = ",",
+                               replacement = ".",
+                               x = phyto$aspect_ratio)
+    phyto$aspect_ratio <- as.numeric(phyto$aspect_ratio)
+    
+    #convert eccentricity into numeric
+    phyto$eccentricity <- noquote(phyto$eccentricity)
+    phyto$eccentricity <- gsub(pattern = ",",
+                               replacement = ".",
+                               x = phyto$eccentricity)
+    phyto$eccentricity <- as.numeric(phyto$eccentricity)
+    
+    #convert solidity into numeric
+    phyto$solidity <- noquote(phyto$solidity)
+    phyto$solidity <- gsub(pattern = ",",
+                           replacement = ".",
+                           x = phyto$solidity)
+    phyto$solidity <- as.numeric(phyto$solidity)
+    
+    
+    #convert date and add additonal format options for plotting
+    phyto$date <-
+      unlist(lapply(X = phyto$timestamp,FUN = function(x) {
+        strsplit(x = x,split = " ")[[1]][1]
+      }
+      ))
+    
+    phyto$date <- as.Date(phyto$date)
+    phyto$day_of_year <- as.numeric(phyto$date) - as.numeric(as.Date("2019-01-01"))
+    
+    
+    #taxon = prediction
+    #day of year = site
+    #traits 
+    #size
+    #area
+    #shape
+    #eccentricity,
+    #solidity
+    
+    
+    #prune dataset to save space
+    phyto <- 
+      phyto[c("area",
+              "aspect_ratio",
+              "eccentricity",
+              "solidity",
+              "prediction",
+              "day_of_year",
+              "date"
+      )]
+    
+    #Toss anything with NA's
+    phyto <- na.omit(phyto)
+    
+    #Toss unassigned taxa
+    
+    phyto <- 
+      phyto[which(!phyto$prediction %in% c("Unclassified","unknown","dirt") ),]
+    
+    #check for trait correlations
+    cor(phyto[,1:4])
+    colnames(phyto)
+    
+    #toss aspect ratio since it is strongly correlated with eccentricity
+    phyto <- phyto[which(colnames(phyto) != "aspect_ratio")]
+    
+    
+    #Reformat to match simulation input expectations (site, taxon, id,trait,value)
+    
+    phyto$ID <- 1:nrow(phyto) #Add ID field to link traits when we tidy things up
+    phyto$area <- log10(phyto$area)
+    
+    phyto <-
+      pivot_longer(data = phyto,
+                   cols = 1:3,
+                   names_to = "trait",
+                   values_to = "value")%>% 
+      mutate(taxon = prediction,
+             site = as.character(day_of_year)) %>%
+      select(-prediction)
+    
+    
+  #Make community data
+    phyto_community <- phyto %>%
+      group_by(taxon,site) %>%
+      summarise(across(ID,~(length(unique(.x))),
+                       .names = "abundance"),
+                .groups="drop")
+    
+    #Check that abundances match the number of individuals measured
+    sum(phyto_community$abundance) == length(unique(phyto$ID))
+    
+    
+  source("r_functions/sim_sample_size.R")
+    
+    phyto_scaled <-
+      phyto %>%
+      group_by(trait) %>% 
+      mutate(value = as.numeric(scale(value))) %>% 
+      ungroup()
+    
+    #Check that abundances match the number of individuals measured
+    sum(phyto_community$abundance) == length(unique(phyto_scaled$ID))
+    
+    
+    #Make subsets of the data to make things faster
+    
+    phyto_scaled_subset <-
+      phyto_scaled %>% 
+      filter(day_of_year %in% unique(phyto$day_of_year)[seq(1, length(unique(phyto$day_of_year)), 7)])
+    
+    phyto_community_subset <-
+      phyto_community %>%
+      filter(site %in% unique(phyto_scaled_subset$site))
+    
+    length(unique(phyto_scaled_subset$day_of_year)) == length(unique(phyto_community_subset$site))
+
+
+    plankton_sample <-
+      draw_traits_tidy(tidy_traits = phyto_scaled_subset,
+                       sample_size = 9)
+
 
 ###############################################################################
 
@@ -838,11 +980,74 @@ saveRDS(object = boot_sample_output,
 boot_sample_output <-
   readRDS("output_data/bootstrap_sample_size_and_method_sims.RDS")
 
-
-
-
-
-
-
 ############################################################################
-#Global vs local should be a separate simulation 
+
+
+#Multidimensional
+
+source("r_functions/sim_sample_size_multidimensional.R")
+
+#we'll plot bootstrapped vs true
+
+
+
+#Run sample size sims
+  md_output_co <- sim_sample_size_multidimensional(tidy_traits = atraits,
+                               community = community,
+                               n_to_sample = 
+                                 (1:ceiling(x = max(community$abundance)^.5))^2,
+                                 #(1:10)^2, #truncating to make things faster
+                               n_reps_trait = 10,
+                               n_reps_boot = 40, #using 40 rather than 200 because its slow
+                               seed = 2005,
+                               prob = NULL,
+                               FRic = FALSE, #throws errors at low sampling.
+                               FDiv = FALSE,
+                               tempoutRDS = "output_data/temp_multidimensional.RDS")
+  
+
+ggplot(data = md_output_co)+
+  geom_point(mapping = aes(x=sample_size, y = FEve,col=site))+
+  geom_hline(mapping = aes(yintercept=true_FEve))+
+  facet_wrap(~method)
+
+ggplot(data = md_output_co)+
+  geom_point(mapping = aes(x=sample_size, y = FDis,col=site))+
+  geom_hline(mapping = aes(yintercept=true_FDis))+
+  facet_wrap(~method)
+
+
+
+
+ggplot(data = md_output_co)+
+  geom_abline(mapping = aes(intercept=true_FEve,slope=0))
+
+    
+
+?geom_abline
+  
+#save output
+#saveRDS(object = output_co,file = "output_data/simulation_results_co_multidimensional.RDS")
+
+
+# 
+# output%>%
+#   mutate(feve_diff = FEve - true_FEve)%>%
+#   ggplot(mapping = aes(x = sample_size,
+#                        y = feve_diff))+
+#   geom_point()
+# 
+# 
+# output%>%
+#   mutate(fdis_diff = FDis - true_FDis)%>%
+#   ggplot(mapping = aes(x = sample_size,
+#                        y = fdis_diff))+
+#   geom_point()
+# 
+# 
+# 
+
+
+
+
+
