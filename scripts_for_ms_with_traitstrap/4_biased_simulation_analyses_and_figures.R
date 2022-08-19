@@ -694,6 +694,108 @@ ggsave(here::here("figures/pdf/Figure_3.pdf"),
        height = 120, width = 180,
        units = "mm", dpi = 600)
 
+#### Fig 3 Vertical stack ----
+
+layout <- '
+A
+B
+C
+D
+'
+
+(moons_mini +
+    labs(tag = "A") +
+    theme(legend.position = 'bottom',
+          legend.direction ="vertical",
+          legend.justification = 'left',
+          plot.tag = element_text(size = rel(0.7), 
+                                  face = "bold")) +
+    inset_element(inset_mini,
+                  left = 0,
+                  bottom = 0,
+                  right = 1,
+                  top = 1, 
+                  ignore_tag = TRUE) +
+    inset_element(img1,
+                  left = 0.05,
+                  bottom = 0.9,
+                  right = 0.1,
+                  top = 1, 
+                  align_to = 'full') + theme_void()) +
+    (moons_AZ +
+       labs(tag = "B") +
+       theme(legend.position = 'bottom',
+             legend.direction ="vertical",
+             legend.justification = 'left',
+             plot.tag = element_text(size = rel(0.7), 
+                                     face = "bold")) +
+       inset_element(inset_AZ,
+                     left = 0,
+                     bottom = 0,
+                     right = 1,
+                     top = 1, 
+                     ignore_tag = TRUE) +
+       inset_element(img4,
+                     left = 0.05,
+                     bottom = 0.89,
+                     right = 0.11,
+                     top = 1, 
+                     align_to = 'full') + theme_void()) +
+  (moon_plots[[1]] +
+      labs(tag = "C") +
+      theme(legend.position = 'none',
+            plot.tag = element_text(size = rel(0.7), 
+                                    face = "bold")) +
+      inset_element(inset_plots[[1]],
+                    left = 0,
+                    bottom = 0,
+                    right = 1,
+                    top = 1, 
+                    ignore_tag = TRUE) +
+      inset_element(img1,
+                    left = 0.05,
+                    bottom = 0.9,
+                    right = 0.1,
+                    top = 1, 
+                    align_to = 'full') + theme_void()) +
+     (moon_plots[[2]]  +
+        labs(tag = "D") +
+        theme(legend.position = 'none',
+              plot.tag = element_text(size = rel(0.7), 
+                                      face = "bold")) +
+        inset_element(inset_plots[[2]],
+                      left = 0,
+                      bottom = 0,
+                      right = 1,
+                      top = 1,
+                      ignore_tag = TRUE) +
+        inset_element(img4,
+                      left = 0.05,
+                      bottom = 0.89,
+                      right = 0.11,
+                      top = 1, 
+                      align_to = 'full') + theme_void()) +
+  plot_layout(guides = 'collect',
+              # heights = c(1, 0.7),
+              design = layout) +
+  plot_annotation(theme = theme(
+    plot.background = element_rect(fill = "white", colour = NA),
+    legend.position = 'bottom',
+    legend.justification = 'left')) +
+  inset_element(moon_legend,
+                left = 0.4,
+                bottom = 0,
+                right = 0.6,
+                top = 0.236, 
+                align_to = 'full') + theme_void()
+
+ggsave(here::here("figures/Figure_3_vert.png"),
+       height = 230, width = 100,
+       units = "mm", dpi = 600)
+ggsave(here::here("figures/pdf/Figure_3_vert.pdf"),
+       height = 230, width = 100,
+       units = "mm", dpi = 600)
+
 #### Moons - all datasets resticted ss ----
 
 #limit ss 1- 49
