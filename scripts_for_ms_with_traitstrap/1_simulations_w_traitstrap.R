@@ -1005,27 +1005,35 @@ source("r_functions/sim_sample_size_multidimensional.R")
                                FDiv = FALSE,
                                tempoutRDS = "output_data/temp_multidimensional.RDS")
   
-
+  saveRDS(object = md_output_co,
+          file = "output_data/multidimensional_bootstrap_sample_size_and_method_sims.RDS")
+  
+  md_output_co <-
+    readRDS("output_data/multidimensional_bootstrap_sample_size_and_method_sims.RDS")
+  
+md_output_co$ci_low_FEve
+    
 ggplot(data = md_output_co)+
   geom_point(mapping = aes(x=sample_size, y = FEve,col=site))+
-  geom_hline(mapping = aes(yintercept=true_FEve))+
+  geom_errorbar(mapping = aes(x= sample_size,
+                              ymin = ci_low_FEve,
+                              ymax = ci_high_FEve,
+                              col = site))+
+  geom_hline(mapping = aes(yintercept=true_FEve,col=site))+
   facet_wrap(~method)
 
 ggplot(data = md_output_co)+
   geom_point(mapping = aes(x=sample_size, y = FDis,col=site))+
-  geom_hline(mapping = aes(yintercept=true_FDis))+
+  geom_hline(mapping = aes(yintercept=true_FDis, col = site))+
   facet_wrap(~method)
 
-
-
+colnames(md_output_co)
 
 ggplot(data = md_output_co)+
-  geom_abline(mapping = aes(intercept=true_FEve,slope=0))
+  geom_point(mapping = aes(x=sample_size, y = RaoQ,col=site))+
+  geom_hline(mapping = aes(yintercept=true_RaoQ, col = site))+
+  facet_wrap(~method)
 
-    
-
-?geom_abline
-  
 #save output
 #saveRDS(object = output_co,file = "output_data/simulation_results_co_multidimensional.RDS")
 
