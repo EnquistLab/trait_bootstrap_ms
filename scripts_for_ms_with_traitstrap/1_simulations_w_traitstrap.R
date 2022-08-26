@@ -1005,8 +1005,8 @@ source("r_functions/sim_sample_size_multidimensional.R")
                                FDiv = FALSE,
                                tempoutRDS = "output_data/temp_multidimensional.RDS")
   
-  saveRDS(object = md_output_co,
-          file = "output_data/multidimensional_bootstrap_sample_size_and_method_sims.RDS")
+  # saveRDS(object = md_output_co,
+  #         file = "output_data/multidimensional_bootstrap_sample_size_and_method_sims.RDS")
   
   md_output_co <-
     readRDS("output_data/multidimensional_bootstrap_sample_size_and_method_sims.RDS")
@@ -1034,8 +1034,7 @@ ggplot(data = md_output_co)+
   geom_hline(mapping = aes(yintercept=true_RaoQ, col = site))+
   facet_wrap(~method)
 
-#save output
-#saveRDS(object = output_co,file = "output_data/simulation_results_co_multidimensional.RDS")
+
 
 
 # 

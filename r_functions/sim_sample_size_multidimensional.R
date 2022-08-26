@@ -128,7 +128,9 @@ for( n in n_to_sample){
                                      fun = function(x){dbFD(x = x,
                                                             calc.FRic = FRic,
                                                             calc.FDiv = FDiv,
-                                                            calc.CWM = FALSE)},
+                                                            calc.CWM = FALSE,
+                                                            stand.x = FALSE,
+                                                            scale.RaoQ = FALSE)},
                                      id = "ID")
       
       np_results_nt$result
@@ -180,7 +182,9 @@ for( n in n_to_sample){
                                  fun = function(x){dbFD(x = x,
                                                         calc.FRic = FRic,
                                                         calc.FDiv = FDiv,
-                                                        calc.CWM = FALSE)},
+                                                        calc.CWM = FALSE,
+                                                        stand.x = FALSE,
+                                                        scale.RaoQ = FALSE)},
                                  id = "ID")
     
     
@@ -231,7 +235,9 @@ for( n in n_to_sample){
                                      fun = function(x){dbFD(x = x,
                                                             calc.FRic = FRic,
                                                             calc.FDiv = FDiv,
-                                                            calc.CWM = FALSE)},
+                                                            calc.CWM = FALSE,
+                                                            stand.x = FALSE,
+                                                            scale.RaoQ = FALSE)},
                                      id = "ID")
       
       
@@ -324,7 +330,9 @@ for( n in n_to_sample){
                                         LMA_mg_mm2),
                          calc.FRic = FRic,
                          calc.FDiv = FDiv,
-                         calc.CWM = FALSE)
+                         calc.CWM = FALSE,
+                         stand.x = FALSE,
+                         scale.RaoQ = FALSE)
               ) %>%
       mutate(metric = names(fds),
              values = unlist(fds))%>%
