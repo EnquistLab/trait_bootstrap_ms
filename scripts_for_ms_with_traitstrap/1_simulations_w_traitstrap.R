@@ -990,7 +990,6 @@ source("r_functions/sim_sample_size_multidimensional.R")
 #we'll plot bootstrapped vs true
 
 
-
 #Run sample size sims
   md_output_co <- sim_sample_size_multidimensional(tidy_traits = atraits,
                                community = community,
@@ -1035,6 +1034,17 @@ ggplot(data = md_output_co)+
   facet_wrap(~method)
 
 
+ggplot(data = md_output_co)+
+  geom_point(mapping = aes(x=sample_size, y = FEve, col=site))+
+  geom_errorbar(mapping = aes(x= sample_size,
+                              ymin = ci_low_FEve,
+                              ymax = ci_high_FEve,
+                              col = site))+
+  geom_hline(mapping = aes(yintercept=true_FEve,col=site))+
+  facet_wrap(~method)
+
+
+
 
 
 # 
@@ -1053,6 +1063,66 @@ ggplot(data = md_output_co)+
 # 
 # 
 # 
+
+
+
+
+########################################
+
+#multidimensional rarity
+
+source("r_functions/sim_sample_size_multidimensional_rarity.R")
+
+
+#Run sample size sims
+md_output_rarity_co <- sim_sample_size_multidimensional_rarity(tidy_traits = atraits,
+                                                 community = community,
+                                                 n_to_sample = 
+                                                   (1:ceiling(x = max(community$abundance)^.5))^2,
+                                                 #(1:10)^2, #truncating to make things faster
+                                                 n_reps_trait = 10,
+                                                 n_reps_boot = 40, #using 40 rather than 200 because its slow
+                                                 seed = 2005,
+                                                 prob = NULL,
+                                                 tempoutRDS = "output_data/temp_multidimensional_rarity.RDS")
+
+
+# saveRDS(object = md_output_rarity_co,
+#         file = "output_data/multidimensional_bootstrap_sample_size_and_method_rarity_sims.RDS")
+# 
+md_output_rarity_co <-
+  readRDS("output_data/multidimensional_bootstrap_sample_size_and_method_rarity_sims.RDS")
+
+
+md_output_rarity_co$true_mean_distinctiveness
+
+ggplot(data = md_output_rarity_co)+
+  geom_point(mapping = aes(x = sample_size,
+                           y = avg_uniqueness,
+                           col = site))+
+  geom_errorbar(mapping = aes(x = sample_size,
+                              ymin = ci_low_avg_uniqueness,
+                              ymax = ci_high_avg_uniqueness,
+                              col = site))+
+  geom_hline(mapping = aes(yintercept = true_mean_uniqueness,
+                           col = site))+
+  facet_wrap(~method)
+
+
+
+ggplot(data = md_output_rarity_co)+
+  geom_point(mapping = aes(x = sample_size,
+                           y = avg_distinctiveness,
+                           col = site))+
+  geom_errorbar(mapping = aes(x = sample_size,
+                              ymin = ci_low_avg_distinctiveness,
+                              ymax = ci_high_avg_distinctiveness,
+                              col = site))+
+  geom_hline(mapping = aes(yintercept = true_mean_distinctiveness,
+                           col = site))+
+  facet_wrap(~method)
+
+
 
 
 
