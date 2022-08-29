@@ -327,6 +327,7 @@ ggsave(here::here("figures/multi_dim.png"),
 cc <- c("#35BBCA", "#0191B4", "#F8D90F", "#D3DD18", "#FE7A15")
 cc <- c("#031B88", "#6096FD", "#AAB6FB", "#FB7B8E", "#FAA7B8")
 
+
 ggplot(multi_rarity %>%
          filter(measure == "avg_distinctiveness") %>%
          mutate(site = ordered(site,
@@ -339,6 +340,29 @@ ggplot(multi_rarity %>%
   geom_hline(aes(yintercept = true_value,
                  color = site),
              size = .3) +
+  geom_ribbon(
+    data = multi_rarity %>%
+      filter(measure == "avg_distinctiveness") %>%
+      group_by(method, site) %>%
+      summarise(spline_x = spline(sample_size, 
+                                  ci_high)$x,
+                spline_hi = spline(sample_size, 
+                                   ci_high)$y,
+                spline_lo = spline(sample_size, 
+                                   ci_low)$y) %>%
+      mutate(site = ordered(site,
+                            levels = c(multi_rarity %>%
+                                         filter(measure == "avg_distinctiveness") %>%
+                                         group_by(site) %>%
+                                         summarise(mean = mean(true_value)) %>%
+                                         arrange(-mean) %>%
+                                         pull(site)))),
+    aes(
+      x = spline_x,
+      ymin = spline_lo,
+      ymax = spline_hi,
+      fill = site),
+    alpha = 0.2) +
   geom_smooth(
     aes(
       x = sample_size,
@@ -358,6 +382,7 @@ ggplot(multi_rarity %>%
   labs(x = "Sample size",
        y = "Average Distinctiveness") +
   scale_colour_manual(values=cc) +
+  scale_fill_manual(values=cc) +
   # Theme
   theme_moon +
   theme(
