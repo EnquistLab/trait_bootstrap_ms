@@ -57,8 +57,8 @@ multi_method =
   mutate(deviation = ifelse(overunder == "under",
                             -1*deviation,
                             deviation),
-         moment = ordered(measure,
-                          levels = c('FEve', 'FDis', 'RaoQ', 'FRic', 'FDiv')))
+         measure = ordered(measure,
+                           levels = c('FEve', 'FDis', 'RaoQ', 'FRic', 'FDiv')))
 
 
 multi_rarity =
@@ -113,7 +113,7 @@ multi_rarity =
          measure = ordered(measure,
                            levels = c('avg_uniqueness', 'avg_distinctiveness')))
 
-#### Plotting ----
+#### Plotting moons ----
 
 data <- vector('list', 2)
 data[[1]] = multi_method
@@ -321,3 +321,70 @@ ggsave(here::here("figures/multi_dim.png"),
 # ggsave(here::here("figures/pdf/Rel_rank.pdf"),
 #        height = 120, width = 180,
 #        units = "mm", dpi = 600)
+
+#### Plotting relative rank ----
+
+cc <- c("#35BBCA", "#0191B4", "#F8D90F", "#D3DD18", "#FE7A15")
+cc <- c("#031B88", "#6096FD", "#AAB6FB", "#FB7B8E", "#FAA7B8")
+
+ggplot(multi_rarity %>%
+         filter(measure == "avg_distinctiveness") %>%
+         mutate(site = ordered(site,
+                               levels = c(multi_rarity %>%
+                                            filter(measure == "avg_distinctiveness") %>%
+                                            group_by(site) %>%
+                                            summarise(mean = mean(true_value)) %>%
+                                            arrange(-mean) %>%
+                                            pull(site))))) +
+  geom_hline(aes(yintercept = true_value,
+                 color = site),
+             size = .3) +
+  geom_smooth(
+    aes(
+      x = sample_size,
+      y = estimate,
+      color = site),
+    alpha = 0.5,
+    se = FALSE,
+    size = 0.4,
+    linetype = 4) +
+  facet_grid(cols = vars(method),
+             labeller = labeller(
+               trait = traits_parsed,
+               .default = capitalize
+             ),
+             switch = 'y',
+             scales = 'free') +
+  labs(x = "Sample size",
+       y = "Average Distinctiveness") +
+  scale_colour_manual(values=cc) +
+  # Theme
+  theme_moon +
+  theme(
+    axis.ticks = element_blank(),
+    axis.text = element_text(size = rel(.3)),
+    axis.title = element_text(size = rel(.5)),
+    legend.text = element_text(size = rel(.3)),
+    legend.title = element_text(size = rel(.5)),
+    strip.text.y = element_text(margin = margin(0, 0, 3, 0),
+                                size = rel(.5), face = "bold"),
+    strip.text.x.top = element_text(margin = margin(0, 0, 3, 0),
+                                    size = rel(.5), face = "bold"),
+    panel.grid.major.y = element_line(size = 0.03),
+    strip.background = element_blank(),
+    axis.line = element_blank(),
+    strip.placement = 'outside',
+    panel.background = element_rect(colour = colorspace::lighten("#141438", 0.1),
+                                    size = 0.3),
+    plot.title.position = "panel",
+    plot.title = element_text(margin = margin(0, 0, 10, 0),
+                              size = rel(.7), face = "bold"),
+    legend.position = 'right',
+    plot.margin = margin(2, 2, 2, 2),
+    legend.key.size = unit(3, "mm"),
+    axis.ticks.length=unit(0.25, "mm")
+  )
+
+ggsave(here::here("figures/mutli_rel_rank.png"),
+       height = 60, width = 180,
+       units = "mm", dpi = 600)
