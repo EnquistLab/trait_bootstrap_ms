@@ -332,12 +332,13 @@ ggplot(rbind(multi_method,
              multi_rarity)  %>%
          left_join(rbind(multi_method,
                          multi_rarity) %>%
-                     group_by(measure, site) %>%
-                     summarise(mean = mean(true_value)) %>%
-                     mutate(my_ranks = order(mean, 
-                                             decreasing=TRUE)))) +
+                     distinct(measure, site, true_value) %>%
+                     group_by(measure) %>%
+                     mutate(my_ranks = as.factor(order(
+                       order(true_value, 
+                             decreasing=TRUE)))))) +
   geom_hline(aes(yintercept = true_value,
-                 color = site),
+                 color = my_ranks),
              size = .3) +
   geom_ribbon(
     data = rbind(multi_method,
@@ -351,10 +352,11 @@ ggplot(rbind(multi_method,
                                    ci_low)$y) %>%
       left_join(rbind(multi_method,
                       multi_rarity) %>%
-                  group_by(measure, site) %>%
-                  summarise(mean = mean(true_value)) %>%
-                  mutate(my_ranks = order(mean, 
-                                          decreasing=TRUE))),
+                  distinct(measure, site, true_value) %>%
+                  group_by(measure) %>%
+                  mutate(my_ranks = as.factor(order(
+                    order(true_value, 
+                          decreasing=TRUE))))),
     aes(
       x = spline_x,
       ymin = spline_lo,
@@ -403,7 +405,7 @@ ggplot(rbind(multi_method,
     plot.title.position = "panel",
     plot.title = element_text(margin = margin(0, 0, 10, 0),
                               size = rel(.7), face = "bold"),
-    legend.position = 'right',
+    legend.position = 'none',
     plot.margin = margin(2, 2, 2, 2),
     legend.key.size = unit(3, "mm"),
     axis.ticks.length=unit(0.25, "mm")
