@@ -1,6 +1,6 @@
 library(ggplot2)
 library(extrafont)
-library(sysfonts)
+library(systemfonts)
 library(showtext)
 library(gggibbous)
 library(ggtext)
