@@ -274,9 +274,9 @@ inset_plots =
           plot.tag = element_text(size = rel(0.7), 
                                   face = "bold")) +
     inset_element(img1,
-                  left = 0.05,
-                  bottom = 0.9,
-                  right = 0.1,
+                  left = 0.00,
+                  bottom = 0.95,
+                  right = 0.06,
                   top = 1, 
                   align_to = 'full') + theme_void())) +
   plot_layout(guides = 'collect') +
@@ -284,8 +284,8 @@ inset_plots =
     plot.background = element_rect(fill = "white", colour = NA),
     legend.position = 'right')) +
   inset_element(moon_legend,
-                left = 0.87,
-                bottom = 0.43,
+                left = 0.88,
+                bottom = 0.57,
                 right = 1,
                 top = 0.7, 
                 align_to = 'full') + theme_void()
