@@ -303,7 +303,7 @@ cc <- c("#35BBCA", "#0191B4", "#F8D90F", "#D3DD18", "#FE7A15")
 cc <- c("#031B88", "#6096FD", "#AAB6FB", "#FB7B8E", "#FAA7B8")
 
 
-ggplot(rbind(multi_method,
+(ggplot(rbind(multi_method,
              multi_rarity)  %>%
          left_join(rbind(multi_method,
                          multi_rarity) %>%
@@ -384,7 +384,13 @@ ggplot(rbind(multi_method,
     plot.margin = margin(2, 2, 2, 2),
     legend.key.size = unit(3, "mm"),
     axis.ticks.length=unit(0.25, "mm")
-  )
+  ) +
+  inset_element(img1,
+                left = 0.00,
+                bottom = 0.95,
+                right = 0.06,
+                top = 1, 
+                align_to = 'full') + theme_void())
 
 ggsave(here::here("figures/mutli_rel_rank.png"),
        height = 150, width = 120,
