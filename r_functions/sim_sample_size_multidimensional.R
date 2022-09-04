@@ -1,6 +1,8 @@
 library(e1071)
 library(tidyverse)
 library(FD)
+library(traitstrap)
+library(funrar)
 #library(mFD)
 
 # Note that this applies sample sizes at the species x site level.
@@ -21,17 +23,37 @@ sim_sample_size_multidimensional <- function(tidy_traits,
                             large_biased = TRUE, #should sampling be biased towards large individuals?,
                             FRic = FALSE,
                             FDiv = FALSE,
-                            tempoutRDS = NULL #temporary RDS to log output periodically
+                            tempoutRDS = NULL, #temporary RDS to log output periodically
+                            continue=FALSE
 ){
 
+  #if the code is set to continue, AND there is an output file, load the output and pick up from there.  Else, start fresh
+
+  if(continue & !is.null(tempoutRDS)){
+
+        if(file.exists(tempoutRDS)){
+          output <- readRDS(tempoutRDS)
+        }else{output<-NULL}
+
+  }else{output <- NULL}
   
-set.seed(seed = seed)  
-output<-NULL
+  
 
 for( n in n_to_sample){
-  for(t in 1:n_reps_trait){  
+  for(t in 1:n_reps_trait){
+
+    set.seed(seed = seed*n*t)  
     
     message(paste("sample size",n,", rep",t))
+    
+    
+    #check if replicate t for n traits has already been done
+      
+      if(any(output$sample_size == n &
+              output$rep == t)){next}  
+    
+      
+    
     
     #First simulate a draw of the relevant sample size
     if (is.null(prob)){
@@ -133,7 +155,6 @@ for( n in n_to_sample){
                                                             scale.RaoQ = FALSE)},
                                      id = "ID")
       
-      np_results_nt$result
       
       # reformat
       
@@ -242,16 +263,16 @@ for( n in n_to_sample){
       
       
       # reformat
-      
-      cwm_species_x_site_results_nt %>%
-        rowwise() %>%
-        mutate(FEve = .data$result$FEve,
-               FDis = .data$result$FDis,
-               RaoQ = .data$result$RaoQ,
-               FRic = .data$result$FRic,
-               FDiv = .data$result$FDiv
-        ) %>%
-        dplyr::select(-result) -> cwm_species_x_site_results_nt
+        
+        cwm_species_x_site_results_nt %>%
+          rowwise() %>%
+          mutate(FEve = .data$result$FEve,
+                 FDis = .data$result$FDis,
+                 RaoQ = .data$result$RaoQ,
+                 FRic = .data$result$FRic,
+                 FDiv = .data$result$FDiv
+          ) %>%
+          dplyr::select(-result) -> cwm_species_x_site_results_nt
       
       # summarize cwm species x site moments
       
@@ -273,14 +294,63 @@ for( n in n_to_sample){
                   ci_high_FDiv = traitstrap:::get_ci(data = FDiv, which = "high", parametric = FALSE),
                   FDiv = mean(FDiv)) -> cwm_species_x_site_results_nt
       
-      
-    
+    # calculate metrics the old school way (no intraspecific)
+        
+        imputed_species_mean %>%
+          ungroup%>%
+          select(taxon,trait,value)%>%
+          unique()%>%
+          pivot_wider(names_from = trait,
+                      values_from = value) %>%
+          column_to_rownames("taxon") -> mean_wide
+        
+          community %>%
+            pivot_wider(names_from = site,
+                        values_from = abundance,
+                        values_fill = 0)%>%
+          column_to_rownames("taxon")%>%t() -> community_wide
+          
+          if(!all(colnames(community_wide)==rownames(mean_wide))){
+            stop("error in species order")
+            }
+          
+          
+          cwm_species_results_og_weighting <- 
+              dbFD(x = mean_wide,
+                   a = community_wide,
+                   calc.FRic = FRic,
+                   calc.FDiv = FDiv,
+                   calc.CWM = FALSE,
+                   stand.x = FALSE,
+                   scale.RaoQ = FALSE)
+        
+          # reformat
+          
+          bind_cols(method = "original",
+                    sample_size = n,
+                    rep = t,
+                    site = names(cwm_species_results_og_weighting$FEve),
+                    FEve = cwm_species_results_og_weighting$FEve,
+                    FDis = cwm_species_results_og_weighting$FDis,
+                    RaoQ = cwm_species_results_og_weighting$RaoQ,
+                    FRic = cwm_species_results_og_weighting$FRic,
+                    FDiv = cwm_species_results_og_weighting$FDiv) ->
+            cwm_species_results_og_weighting
+
+  
+          
+            
     #can't think of a good parametric distribution for this, so skipping that one
 
-    output <- rbind(output, rbind(cbind(method = "nonparametric bs", sample_size = n, np_results_nt),
-                                 cbind(method = "global cwm", sample_size = n, cwm_species_results_nt),
-                                 cbind(method = "site-specic CWM", sample_size = n, cwm_species_x_site_results_nt))
-    )
+          output_nt <- rbind(cbind(method = "nonparametric bs", sample_size = n, rep = t, np_results_nt),
+                             cbind(method = "global cwm", sample_size = n, rep = t, cwm_species_results_nt),
+                             cbind(method = "site-specic CWM", sample_size = n, rep = t, cwm_species_x_site_results_nt))
+                
+          output_nt <- bind_rows(output_nt,cwm_species_results_og_weighting)
+              
+          
+    output <- rbind(output, output_nt)
+    
     
   
     #log output if requested

@@ -1002,7 +1002,8 @@ source("r_functions/sim_sample_size_multidimensional.R")
                                prob = NULL,
                                FRic = FALSE, #throws errors at low sampling.
                                FDiv = FALSE,
-                               tempoutRDS = "output_data/temp_multidimensional.RDS")
+                               tempoutRDS = "output_data/temp_multidimensional.RDS",
+                               continue = TRUE)
   
   # saveRDS(object = md_output_co,
   #         file = "output_data/multidimensional_bootstrap_sample_size_and_method_sims.RDS")
@@ -1044,8 +1045,19 @@ ggplot(data = md_output_co)+
   facet_wrap(~method)
 
 
+multi<- readRDS("output_data/temp_multidimensional.RDS")
 
+ggplot(data = multi)+
+  geom_point(mapping = aes(x=sample_size, y = FEve, col=site))+
+  facet_wrap(~method)
 
+ggplot(data = multi)+
+  geom_point(mapping = aes(x=sample_size, y = FDis, col=site))+
+  facet_wrap(~method)
+
+ggplot(data = multi)+
+  geom_point(mapping = aes(x=sample_size, y = RaoQ, col=site))+
+  facet_wrap(~method)
 
 # 
 # output%>%
@@ -1078,8 +1090,8 @@ source("r_functions/sim_sample_size_multidimensional_rarity.R")
 md_output_rarity_co <- sim_sample_size_multidimensional_rarity(tidy_traits = atraits,
                                                  community = community,
                                                  n_to_sample = 
-                                                   (1:ceiling(x = max(community$abundance)^.5))^2,
-                                                 #(1:10)^2, #truncating to make things faster
+                                                  #(1:ceiling(x = max(community$abundance)^.5))^2,
+                                                 (1:10)^2, #truncating to make things faster
                                                  n_reps_trait = 10,
                                                  n_reps_boot = 40, #using 40 rather than 200 because its slow
                                                  seed = 2005,
@@ -1123,6 +1135,18 @@ ggplot(data = md_output_rarity_co)+
   facet_wrap(~method)
 
 
+
+ggplot(data = md_output_rarity_co)+
+  geom_point(mapping = aes(x = sample_size,
+                           y = avg_uniqueness,
+                           col = site))+
+  geom_errorbar(mapping = aes(x = sample_size,
+                              ymin = ci_low_avg_uniqueness,
+                              ymax = ci_high_avg_uniqueness,
+                              col = site))+
+  geom_hline(mapping = aes(yintercept = true_mean_uniqueness,
+                           col = site))+
+  facet_wrap(~method)
 
 
 
