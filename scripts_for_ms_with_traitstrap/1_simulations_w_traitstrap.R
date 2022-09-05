@@ -1005,14 +1005,13 @@ source("r_functions/sim_sample_size_multidimensional.R")
                                tempoutRDS = "output_data/temp_multidimensional.RDS",
                                continue = TRUE)
   
-  # saveRDS(object = md_output_co,
-  #         file = "output_data/multidimensional_bootstrap_sample_size_and_method_sims.RDS")
+# 
+#   saveRDS(object = md_output_co,
+#           file = "output_data/multidimensional_bootstrap_sample_size_and_method_sims.RDS")
   
   md_output_co <-
     readRDS("output_data/multidimensional_bootstrap_sample_size_and_method_sims.RDS")
-  
-md_output_co$ci_low_FEve
-    
+
 ggplot(data = md_output_co)+
   geom_point(mapping = aes(x=sample_size, y = FEve,col=site))+
   geom_errorbar(mapping = aes(x= sample_size,
@@ -1043,39 +1042,6 @@ ggplot(data = md_output_co)+
                               col = site))+
   geom_hline(mapping = aes(yintercept=true_FEve,col=site))+
   facet_wrap(~method)
-
-
-multi<- readRDS("output_data/temp_multidimensional.RDS")
-
-ggplot(data = multi)+
-  geom_point(mapping = aes(x=sample_size, y = FEve, col=site))+
-  facet_wrap(~method)
-
-ggplot(data = multi)+
-  geom_point(mapping = aes(x=sample_size, y = FDis, col=site))+
-  facet_wrap(~method)
-
-ggplot(data = multi)+
-  geom_point(mapping = aes(x=sample_size, y = RaoQ, col=site))+
-  facet_wrap(~method)
-
-# 
-# output%>%
-#   mutate(feve_diff = FEve - true_FEve)%>%
-#   ggplot(mapping = aes(x = sample_size,
-#                        y = feve_diff))+
-#   geom_point()
-# 
-# 
-# output%>%
-#   mutate(fdis_diff = FDis - true_FDis)%>%
-#   ggplot(mapping = aes(x = sample_size,
-#                        y = fdis_diff))+
-#   geom_point()
-# 
-# 
-# 
-
 
 
 
