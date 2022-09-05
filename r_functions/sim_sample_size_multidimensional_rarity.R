@@ -20,17 +20,37 @@ sim_sample_size_multidimensional_rarity <- function(tidy_traits,
                                              min_n_in_sample = 1,
                                              focal_trait = "leaf_area_mm2", #trait used for biased sampling
                                              large_biased = TRUE, #should sampling be biased towards large individuals?,
-                                             tempoutRDS = NULL #temporary RDS to log output periodically
+                                             tempoutRDS = NULL, #temporary RDS to log output periodically
+                                             continue=FALSE
 ){
   
   
-  set.seed(seed = seed)  
-  output<-NULL
+  #if the code is set to continue, AND there is an output file, load the output and pick up from there.  Else, start fresh
+  
+    if(continue & !is.null(tempoutRDS)){
+      
+      if(file.exists(tempoutRDS)){
+        output <- readRDS(tempoutRDS)
+      }else{output<-NULL}
+      
+    }else{output <- NULL}
   
   for( n in n_to_sample){
     for(t in 1:n_reps_trait){  
       
+      
+      set.seed(seed = seed*n*t)  
+      
+      
       message(paste("sample size",n,", rep",t))
+      
+      
+      #check if replicate t for n traits has already been done
+      
+        if(any(output$sample_size == n &
+               output$rep == t)){next}  
+      
+      
       
       #First simulate a draw of the relevant sample size
       if (is.null(prob)){
@@ -110,13 +130,6 @@ sim_sample_size_multidimensional_rarity <- function(tidy_traits,
                      min_n_in_sample = 1)
       
       #Get Non-parametric moments
-      
-      #dbfd is rather slow, can I do something faster?
-      #feve
-      #fdis
-      #Frid
-      #fdiv
-      
       
       
       
@@ -247,13 +260,65 @@ sim_sample_size_multidimensional_rarity <- function(tidy_traits,
                   avg_distinctiveness = mean(mean_distinctiveness)) -> cwm_species_x_site_results_nt
       
       
+      # calculate metrics the old school way (no intraspecific)
+      
+      imputed_species_mean %>%
+        ungroup%>%
+        select(taxon,trait,value)%>%
+        unique()%>%
+        pivot_wider(names_from = trait,
+                    values_from = value) %>%
+        column_to_rownames("taxon") -> mean_wide
+      
+      community %>%
+        pivot_wider(names_from = site,
+                    values_from = abundance,
+                    values_fill = 0)%>%
+        column_to_rownames("taxon")%>%t() -> community_wide
+      
+      if(!all(colnames(community_wide) == rownames(mean_wide))){
+        stop("error in species order")
+      }
+      
+      for( i in 1:nrow(community_wide)){
+        
+        comm_i <- community_wide[i,,drop=FALSE]
+        comm_i <- comm_i[,which(comm_i>0),drop=FALSE]
+        
+        traits_i <- mean_wide[which(rownames(mean_wide) %in% colnames(comm_i)),,drop=FALSE]
+        
+        cwm_species_results_og__i <-
+          funrar(pres_matrix = make_relative(comm_i),
+                 dist_matrix = as.matrix(dist(x = traits_i,method = "euclidean",upper = TRUE,diag = TRUE)),
+                 rel_abund = TRUE)
+        
+        cwm_og_i <- data.frame(method = "original",
+                               sample_size = n,
+                               rep = t,
+                               site = rownames(community_wide)[i],
+                               avg_distinctiveness = mean(cwm_species_results_og__i$Di),
+                               avg_uniqueness = mean(cwm_species_results_og__i$Ui$Ui)
+                          )
+        
+        if(i == 1){output_og <- cwm_og_i}else{
+          output_og <- bind_rows(output_og,cwm_og_i)
+        }
+        
+        
+      }
+
+      
       
       #can't think of a good parametric distribution for this, so skipping that one
       
-      output <- rbind(output, rbind(cbind(method = "nonparametric bs", sample_size = n, np_results_nt),
-                                    cbind(method = "global cwm", sample_size = n, cwm_species_results_nt),
-                                    cbind(method = "site-specic CWM", sample_size = n, cwm_species_x_site_results_nt))
-      )
+      output_nt <- rbind(cbind(method = "nonparametric bs", sample_size = n, rep = t,  np_results_nt),
+                         cbind(method = "global cwm", sample_size = n, rep = t, cwm_species_results_nt),
+                         cbind(method = "site-specic CWM", sample_size = n, rep = t, cwm_species_x_site_results_nt))
+      
+      output_nt <- bind_rows(output_nt,output_og)
+      
+      output <- rbind(output, output_nt)
+      
       
       
       #log output if requested
