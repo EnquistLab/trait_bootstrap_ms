@@ -1000,49 +1000,60 @@ source("r_functions/sim_sample_size_multidimensional.R")
                                n_reps_boot = 40, #using 40 rather than 200 because its slow
                                seed = 2005,
                                prob = NULL,
-                               FRic = FALSE, #throws errors at low sampling.
-                               FDiv = FALSE,
+                               FRic = TRUE, #throws errors at low sampling.
+                               FDiv = TRUE,
                                tempoutRDS = "output_data/temp_multidimensional.RDS",
                                continue = TRUE)
   
-# 
-#   saveRDS(object = md_output_co,
-#           file = "output_data/multidimensional_bootstrap_sample_size_and_method_sims.RDS")
+
+  # saveRDS(object = md_output_co,
+  #         file = "output_data/multidimensional_bootstrap_sample_size_and_method_sims.RDS")
   
   md_output_co <-
     readRDS("output_data/multidimensional_bootstrap_sample_size_and_method_sims.RDS")
 
-ggplot(data = md_output_co)+
-  geom_point(mapping = aes(x=sample_size, y = FEve,col=site))+
-  geom_errorbar(mapping = aes(x= sample_size,
-                              ymin = ci_low_FEve,
-                              ymax = ci_high_FEve,
-                              col = site))+
-  geom_hline(mapping = aes(yintercept=true_FEve,col=site))+
-  facet_wrap(~method)
+  #FEeve
+  ggplot(data = md_output_co)+
+    geom_point(mapping = aes(x=sample_size, y = FEve,col=site))+
+    geom_errorbar(mapping = aes(x= sample_size,
+                                ymin = ci_low_FEve,
+                                ymax = ci_high_FEve,
+                                col = site))+
+    geom_hline(mapping = aes(yintercept=true_FEve,col=site))+
+    facet_wrap(~method)
 
-ggplot(data = md_output_co)+
-  geom_point(mapping = aes(x=sample_size, y = FDis,col=site))+
-  geom_hline(mapping = aes(yintercept=true_FDis, col = site))+
-  facet_wrap(~method)
-
-colnames(md_output_co)
-
-ggplot(data = md_output_co)+
-  geom_point(mapping = aes(x=sample_size, y = RaoQ,col=site))+
-  geom_hline(mapping = aes(yintercept=true_RaoQ, col = site))+
-  facet_wrap(~method)
+  #FDis  
+  ggplot(data = md_output_co)+
+    geom_point(mapping = aes(x=sample_size, y = FDis,col=site))+
+    geom_hline(mapping = aes(yintercept=true_FDis, col = site))+
+    facet_wrap(~method)
 
 
-ggplot(data = md_output_co)+
-  geom_point(mapping = aes(x=sample_size, y = FEve, col=site))+
-  geom_errorbar(mapping = aes(x= sample_size,
-                              ymin = ci_low_FEve,
-                              ymax = ci_high_FEve,
-                              col = site))+
-  geom_hline(mapping = aes(yintercept=true_FEve,col=site))+
-  facet_wrap(~method)
+  #RaoQ
+  ggplot(data = md_output_co)+
+    geom_point(mapping = aes(x=sample_size, y = RaoQ,col=site))+
+    geom_hline(mapping = aes(yintercept=true_RaoQ, col = site))+
+    facet_wrap(~method)
 
+  #FDis
+  ggplot(data = md_output_co)+
+    geom_point(mapping = aes(x=sample_size, y = FDis, col=site))+
+    geom_errorbar(mapping = aes(x= sample_size,
+                                ymin = ci_low_FDis,
+                                ymax = ci_high_FDis,
+                                col = site))+
+    geom_hline(mapping = aes(yintercept=true_FDis,col=site))+
+    facet_wrap(~method)
+
+  #FRic
+  ggplot(data = md_output_co)+
+    geom_point(mapping = aes(x=sample_size, y = FRic, col=site))+
+    geom_errorbar(mapping = aes(x= sample_size,
+                                ymin = ci_low_FRic,
+                                ymax = ci_high_FRic,
+                                col = site))+
+    geom_hline(mapping = aes(yintercept=true_FRic,col=site))+
+    facet_wrap(~method)
 
 
 ########################################
@@ -1056,13 +1067,13 @@ source("r_functions/sim_sample_size_multidimensional_rarity.R")
 md_output_rarity_co <- sim_sample_size_multidimensional_rarity(tidy_traits = atraits,
                                                  community = community,
                                                  n_to_sample = 
-                                                  #(1:ceiling(x = max(community$abundance)^.5))^2,
-                                                 (1:10)^2, #truncating to make things faster
+                                                  (1:ceiling(x = max(community$abundance)^.5))^2,
+                                                 #(1:10)^2, #truncating to make things faster
                                                  n_reps_trait = 10,
                                                  n_reps_boot = 40, #using 40 rather than 200 because its slow
                                                  seed = 2005,
                                                  prob = NULL,
-                                                 tempoutRDS = "output_data/temp_multidimensional_rarity.RDS")
+                                                 tempoutRDS = "output_data/temp_multidimensional_rarity.RDS",)
 
 
 # saveRDS(object = md_output_rarity_co,
