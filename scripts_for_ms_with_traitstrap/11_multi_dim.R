@@ -38,13 +38,15 @@ multi_method =
                             method == 'site-specic CWM' ~ 'Site-Specific CW',
                             method == 'nonparametric bs' ~ 'Nonparametric BS',
                             method == 'parametric bs' ~ 'Parametric BS',
+                            method == 'original' ~ 'Original',
                             TRUE ~ method)) %>%
   filter(true_measure == measure) %>%
   select(-c(true_measure, ci_low_measure, ci_high_measure)) %>%
   mutate(method = ordered(method,levels = c("Cross-Site CW",
                                             "Site-Specific CW",
                                             "Parametric BS",
-                                            "Nonparametric BS")),
+                                            "Nonparametric BS",
+                                            "Original")),
          overunder = ifelse(true_value <= estimate,
                             "over",
                             "under"),
@@ -91,13 +93,15 @@ multi_rarity =
                             method == 'site-specic CWM' ~ 'Site-Specific CW',
                             method == 'nonparametric bs' ~ 'Nonparametric BS',
                             method == 'parametric bs' ~ 'Parametric BS',
+                            method == 'original' ~ 'Original',
                             TRUE ~ method)) %>%
   filter(true_measure == measure) %>%
   select(-c(true_measure, ci_low_measure, ci_high_measure)) %>%
   mutate(method = ordered(method,levels = c("Cross-Site CW",
                                             "Site-Specific CW",
                                             "Parametric BS",
-                                            "Nonparametric BS")),
+                                            "Nonparametric BS",
+                                            "Original")),
          overunder = ifelse(true_value <= estimate,
                             "over",
                             "under"),
@@ -149,11 +153,16 @@ sim_moon_means =
                       1)) %>%
   group_by(method, measure, sample_size) %>%
   #calcualte proportion of 'hits' per trait, methods, moment
-  summarise(percentage = sum(hit - 1)/n(),
+  summarise(percentage = as.numeric(sum(hit - 1)/n()),
             deviation = mean(ifelse(abs(estimate) > abs(true_value),
                                     abs(estimate) - abs(true_value),
                                     abs(true_value) - abs(estimate)),
-                             na.rm = TRUE))
+                             na.rm = TRUE)) %>%
+  ungroup() %>%
+  mutate(method = ordered(method,levels = c("Cross-Site CW",
+                                            "Site-Specific CW",
+                                            "Nonparametric BS",
+                                            "Original")))
 
 moon_plots <-
   ggplot(sim_moon_means) +
@@ -166,7 +175,11 @@ moon_plots <-
       filter(estimate != is.na(estimate)) %>%
       mutate(deviation = ifelse(abs(estimate) > abs(true_value),
                                 abs(estimate) - abs(true_value),
-                                abs(true_value) - abs(estimate))),
+                                abs(true_value) - abs(estimate))) %>%
+      mutate(method = ordered(method,levels = c("Cross-Site CW",
+                                                "Site-Specific CW",
+                                                "Nonparametric BS",
+                                                "Original"))),
     aes(
       x = sample_size,
       y = deviation ,
@@ -182,7 +195,16 @@ moon_plots <-
   ),
   size = 1,
   alpha = 0.9) +
-  geom_moon(aes(
+  geom_moon(
+    data = sim_moon_means %>%
+      mutate(percentage = ifelse(is.na(percentage),
+                                 0,
+                                 percentage)) %>%
+      mutate(method = ordered(method,levels = c("Cross-Site CW",
+                                                "Site-Specific CW",
+                                                "Nonparametric BS",
+                                                "Original"))),
+    aes(
     x = sample_size,
     y = deviation,
     ratio = percentage,
@@ -192,12 +214,12 @@ moon_plots <-
   size = 1.2) +
   scale_fill_manual(guide = guide_legend(title = "Method",
                                          title.position="top"),
-                    values = colorspace::darken(pal_df$c[c(1,2,4)], amount = 0.25),
-                    labels = pal_df$l[c(1,2,4)]) +
+                    values = colorspace::darken(pal_df$c, amount = 0.25),
+                    labels = pal_df$l) +
   scale_colour_manual(guide = guide_legend(title = "Method",
                                            title.position="top"),
-                      values = colorspace::lighten(pal_df$c[c(1,2,4)], amount = 0.1),
-                      labels = pal_df$l[c(1,2,4)]) +  
+                      values = colorspace::lighten(pal_df$c, amount = 0.1),
+                      labels = pal_df$l) +
   facet_grid(rows = vars(measure),
              cols = vars(method),
              labeller = labeller(
@@ -269,7 +291,7 @@ inset_plots =
   )
 
 
-((moon_plots+
+((moon_plots +
     theme(legend.position = 'right',
           plot.tag = element_text(size = rel(0.7), 
                                   face = "bold")) +
@@ -315,29 +337,29 @@ cc <- c("#031B88", "#6096FD", "#AAB6FB", "#FB7B8E", "#FAA7B8")
   geom_hline(aes(yintercept = true_value,
                  color = my_ranks),
              size = .3) +
-  geom_ribbon(
-    data = rbind(multi_method,
-                 multi_rarity) %>%
-      group_by(measure, method, site) %>%
-      summarise(spline_x = spline(sample_size, 
-                                  ci_high)$x,
-                spline_hi = spline(sample_size, 
-                                   ci_high)$y,
-                spline_lo = spline(sample_size, 
-                                   ci_low)$y) %>%
-      left_join(rbind(multi_method,
-                      multi_rarity) %>%
-                  distinct(measure, site, true_value) %>%
-                  group_by(measure) %>%
-                  mutate(my_ranks = as.factor(order(
-                    order(true_value, 
-                          decreasing=TRUE))))),
-    aes(
-      x = spline_x,
-      ymin = spline_lo,
-      ymax = spline_hi,
-      fill = my_ranks),
-    alpha = 0.2) +
+  # geom_ribbon(
+  #   data = rbind(multi_method,
+  #                multi_rarity) %>%
+  #     group_by(measure, method, site) %>%
+  #     summarise(spline_x = spline(sample_size, 
+  #                                 ci_high)$x,
+  #               spline_hi = spline(sample_size, 
+  #                                  ci_high)$y,
+  #               spline_lo = spline(sample_size, 
+  #                                  ci_low)$y) %>%
+  #     left_join(rbind(multi_method,
+  #                     multi_rarity) %>%
+  #                 distinct(measure, site, true_value) %>%
+  #                 group_by(measure) %>%
+  #                 mutate(my_ranks = as.factor(order(
+  #                   order(true_value, 
+  #                         decreasing=TRUE))))),
+  #   aes(
+  #     x = spline_x,
+  #     ymin = spline_lo,
+  #     ymax = spline_hi,
+  #     fill = my_ranks),
+  #   alpha = 0.2) +
   geom_smooth(
     aes(
       x = sample_size,
