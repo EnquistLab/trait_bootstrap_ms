@@ -38,15 +38,14 @@ multi_method =
                             method == 'site-specic CWM' ~ 'Site-Specific CW',
                             method == 'nonparametric bs' ~ 'Nonparametric BS',
                             method == 'parametric bs' ~ 'Parametric BS',
-                            method == 'original' ~ 'Original',
+                            method == 'original' ~ 'Traditional CWM',
                             TRUE ~ method)) %>%
   filter(true_measure == measure) %>%
   select(-c(true_measure, ci_low_measure, ci_high_measure)) %>%
-  mutate(method = ordered(method,levels = c("Cross-Site CW",
+  mutate(method = ordered(method,levels = c("Traditional CWM",
+                                            "Cross-Site CW",
                                             "Site-Specific CW",
-                                            "Parametric BS",
-                                            "Nonparametric BS",
-                                            "Original")),
+                                            "Nonparametric BS")),
          overunder = ifelse(true_value <= estimate,
                             "over",
                             "under"),
@@ -93,15 +92,14 @@ multi_rarity =
                             method == 'site-specic CWM' ~ 'Site-Specific CW',
                             method == 'nonparametric bs' ~ 'Nonparametric BS',
                             method == 'parametric bs' ~ 'Parametric BS',
-                            method == 'original' ~ 'Original',
+                            method == 'original' ~ 'Traditional CWM',
                             TRUE ~ method)) %>%
   filter(true_measure == measure) %>%
   select(-c(true_measure, ci_low_measure, ci_high_measure)) %>%
-  mutate(method = ordered(method,levels = c("Cross-Site CW",
+  mutate(method = ordered(method,levels = c("Traditional CWM",
+                                            "Cross-Site CW",
                                             "Site-Specific CW",
-                                            "Parametric BS",
-                                            "Nonparametric BS",
-                                            "Original")),
+                                            "Nonparametric BS")),
          overunder = ifelse(true_value <= estimate,
                             "over",
                             "under"),
@@ -159,27 +157,29 @@ sim_moon_means =
                                     abs(true_value) - abs(estimate)),
                              na.rm = TRUE)) %>%
   ungroup() %>%
-  mutate(method = ordered(method,levels = c("Cross-Site CW",
+  mutate(method = ordered(method,levels = c("Traditional CWM",
+                                            "Cross-Site CW",
                                             "Site-Specific CW",
-                                            "Nonparametric BS",
-                                            "Original")))
+                                            "Nonparametric BS")))
 
 moon_plots <-
-  ggplot(sim_moon_means) +
+  ggplot(sim_moon_means %>%
+           select(method != "Traditional CWM")) +
   geom_hline(aes(yintercept = 0),
              color = "grey50",
              size = .3) +
   geom_smooth(
     data = rbind(multi_method,
                  multi_rarity) %>%
+      select(method != "Traditional CWM") %>%
       filter(estimate != is.na(estimate)) %>%
       mutate(deviation = ifelse(abs(estimate) > abs(true_value),
                                 abs(estimate) - abs(true_value),
                                 abs(true_value) - abs(estimate))) %>%
-      mutate(method = ordered(method,levels = c("Cross-Site CW",
+      mutate(method = ordered(method,levels = c("Traditional CWM",
+                                                "Cross-Site CW",
                                                 "Site-Specific CW",
-                                                "Nonparametric BS",
-                                                "Original"))),
+                                                "Nonparametric BS"))),
     aes(
       x = sample_size,
       y = deviation ,
@@ -197,13 +197,10 @@ moon_plots <-
   alpha = 0.9) +
   geom_moon(
     data = sim_moon_means %>%
-      mutate(percentage = ifelse(is.na(percentage),
-                                 0,
-                                 percentage)) %>%
-      mutate(method = ordered(method,levels = c("Cross-Site CW",
+      mutate(method = ordered(method,levels = c("Traditional CWM",
+                                                "Cross-Site CW",
                                                 "Site-Specific CW",
-                                                "Nonparametric BS",
-                                                "Original"))),
+                                                "Nonparametric BS"))),
     aes(
     x = sample_size,
     y = deviation,
@@ -214,11 +211,13 @@ moon_plots <-
   size = 1.2) +
   scale_fill_manual(guide = guide_legend(title = "Method",
                                          title.position="top"),
-                    values = colorspace::darken(pal_df$c, amount = 0.25),
+                    values = colorspace::darken(pal_df$c$c[c(1,2,4)], 
+                                                amount = 0.25),
                     labels = pal_df$l) +
   scale_colour_manual(guide = guide_legend(title = "Method",
                                            title.position="top"),
-                      values = colorspace::lighten(pal_df$c, amount = 0.1),
+                      values = colorspace::lighten(pal_df$c$c[c(1,2,4)], 
+                                                   amount = 0.1),
                       labels = pal_df$l) +
   facet_grid(rows = vars(measure),
              cols = vars(method),
