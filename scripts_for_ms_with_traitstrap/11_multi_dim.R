@@ -164,14 +164,14 @@ sim_moon_means =
 
 moon_plots <-
   ggplot(sim_moon_means %>%
-           select(method != "Traditional CWM")) +
+           filter(method != "Traditional CWM")) +
   geom_hline(aes(yintercept = 0),
              color = "grey50",
              size = .3) +
   geom_smooth(
     data = rbind(multi_method,
                  multi_rarity) %>%
-      select(method != "Traditional CWM") %>%
+      filter(method != "Traditional CWM") %>%
       filter(estimate != is.na(estimate)) %>%
       mutate(deviation = ifelse(abs(estimate) > abs(true_value),
                                 abs(estimate) - abs(true_value),
@@ -196,11 +196,6 @@ moon_plots <-
   size = 1,
   alpha = 0.9) +
   geom_moon(
-    data = sim_moon_means %>%
-      mutate(method = ordered(method,levels = c("Traditional CWM",
-                                                "Cross-Site CW",
-                                                "Site-Specific CW",
-                                                "Nonparametric BS"))),
     aes(
     x = sample_size,
     y = deviation,
@@ -211,12 +206,12 @@ moon_plots <-
   size = 1.2) +
   scale_fill_manual(guide = guide_legend(title = "Method",
                                          title.position="top"),
-                    values = colorspace::darken(pal_df$c$c[c(1,2,4)], 
+                    values = colorspace::darken(pal_df$c[c(1,2,4)], 
                                                 amount = 0.25),
                     labels = pal_df$l) +
   scale_colour_manual(guide = guide_legend(title = "Method",
                                            title.position="top"),
-                      values = colorspace::lighten(pal_df$c$c[c(1,2,4)], 
+                      values = colorspace::lighten(pal_df$c[c(1,2,4)], 
                                                    amount = 0.1),
                       labels = pal_df$l) +
   facet_grid(rows = vars(measure),
