@@ -292,7 +292,7 @@ inset_plots =
     inset_element(img1,
                   left = 0.00,
                   bottom = 0.95,
-                  right = 0.06,
+                  right = 0.05,
                   top = 1, 
                   align_to = 'full') + theme_void())) +
   plot_layout(guides = 'collect') +
@@ -307,7 +307,7 @@ inset_plots =
                 align_to = 'full') + theme_void()
 
 ggsave(here::here("figures/multi_dim.png"),
-       height = 120, width = 180,
+       height = 150, width = 180,
        units = "mm", dpi = 600)
 # ggsave(here::here("figures/pdf/Rel_rank.pdf"),
 #        height = 120, width = 180,
@@ -409,5 +409,5 @@ cc <- c("#031B88", "#6096FD", "#AAB6FB", "#FB7B8E", "#FAA7B8")
                 align_to = 'full') + theme_void())
 
 ggsave(here::here("figures/mutli_rel_rank.png"),
-       height = 150, width = 120,
+       height = 180, width = 120,
        units = "mm", dpi = 600)
