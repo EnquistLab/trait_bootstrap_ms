@@ -223,7 +223,7 @@ moon_plots <-
              switch = 'y',
              scales = 'free') +
   labs(x = "Sample size",
-       y = "Average deviation from true moment") +
+       y = "Average deviation from true metric") +
   # Theme
   theme_moon +
   theme(
