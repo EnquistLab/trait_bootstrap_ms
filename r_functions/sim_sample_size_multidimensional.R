@@ -52,9 +52,6 @@ for( n in n_to_sample){
       if(any(output$sample_size == n &
               output$rep == t)){next}  
     
-      
-    
-    
     #First simulate a draw of the relevant sample size
     if (is.null(prob)){
       
@@ -133,17 +130,8 @@ for( n in n_to_sample){
                    min_n_in_sample = 1)
     
     #Get Non-parametric moments
-
-      #dbfd is rather slow, can I do something faster?
-        #feve
-        #fdis
-        #Frid
-        #fdiv
     
-      
-    
-  
-      np_results_nt <- 
+  np_results_nt <- 
         trait_multivariate_bootstrap(imputed_traits = imputed_full,
                                      nrep = n_reps_boot,
                                      sample_size = 200,
