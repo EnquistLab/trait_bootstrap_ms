@@ -164,7 +164,8 @@ sim_moon_means =
 
 moon_plots <-
   ggplot(sim_moon_means %>%
-           filter(method != "Traditional CWM")) +
+           filter(method != "Traditional CWM") %>%
+           filter(sample_size %in% c(1,9,25,49,100,169,441))) +
   geom_hline(aes(yintercept = 0),
              color = "grey50",
              size = .3) +
@@ -193,7 +194,7 @@ moon_plots <-
     y = deviation,
     color = method
   ),
-  size = 1,
+  size = 1.2,
   alpha = 0.9) +
   geom_moon(
     aes(
@@ -203,7 +204,7 @@ moon_plots <-
     fill = method
   ),
   color = "transparent",
-  size = 1.2) +
+  size = 1.4) +
   scale_fill_manual(guide = guide_legend(title = "Method",
                                          title.position="top"),
                     values = colorspace::darken(pal_df$c[c(1,2,4)], 
@@ -224,6 +225,8 @@ moon_plots <-
              scales = 'free') +
   labs(x = "Sample size",
        y = "Average deviation from true metric") +
+  scale_x_continuous(trans = 'sqrt', breaks = c(0,10,50,100,200,500),
+                     limits = c(0, 500)) +
   # Theme
   theme_moon +
   theme(
@@ -300,7 +303,7 @@ inset_plots =
     plot.background = element_rect(fill = "white", colour = NA),
     legend.position = 'right')) +
   inset_element(moon_legend,
-                left = 0.88,
+                left = 0.89,
                 bottom = 0.57,
                 right = 1,
                 top = 0.7, 
@@ -372,7 +375,7 @@ cc <- c("#031B88", "#6096FD", "#AAB6FB", "#FB7B8E", "#FAA7B8")
              switch = 'y',
              scales = 'free') +
   labs(x = "Sample size",
-       y = "") +
+       y = "Value of metric") +
   scale_colour_manual(values=cc) +
   scale_fill_manual(values=cc) +
   # Theme
