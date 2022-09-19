@@ -164,7 +164,8 @@ sim_moon_means =
 
 moon_plots <-
   ggplot(sim_moon_means %>%
-           filter(method != "Traditional CWM")) +
+           filter(method != "Traditional CWM") %>%
+           filter(sample_size %in% c(1,9,25,49,100,169,441))) +
   geom_hline(aes(yintercept = 0),
              color = "grey50",
              size = .3) +
@@ -197,13 +198,13 @@ moon_plots <-
   alpha = 0.9) +
   geom_moon(
     aes(
-    x = sample_size,
-    y = deviation,
-    ratio = percentage,
-    fill = method
-  ),
-  color = "transparent",
-  size = 1.2) +
+      x = sample_size,
+      y = deviation,
+      ratio = percentage,
+      fill = method
+    ),
+    color = "transparent",
+    size = 1.4) +
   scale_fill_manual(guide = guide_legend(title = "Method",
                                          title.position="top"),
                     values = colorspace::darken(pal_df$c[c(1,2,4)], 
@@ -223,7 +224,9 @@ moon_plots <-
              switch = 'y',
              scales = 'free') +
   labs(x = "Sample size",
-       y = "Average deviation from true moment") +
+       y = "Average deviation from true metric") +
+  scale_x_continuous(trans = 'sqrt', breaks = c(0,10,50,100,200,500),
+                     limits = c(0, 500)) +
   # Theme
   theme_moon +
   theme(
@@ -274,9 +277,9 @@ inset_plots =
                size = 0.2) +
   scale_fill_manual(values = pal_df$c[c(1,2,4)],
                     breaks = pal_df$l[c(1,2,4)]) +
-  lims(y = c(-1.3,10))  +
+  lims(y = c(-1.3,10)) +
   scale_x_continuous(trans = 'sqrt', breaks = c(1,4,9,16,25, 36,49),
-                     limits = c(1, 50))+ 
+                     limits = c(1, 50)) + 
   expand_limits(x= c(0, 23)) +
   # Theme
   theme_void() +
@@ -292,7 +295,7 @@ inset_plots =
     inset_element(img1,
                   left = 0.00,
                   bottom = 0.95,
-                  right = 0.06,
+                  right = 0.05,
                   top = 1, 
                   align_to = 'full') + theme_void())) +
   plot_layout(guides = 'collect') +
@@ -307,7 +310,7 @@ inset_plots =
                 align_to = 'full') + theme_void()
 
 ggsave(here::here("figures/multi_dim.png"),
-       height = 120, width = 180,
+       height = 150, width = 180,
        units = "mm", dpi = 600)
 # ggsave(here::here("figures/pdf/Rel_rank.pdf"),
 #        height = 120, width = 180,
@@ -320,28 +323,29 @@ cc <- c("#031B88", "#6096FD", "#AAB6FB", "#FB7B8E", "#FAA7B8")
 
 
 (ggplot(rbind(multi_method,
-             multi_rarity)  %>%
-         left_join(rbind(multi_method,
-                         multi_rarity) %>%
-                     distinct(measure, site, true_value) %>%
-                     group_by(measure) %>%
-                     mutate(my_ranks = as.factor(order(
-                       order(true_value, 
-                             decreasing=TRUE)))))) +
-  geom_hline(aes(yintercept = true_value,
-                 color = my_ranks),
-             size = .3) +
-  # geom_ribbon(
-  #   data = rbind(multi_method,
-  #                multi_rarity) %>%
-  #     group_by(measure, method, site) %>%
-  #     summarise(spline_x = spline(sample_size, 
-  #                                 ci_high)$x,
-  #               spline_hi = spline(sample_size, 
-  #                                  ci_high)$y,
-  #               spline_lo = spline(sample_size, 
-  #                                  ci_low)$y) %>%
-  #     left_join(rbind(multi_method,
+              multi_rarity)  %>%
+          left_join(rbind(multi_method,
+                          multi_rarity) %>%
+                      distinct(measure, site, true_value) %>%
+                      group_by(measure) %>%
+                      mutate(my_ranks = as.factor(order(
+                        order(true_value, 
+                              decreasing=TRUE)))))) +
+    geom_hline(aes(yintercept = true_value,
+                   color = my_ranks,
+                   linetype = "True value"),
+               size = .3) +
+    # geom_ribbon(
+    #   data = rbind(multi_method,
+    #                multi_rarity) %>%
+    #     group_by(measure, method, site) %>%
+    #     summarise(spline_x = spline(sample_size, 
+    #                                 ci_high)$x,
+    #               spline_hi = spline(sample_size, 
+    #                                  ci_high)$y,
+    #               spline_lo = spline(sample_size, 
+    #                                  ci_low)$y) %>%
+    #     left_join(rbind(multi_method,
   #                     multi_rarity) %>%
   #                 distinct(measure, site, true_value) %>%
   #                 group_by(measure) %>%
@@ -358,56 +362,64 @@ cc <- c("#031B88", "#6096FD", "#AAB6FB", "#FB7B8E", "#FAA7B8")
     aes(
       x = sample_size,
       y = estimate,
-      color = my_ranks),
+      color = my_ranks,
+      linetype = "Estimated value"),
     alpha = 0.5,
     se = FALSE,
-    size = 0.4,
-    linetype = 4) +
-  facet_grid(cols = vars(method),
-             rows = vars(measure),
-             labeller = labeller(
-               trait = traits_parsed,
-               .default = capitalize
-             ),
-             switch = 'y',
-             scales = 'free') +
-  labs(x = "Sample size",
-       y = "") +
-  scale_colour_manual(values=cc) +
-  scale_fill_manual(values=cc) +
-  # Theme
-  theme_moon +
-  theme(
-    axis.ticks = element_blank(),
-    axis.text = element_text(size = rel(.3)),
-    axis.title = element_text(size = rel(.5)),
-    legend.text = element_text(size = rel(.3)),
-    legend.title = element_text(size = rel(.5)),
-    strip.text.y = element_text(margin = margin(0, 0, 3, 0),
-                                size = rel(.5), face = "bold"),
-    strip.text.x.top = element_text(margin = margin(0, 0, 3, 0),
-                                    size = rel(.5), face = "bold"),
-    panel.grid.major.y = element_line(size = 0.03),
-    strip.background = element_blank(),
-    axis.line = element_blank(),
-    strip.placement = 'outside',
-    panel.background = element_rect(colour = colorspace::lighten("#141438", 0.1),
-                                    size = 0.3),
-    plot.title.position = "panel",
-    plot.title = element_text(margin = margin(0, 0, 10, 0),
-                              size = rel(.7), face = "bold"),
-    legend.position = 'none',
-    plot.margin = margin(2, 2, 2, 2),
-    legend.key.size = unit(3, "mm"),
-    axis.ticks.length=unit(0.25, "mm")
-  ) +
-  inset_element(img1,
-                left = 0.00,
-                bottom = 0.95,
-                right = 0.06,
-                top = 1, 
-                align_to = 'full') + theme_void())
+    size = 0.4) +
+    facet_grid(cols = vars(method),
+               rows = vars(measure),
+               labeller = labeller(
+                 trait = traits_parsed,
+                 .default = capitalize
+               ),
+               switch = 'y',
+               scales = 'free') +
+    labs(x = "Sample size",
+         y = "Value of metric") +
+    scale_colour_manual(values=cc) +
+    scale_fill_manual(values=cc)  +
+    guides(colour = 'none',
+           fill = 'none') +
+    scale_linetype_manual("Metric type",
+                          values = c("True value" = 1,
+                                     "Estimated value" = 4),
+                          guide = guide_legend(override.aes = list(colour = "grey69"))) +
+    scale_x_continuous(trans = 'sqrt', breaks = c(0,10,50,100,200,500),
+                       limits = c(0, 500)) +
+    # Theme
+    theme_moon +
+    theme(
+      axis.ticks = element_blank(),
+      axis.text = element_text(size = rel(.3)),
+      axis.title = element_text(size = rel(.5)),
+      legend.text = element_text(size = rel(.3)),
+      legend.title = element_text(size = rel(.5)),
+      strip.text.y = element_text(margin = margin(0, 0, 3, 0),
+                                  size = rel(.5), face = "bold"),
+      strip.text.x.top = element_text(margin = margin(0, 0, 3, 0),
+                                      size = rel(.5), face = "bold"),
+      panel.grid.major.y = element_line(size = 0.03),
+      strip.background = element_blank(),
+      axis.line = element_blank(),
+      strip.placement = 'outside',
+      panel.background = element_rect(colour = colorspace::lighten("#141438", 0.1),
+                                      size = 0.3),
+      plot.title.position = "panel",
+      plot.title = element_text(margin = margin(0, 0, 10, 0),
+                                size = rel(.7), face = "bold"),
+      legend.position = 'right',
+      plot.margin = margin(2, 2, 2, 2),
+      legend.key.size = unit(3, "mm"),
+      axis.ticks.length=unit(0.25, "mm")
+    ) +
+    inset_element(img1,
+                  left = 0.00,
+                  bottom = 0.95,
+                  right = 0.06,
+                  top = 1, 
+                  align_to = 'full') + theme_void())
 
 ggsave(here::here("figures/mutli_rel_rank.png"),
-       height = 150, width = 120,
+       height = 180, width = 120,
        units = "mm", dpi = 600)
