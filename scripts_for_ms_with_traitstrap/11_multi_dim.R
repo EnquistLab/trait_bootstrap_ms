@@ -164,7 +164,8 @@ sim_moon_means =
 
 moon_plots <-
   ggplot(sim_moon_means %>%
-           filter(method != "Traditional CWM")) +
+           filter(method != "Traditional CWM") %>%
+           filter(sample_size %in% c(1,9,25,49,100,169,441))) +
   geom_hline(aes(yintercept = 0),
              color = "grey50",
              size = .3) +
@@ -224,6 +225,8 @@ moon_plots <-
              scales = 'free') +
   labs(x = "Sample size",
        y = "Average deviation from true metric") +
+  scale_x_continuous(trans = 'sqrt', breaks = c(0,10,50,100,200,500),
+                     limits = c(0, 500)) +
   # Theme
   theme_moon +
   theme(
