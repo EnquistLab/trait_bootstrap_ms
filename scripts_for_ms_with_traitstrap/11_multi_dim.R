@@ -277,9 +277,9 @@ inset_plots =
                size = 0.2) +
   scale_fill_manual(values = pal_df$c[c(1,2,4)],
                     breaks = pal_df$l[c(1,2,4)]) +
-  lims(y = c(-1.3,10))  +
+  lims(y = c(-1.3,10)) +
   scale_x_continuous(trans = 'sqrt', breaks = c(1,4,9,16,25, 36,49),
-                     limits = c(1, 50))+ 
+                     limits = c(1, 50)) + 
   expand_limits(x= c(0, 23)) +
   # Theme
   theme_void() +
@@ -385,6 +385,8 @@ cc <- c("#031B88", "#6096FD", "#AAB6FB", "#FB7B8E", "#FAA7B8")
                           values = c("True value" = 1,
                                      "Estimated value" = 4),
                           guide = guide_legend(override.aes = list(colour = "grey69"))) +
+    scale_x_continuous(trans = 'sqrt', breaks = c(0,10,50,100,200,500),
+                       limits = c(0, 500)) +
     # Theme
     theme_moon +
     theme(
