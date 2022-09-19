@@ -54,7 +54,7 @@ ggplot(herb_abun %>%
              ),
              switch = 'y',
              scales = 'free') +
-  labs(x = "TODO",
+  labs(x = "Sample size",
        y = "Average deviation from true moment") +
   # Theme
   figure_theme +
@@ -124,7 +124,7 @@ rats_abun_plot =
              ),
              switch = 'y',
              scales = 'free') +
-  labs(x = "TODO",
+  labs(x = "Sample size",
        y = "Average deviation from true moment") +
   # Theme
   figure_theme +
