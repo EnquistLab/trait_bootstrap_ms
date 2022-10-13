@@ -8,7 +8,11 @@ source("r_functions/tidy_simdata.R")
 
 #read in data
 herbs =
-  tidy_simdata(readRDS("output_data/simulation_results.RDS"))
+  tidy_simdata(readRDS("output_data/simulation_results.RDS")) %>%
+  filter(trait == "LMA_mg_mm2") %>%
+  filter(sample_size == "9") %>%
+  group_by(site, trait, moment, method) %>%
+  slice_head(n = 1)
 
 herbs_corr =
   herbs %>%
@@ -58,7 +62,7 @@ ggplot(herbs %>%
                size = 1.6,
                vjust = 1,
                width = unit(0.27, "npc"),
-               box.padding = unit(c(2.7, 0.9, 2.3, 2.3), "pt")) +
+               box.padding = unit(c(2.7, 0.9, 2.3, 1.5), "pt")) +
   facet_grid(cols = vars(method),
              rows = vars(moment),
              labeller = labeller(
@@ -73,7 +77,7 @@ ggplot(herbs %>%
                       breaks = pal_df$l) +
   scale_linetype_manual(values=c("1:1 line" = 2,
                                  "Regression slope" = 1),
-                        guide = guide_legend(title = " ",
+                        guide = guide_legend(title = "Slope",
                                              title.position="top",
                                              override.aes = list(colour = c("black","grey69")))) +
   labs(x = "True value",

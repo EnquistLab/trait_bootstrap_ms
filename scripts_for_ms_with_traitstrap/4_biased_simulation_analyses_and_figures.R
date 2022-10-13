@@ -111,7 +111,7 @@ moons_mini <-
                 x = sample_size,
                 y = deviation,
                 color = method,
-                linetype = "Biased"),
+                linetype = "Size-biased"),
               se = FALSE,
               size = 0.4) +
   geom_smooth(aes(
@@ -147,7 +147,7 @@ moons_mini <-
                       values = colorspace::lighten(pal_df$c, amount = 0.1),
                       labels = pal_df$l) +
   scale_linetype_manual("Sampling",
-                        values=c("Biased" = 4,
+                        values=c("Size-biased" = 4,
                                  "Random" = 1),
                         guide = guide_legend(override.aes = list(colour = "grey69"))) +
   scale_x_continuous(trans = 'sqrt', breaks = c(0,10,50,100,200,500),
