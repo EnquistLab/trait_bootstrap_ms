@@ -303,14 +303,14 @@ inset_plots =
     plot.background = element_rect(fill = "white", colour = NA),
     legend.position = 'right')) +
   inset_element(moon_legend,
-                left = 0.88,
+                left = 0.86,
                 bottom = 0.57,
                 right = 1,
                 top = 0.7, 
                 align_to = 'full') + theme_void()
 
 ggsave(here::here("figures/multi_dim.png"),
-       height = 150, width = 180,
+       height = 130, width = 150,
        units = "mm", dpi = 600)
 # ggsave(here::here("figures/pdf/Rel_rank.pdf"),
 #        height = 120, width = 180,
