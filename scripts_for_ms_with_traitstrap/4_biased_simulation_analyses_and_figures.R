@@ -50,14 +50,17 @@ overunders =
 
 sim_moon_means =
   simdata %>%
+  filter(sample_size %in% c(1,9,49,100,196,441)) %>%
   #if true value falls in estimate's CI
   mutate(hit = ifelse(ci_low <= true_value & true_value <= ci_high,
                       2,
                       1)) %>%
+  ungroup() %>%
   group_by(method, moment, sample_size) %>%
   #calcualte proportion of 'hits' per trait, methods, moment
   summarise(percentage = sum(hit - 1)/n(),
-            deviation = mean(abs(deviation)))
+            deviation = mean(abs(deviation)),
+            avg_error = mean(abs((true_value-estimate)/true_value))*100)
 
 sim_biased_moon_means =
   simdata_biased %>%
@@ -66,9 +69,10 @@ sim_biased_moon_means =
                       2,
                       1)) %>%
   group_by(method, moment, sample_size) %>%
-  #calcualte proportion of 'hits' per trait, methods, moment
+  #calculate proportion of 'hits' per trait, methods, moment
   summarise(percentage = sum(hit - 1)/n(),
-            deviation = mean(abs(deviation)))
+            deviation = mean(abs(deviation)),
+            avg_error = mean(abs((true_value-estimate)/true_value))*100)
 
 inset_moon <-
   ggplot(overunders) +
@@ -101,22 +105,21 @@ inset_moon <-
 
 
 moons_mini <-
-  ggplot(sim_moon_means %>%
-           filter(sample_size %in% c(1,9,49,100,196,441))) +
+  ggplot(sim_moon_means) +
   geom_hline(aes(yintercept = 0),
              color = "grey50",
              size = 0.3) +
   geom_smooth(data = sim_biased_moon_means,
               aes(
                 x = sample_size,
-                y = deviation,
+                y = avg_error,
                 color = method,
                 linetype = "Size-biased"),
               se = FALSE,
               size = 0.4) +
   geom_smooth(aes(
     x = sample_size,
-    y = deviation ,
+    y = avg_error ,
     color = method,
     linetype = "Random"),
     alpha = 0.5,
@@ -124,14 +127,14 @@ moons_mini <-
     size = 0.2) +
   geom_point(aes(
     x = sample_size,
-    y = deviation,
+    y = avg_error,
     color = method
   ),
   size = 1,
   alpha = 0.9) +
   geom_moon(aes(
     x = sample_size,
-    y = deviation,
+    y = avg_error,
     ratio = percentage,
     fill = method
   ),
@@ -161,7 +164,7 @@ moons_mini <-
              switch = 'y',
              scales = 'free') +
   labs(x = "Sample Size",
-       y = "Average deviation from true moment") +
+       y = "Average percent error (%)") +
   # Theme
   theme_moon +
   theme(
@@ -245,7 +248,8 @@ sim_moon_means =
   group_by(method, moment, sample_size) %>%
   #calcualte proportion of 'hits' per trait, methods, moment
   summarise(percentage = sum(hit - 1)/n(),
-            deviation = mean(abs(deviation)))
+            deviation = mean(abs(deviation)),
+            avg_error = mean(abs((true_value-estimate)/true_value))*100)
 
 sim_biased_moon_means =
   simdata_biased_AZ %>%
@@ -256,7 +260,8 @@ sim_biased_moon_means =
   group_by(method, moment, sample_size) %>%
   #calcualte proportion of 'hits' per trait, methods, moment
   summarise(percentage = sum(hit - 1)/n(),
-            deviation = mean(abs(deviation)))
+            deviation = mean(abs(deviation)),
+            avg_error = mean(abs((true_value-estimate)/true_value))*100)
 
 moons_AZ <-
   ggplot(sim_moon_means %>%
@@ -267,14 +272,14 @@ moons_AZ <-
   geom_smooth(data = sim_biased_moon_means,
               aes(
                 x = sample_size,
-                y = deviation,
+                y = avg_error,
                 color = method,
                 linetype = "Biased"),
               se = FALSE,
               size = 0.4) +
   geom_smooth(aes(
     x = sample_size,
-    y = deviation ,
+    y = avg_error ,
     color = method,
     linetype = "Random"),
     alpha = 0.5,
@@ -282,14 +287,14 @@ moons_AZ <-
     size = 0.2) +
   geom_point(aes(
     x = sample_size,
-    y = deviation,
+    y = avg_error,
     color = method
   ),
   size = 1,
   alpha = 0.9) +
   geom_moon(aes(
     x = sample_size,
-    y = deviation,
+    y = avg_error,
     ratio = percentage,
     fill = method
   ),
@@ -319,7 +324,7 @@ moons_AZ <-
              switch = 'y',
              scales = 'free') +
   labs(x = "Sample Size",
-       y = "Average deviation from true moment") +
+       y = "Average percent error (%)") +
   # Theme
   theme_moon +
   theme(
@@ -473,7 +478,8 @@ for (i in 1:2) {
               deviation = mean(ifelse(abs(estimate) > abs(true_value),
                                       abs(estimate) - abs(true_value),
                                       abs(true_value) - abs(estimate)),
-                               na.rm = TRUE))
+                               na.rm = TRUE),
+              avg_error = mean(abs((true_value-estimate)/true_value))*100)
   
   sim_moon_means$moment =
     ordered(sim_moon_means$moment,levels = c("mean",
@@ -497,10 +503,12 @@ for (i in 1:2) {
         filter(estimate != is.na(estimate)) %>%
         mutate(deviation = ifelse(abs(estimate) > abs(true_value),
                                   abs(estimate) - abs(true_value),
-                                  abs(true_value) - abs(estimate))),
+                                  abs(true_value) - abs(estimate))) %>%
+        group_by(method, moment, pct_abd_sampled) %>%
+        mutate(avg_error = mean(abs((true_value-estimate)/true_value))*100),
       aes(
         x = pct_abd_sampled,
-        y = deviation ,
+        y = avg_error,
         color = method),
       alpha = 0.5,
       se = FALSE,
@@ -508,14 +516,14 @@ for (i in 1:2) {
       linetype = 4) +
     geom_point(aes(
       x = pct_abd_sampled,
-      y = deviation,
+      y = avg_error,
       color = method
     ),
     size = 1,
     alpha = 0.9) +
     geom_moon(aes(
       x = pct_abd_sampled,
-      y = deviation,
+      y = avg_error,
       ratio = percentage,
       fill = method
     ),
@@ -538,7 +546,7 @@ for (i in 1:2) {
                switch = 'y',
                scales = 'free') +
     labs(x = "Percent cumulative abundance sampled",
-         y = "Average deviation from true moment") +
+         y = "Average percent error (%)") +
     # Theme
     theme_moon +
     theme(
@@ -722,59 +730,59 @@ D
                   right = 0.1,
                   top = 1, 
                   align_to = 'full') + theme_void()) +
-    (moons_AZ +
-       labs(tag = "B") +
-       theme(legend.position = 'bottom',
-             legend.direction ="vertical",
-             legend.justification = 'left',
-             plot.tag = element_text(size = rel(0.7), 
-                                     face = "bold")) +
-       inset_element(inset_AZ,
-                     left = 0,
-                     bottom = 0,
-                     right = 1,
-                     top = 1, 
-                     ignore_tag = TRUE) +
-       inset_element(img4,
-                     left = 0.05,
-                     bottom = 0.89,
-                     right = 0.11,
-                     top = 1, 
-                     align_to = 'full') + theme_void()) +
+  (moons_AZ +
+     labs(tag = "B") +
+     theme(legend.position = 'bottom',
+           legend.direction ="vertical",
+           legend.justification = 'left',
+           plot.tag = element_text(size = rel(0.7), 
+                                   face = "bold")) +
+     inset_element(inset_AZ,
+                   left = 0,
+                   bottom = 0,
+                   right = 1,
+                   top = 1, 
+                   ignore_tag = TRUE) +
+     inset_element(img4,
+                   left = 0.05,
+                   bottom = 0.89,
+                   right = 0.11,
+                   top = 1, 
+                   align_to = 'full') + theme_void()) +
   (moon_plots[[1]] +
-      labs(tag = "C") +
-      theme(legend.position = 'none',
-            plot.tag = element_text(size = rel(0.7), 
-                                    face = "bold")) +
-      inset_element(inset_plots[[1]],
-                    left = 0,
-                    bottom = 0,
-                    right = 1,
-                    top = 1, 
-                    ignore_tag = TRUE) +
-      inset_element(img1,
-                    left = 0.05,
-                    bottom = 0.9,
-                    right = 0.1,
-                    top = 1, 
-                    align_to = 'full') + theme_void()) +
-     (moon_plots[[2]]  +
-        labs(tag = "D") +
-        theme(legend.position = 'none',
-              plot.tag = element_text(size = rel(0.7), 
-                                      face = "bold")) +
-        inset_element(inset_plots[[2]],
-                      left = 0,
-                      bottom = 0,
-                      right = 1,
-                      top = 1,
-                      ignore_tag = TRUE) +
-        inset_element(img4,
-                      left = 0.05,
-                      bottom = 0.89,
-                      right = 0.11,
-                      top = 1, 
-                      align_to = 'full') + theme_void()) +
+     labs(tag = "C") +
+     theme(legend.position = 'none',
+           plot.tag = element_text(size = rel(0.7), 
+                                   face = "bold")) +
+     inset_element(inset_plots[[1]],
+                   left = 0,
+                   bottom = 0,
+                   right = 1,
+                   top = 1, 
+                   ignore_tag = TRUE) +
+     inset_element(img1,
+                   left = 0.05,
+                   bottom = 0.9,
+                   right = 0.1,
+                   top = 1, 
+                   align_to = 'full') + theme_void()) +
+  (moon_plots[[2]]  +
+     labs(tag = "D") +
+     theme(legend.position = 'none',
+           plot.tag = element_text(size = rel(0.7), 
+                                   face = "bold")) +
+     inset_element(inset_plots[[2]],
+                   left = 0,
+                   bottom = 0,
+                   right = 1,
+                   top = 1,
+                   ignore_tag = TRUE) +
+     inset_element(img4,
+                   left = 0.05,
+                   bottom = 0.89,
+                   right = 0.11,
+                   top = 1, 
+                   align_to = 'full') + theme_void()) +
   plot_layout(guides = 'collect',
               # heights = c(1, 0.7),
               design = layout) +
@@ -796,7 +804,7 @@ ggsave(here::here("figures/pdf/Figure_3_vert.pdf"),
        height = 230, width = 100,
        units = "mm", dpi = 600)
 
-#### Moons - all datasets resticted ss ----
+#### Moons - all datasets restricted ss ----
 
 #limit ss 1- 49
 
@@ -819,7 +827,8 @@ sim_moon_means =
   group_by(dataset, method, moment, sample_size) %>%
   #calcualte proportion of 'hits' per trait, methods, moment
   summarise(percentage = sum(hit - 1)/n(),
-            deviation = mean(abs(deviation)))
+            deviation = mean(abs(deviation)),
+            avg_error = mean(abs((true_value-estimate)/true_value))*100)
 
 sim_moon_means$moment =
   ordered(sim_moon_means$moment,levels = c("mean",
@@ -846,21 +855,21 @@ for (i in 1:5) {
                size = .6) +
     geom_smooth(aes(
       x = sample_size,
-      y = deviation ,
+      y = avg_error ,
       color = method),
       alpha = 0.5,
       se = FALSE,
       size = 0.5) +
     geom_point(aes(
       x = sample_size,
-      y = deviation,
+      y = avg_error,
       color = method
     ),
     size = 2,
     alpha = 0.9) +
     geom_moon(aes(
       x = sample_size,
-      y = deviation,
+      y = avg_error,
       ratio = percentage,
       fill = method
     ),
@@ -886,7 +895,7 @@ for (i in 1:5) {
                switch = 'y',
                scales = 'free') +
     labs(x = "Sample Size",
-         y = "Average deviation from true moment",
+         y = "Average percent error (%)",
          title = paste(levels(sim_moon_means$dataset)[i])) +
     # Theme
     figure_theme +
@@ -1001,7 +1010,8 @@ sim_moon_means_panama =
             deviation = mean(ifelse(abs(estimate) > abs(true_value),
                                     abs(estimate) - abs(true_value),
                                     abs(true_value) - abs(estimate)),
-                             na.rm = TRUE))
+                             na.rm = TRUE),
+            avg_error = mean(abs((true_value-estimate)/true_value))*100)
 
 sim_moon_means_panama$moment =
   ordered(sim_moon_means_panama$moment,levels = c("mean",
@@ -1030,7 +1040,7 @@ moons_pa <-
     data = sim_moon_means_panama,
     aes(
       x = pct_abd_sampled,
-      y = deviation ,
+      y = avg_error ,
       color = method),
     alpha = 0.5,
     se = FALSE,
@@ -1038,14 +1048,14 @@ moons_pa <-
     linetype = 4) +
   geom_point(aes(
     x = pct_abd_sampled,
-    y = deviation,
+    y = avg_error,
     color = method
   ),
   size = 2,
   alpha = 0.9) +
   geom_moon(aes(
     x = pct_abd_sampled,
-    y = deviation,
+    y = avg_error,
     ratio = percentage,
     #right = right,
     fill = method
@@ -1069,7 +1079,7 @@ moons_pa <-
              switch = 'y',
              scales = 'free') +
   labs(x = "Percent cumulative abundance sampled",
-       y = "Average deviation from true moment") +
+       y = "Average percent error (%)") +
   # Theme
   theme_moon +
   theme(
