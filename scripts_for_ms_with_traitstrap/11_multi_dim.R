@@ -155,7 +155,8 @@ sim_moon_means =
             deviation = mean(ifelse(abs(estimate) > abs(true_value),
                                     abs(estimate) - abs(true_value),
                                     abs(true_value) - abs(estimate)),
-                             na.rm = TRUE)) %>%
+                             na.rm = TRUE),
+            avg_error = mean(abs((true_value-estimate)/true_value))*100) %>%
   ungroup() %>%
   mutate(method = ordered(method,levels = c("Traditional CWM",
                                             "Cross-Site CW",
@@ -180,10 +181,12 @@ moon_plots <-
       mutate(method = ordered(method,levels = c("Traditional CWM",
                                                 "Cross-Site CW",
                                                 "Site-Specific CW",
-                                                "Nonparametric BS"))),
+                                                "Nonparametric BS"))) %>%
+      group_by(method, measure, sample_size) %>%
+      summarise(avg_error = mean(abs((true_value-estimate)/true_value))*100),
     aes(
       x = sample_size,
-      y = deviation ,
+      y = avg_error ,
       color = method),
     alpha = 0.5,
     se = FALSE,
@@ -191,7 +194,7 @@ moon_plots <-
     linetype = 4) +
   geom_point(aes(
     x = sample_size,
-    y = deviation,
+    y = avg_error,
     color = method
   ),
   size = 1,
@@ -199,7 +202,7 @@ moon_plots <-
   geom_moon(
     aes(
       x = sample_size,
-      y = deviation,
+      y = avg_error,
       ratio = percentage,
       fill = method
     ),
@@ -224,21 +227,21 @@ moon_plots <-
              switch = 'y',
              scales = 'free') +
   labs(x = "Sample size",
-       y = "Average deviation from true metric") +
+       y = "Average percent error (%)") +
   scale_x_continuous(trans = 'sqrt', breaks = c(0,10,50,100,200,500),
                      limits = c(0, 500)) +
   # Theme
   theme_moon +
   theme(
     axis.ticks = element_blank(),
-    axis.text = element_text(size = rel(.3)),
-    axis.title = element_text(size = rel(.5)),
-    legend.text = element_text(size = rel(.3)),
-    legend.title = element_text(size = rel(.5)),
+    axis.text = element_text(size = rel(.4)),
+    axis.title = element_text(size = rel(.6)),
+    legend.text = element_text(size = rel(.4)),
+    legend.title = element_text(size = rel(.6)),
     strip.text.y = element_text(margin = margin(0, 0, 3, 0),
                                 size = rel(.5), face = "bold"),
     strip.text.x.top = element_text(margin = margin(0, 0, 3, 0),
-                                    size = rel(.5), face = "bold"),
+                                    size = rel(.6), face = "bold"),
     panel.grid.major.y = element_line(size = 0.03),
     strip.background = element_blank(),
     axis.line = element_blank(),
