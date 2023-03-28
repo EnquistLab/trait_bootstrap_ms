@@ -234,12 +234,12 @@ moon_plots <-
   theme_moon +
   theme(
     axis.ticks = element_blank(),
-    axis.text = element_text(size = rel(.4)),
+    axis.text = element_text(size = rel(.5)),
     axis.title = element_text(size = rel(.6)),
     legend.text = element_text(size = rel(.4)),
     legend.title = element_text(size = rel(.6)),
     strip.text.y = element_text(margin = margin(0, 0, 3, 0),
-                                size = rel(.5), face = "bold"),
+                                size = rel(.6), face = "bold"),
     strip.text.x.top = element_text(margin = margin(0, 0, 3, 0),
                                     size = rel(.6), face = "bold"),
     panel.grid.major.y = element_line(size = 0.03),
@@ -313,7 +313,7 @@ inset_plots =
                 align_to = 'full') + theme_void()
 
 ggsave(here::here("figures/multi_dim.png"),
-       height = 130, width = 150,
+       height = 150, width = 150,
        units = "mm", dpi = 600)
 # ggsave(here::here("figures/pdf/Rel_rank.pdf"),
 #        height = 120, width = 180,
