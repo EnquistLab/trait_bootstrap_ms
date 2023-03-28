@@ -920,7 +920,7 @@ for (i in 1:5) {
       plot.title = element_text(margin = margin(0, 0, 10, 0),
                                 size = rel(.7), face = "bold"
       ),
-      legend.position = 'none',
+      legend.position = 'bottom',
       plot.margin = margin(2, 2, 2, 2)
     ) 
   
