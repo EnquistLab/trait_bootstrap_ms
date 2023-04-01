@@ -920,7 +920,7 @@ for (i in 1:5) {
       plot.title = element_text(margin = margin(0, 0, 10, 0),
                                 size = rel(.7), face = "bold"
       ),
-      legend.position = 'none',
+      legend.position = 'bottom',
       plot.margin = margin(2, 2, 2, 2)
     ) 
   
@@ -965,10 +965,10 @@ for (i in 1:5) {
     legend.position = 'bottom')) 
 
 ggsave(here::here("figures/Figure_SI_7.png"),
-       height = 140, width = 180,
+       height = 160, width = 180,
        units = "mm", dpi = 600)
 ggsave(here::here("figures/pdf/Figure_SI_7.pdf"),
-       height = 140, width = 180,
+       height = 160, width = 180,
        units = "mm", dpi = 600)
 
 

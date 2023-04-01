@@ -156,7 +156,8 @@ moon_means =
   group_by(boot_sample_size, method, moment, trait_sample_size) %>%
   #calcualte proportion of 'hits' per trait, methods, moment
   summarise(percentage = sum(hit - 1)/n(),
-            deviation = mean(abs(deviation)))
+            deviation = mean(abs(deviation)),
+            avg_error = mean(abs((true_value-estimate)/true_value))*100)
 
 
 moon_means$moment =
@@ -178,21 +179,21 @@ for (i in 1:length(samp_size)) {
                size = .6) +
     geom_smooth(aes(
       x = trait_sample_size,
-      y = deviation ,
+      y = avg_error ,
       color = method),
       alpha = 0.5,
       se = FALSE,
       size = 0.5) +
     geom_point(aes(
       x = trait_sample_size,
-      y = deviation,
+      y = avg_error,
       color = method
     ),
     size = 1.1,
     alpha = 0.9) +
     geom_moon(aes(
       x = trait_sample_size,
-      y = deviation,
+      y = avg_error,
       ratio = percentage,
       fill = method
     ),
@@ -218,7 +219,7 @@ for (i in 1:length(samp_size)) {
                switch = 'y',
                scales = 'free') +
     labs(x = "Sample Size",
-         y = "Average deviation from true moment") +
+         y = "Average percent error (%)") +
     # Theme
     figure_theme +
     theme(

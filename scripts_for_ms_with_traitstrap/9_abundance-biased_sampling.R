@@ -15,19 +15,20 @@ rats_abun =
 #### Herb Data ####
 
 herb_abun_plot = 
-ggplot(herb_abun %>%
-         mutate(hit = ifelse(ci_low <= true_value & true_value <= ci_high,
-                             2,
-                             1)) %>%
-         group_by(method, moment, sample_size, sampling_bias) %>%
-         summarise(percentage = sum(hit - 1)/n(),
-                   deviation = mean(abs(deviation)))) +
+  ggplot(herb_abun %>%
+           mutate(hit = ifelse(ci_low <= true_value & true_value <= ci_high,
+                               2,
+                               1)) %>%
+           group_by(method, moment, sample_size, sampling_bias) %>%
+           summarise(percentage = sum(hit - 1)/n(),
+                     deviation = mean(abs(deviation)),
+                     avg_error = mean(abs((true_value-estimate)/true_value))*100)) +
   geom_hline(aes(yintercept = 0),
              color = "grey50",
              size = .6) +
   geom_smooth(aes(
     x = sample_size,
-    y = deviation ,
+    y = avg_error ,
     color = method,
     linetype = sampling_bias),
     alpha = 0.5,
@@ -42,11 +43,11 @@ ggplot(herb_abun %>%
                       values = colorspace::lighten(pal_df$c, amount = 0.1),
                       labels = pal_df$l) +
   scale_linetype_manual(guide = guide_legend(title = "Sampling Bias",
-                                           title.position="top",
-                                           title.hjust = 0.5,
-                                           override.aes = list(colour = "black")),
-                      values = c(2,1,3),
-                      labels = c("Common species bias", "No bias", "Rare species bias")) +
+                                             title.position="top",
+                                             title.hjust = 0.5,
+                                             override.aes = list(colour = "black")),
+                        values = c(2,1,3),
+                        labels = c("Common species bias", "No bias", "Rare species bias")) +
   facet_grid(rows = vars(moment),
              cols = vars(method),
              labeller = labeller(
@@ -55,7 +56,7 @@ ggplot(herb_abun %>%
              switch = 'y',
              scales = 'free') +
   labs(x = "Sample size",
-       y = "Average deviation from true moment") +
+       y = "Average percent error (%)") +
   # Theme
   figure_theme +
   theme(
@@ -91,13 +92,14 @@ rats_abun_plot =
                                1)) %>%
            group_by(method, moment, sample_size, sampling_bias) %>%
            summarise(percentage = sum(hit - 1)/n(),
-                     deviation = mean(abs(deviation)))) +
+                     deviation = mean(abs(deviation)),
+                     avg_error = mean(abs((true_value-estimate)/true_value))*100)) +
   geom_hline(aes(yintercept = 0),
              color = "grey50",
              size = .6) +
   geom_smooth(aes(
     x = sample_size,
-    y = deviation ,
+    y = avg_error,
     color = method,
     linetype = sampling_bias),
     alpha = 0.5,
@@ -125,7 +127,7 @@ rats_abun_plot =
              switch = 'y',
              scales = 'free') +
   labs(x = "Sample size",
-       y = "Average deviation from true moment") +
+       y = "Average percent error (%)") +
   # Theme
   figure_theme +
   theme(

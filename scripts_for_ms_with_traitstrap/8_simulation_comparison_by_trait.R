@@ -25,7 +25,8 @@ sim_moon_means =
   group_by(method, moment, sample_size, trait) %>%
   #calcualte proportion of 'hits' per trait, methods, moment
   summarise(percentage = sum(hit - 1)/n(),
-            deviation = mean(abs(deviation))) %>%
+            deviation = mean(abs(deviation)),
+            avg_error = mean(abs((true_value-estimate)/true_value))*100) %>%
   filter(sample_size < 51)
 
 sim_moon_means_AZ =
@@ -37,7 +38,8 @@ sim_moon_means_AZ =
   group_by(method, moment, sample_size, trait) %>%
   #calcualte proportion of 'hits' per trait, methods, moment
   summarise(percentage = sum(hit - 1)/n(),
-            deviation = mean(abs(deviation))) %>%
+            deviation = mean(abs(deviation)),
+            avg_error = mean(abs((true_value-estimate)/true_value))*100) %>%
   filter(sample_size < 51) %>%
   mutate(trait = case_when(trait == "log10_weight" ~ "Weight"))
 
@@ -51,7 +53,7 @@ ggplot(sim_moon_means %>%
   geom_smooth(data = sim_moon_means,
               aes(
                 x = sample_size,
-                y = deviation,
+                y = avg_error,
                 color = method,
                 linetype = method),
               se = FALSE,
@@ -59,14 +61,14 @@ ggplot(sim_moon_means %>%
               alpha = 0.5) +
   geom_point(aes(
     x = sample_size,
-    y = deviation,
+    y = avg_error,
     color = method
   ),
   size = 1,
   alpha = 0.9) +
   geom_moon(aes(
     x = sample_size,
-    y = deviation,
+    y = avg_error,
     ratio = percentage,
     fill = method
   ),
@@ -98,7 +100,7 @@ ggplot(sim_moon_means %>%
                                title.position = "top",
                                title.hjust = 0.5)) +
   labs(x = "Sample Size",
-       y = "Average deviation from true moment",
+       y = "Average percent error (%)",
        title = "A: Herbs") +
   theme_moon +
   theme(
@@ -186,7 +188,7 @@ ggplot(sim_moon_means %>%
                                title.position = "top",
                                title.hjust = 0.5)) +
   labs(x = "Sample Size",
-       y = "Average deviation from true moment",
+       y = "Average percent error (%)",
        title = "B: Rodents") +
   theme_moon +
   theme(
