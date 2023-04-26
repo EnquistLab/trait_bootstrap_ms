@@ -138,8 +138,6 @@ simmeans =
           mutate(dataset = rep("Rodents", nrow(.))),
         simdata_plankton %>%
           mutate(dataset = rep("Plankton", nrow(.)))) %>%
-  filter(sample_size < 26 &
-           sample_size > 8) %>%
   group_by(dataset, moment) %>%
   mutate(true_val = mean(true_value)) %>%
   # group_by(dataset, moment) %>%
@@ -157,9 +155,7 @@ simdata_lollipop =
         simdata_rats %>%
           mutate(dataset = rep("Rodents", nrow(.))),
         simdata_plankton %>%
-          mutate(dataset = rep("Plankton", nrow(.)))) %>%
-  filter(sample_size < 26 &
-           sample_size > 8) %>%
+          mutate(dataset = rep("Plankton", nrow(.))))  %>%
   # group_by(dataset, moment) %>%
   # mutate(deviation = scale(deviation)) %>%
   filter(deviation < 10 &
@@ -360,7 +356,7 @@ doughnut_CO =
   theme_doughnut
 
 over_under =
-  simdata  %>%
+  simdata %>%
   filter(sample_size < 26 &
            sample_size > 8) %>%
   group_by(trait, moment, method, overunder) %>%
@@ -431,9 +427,7 @@ ggsave(here::here("figures/pdf/Figure_SI_6.pdf"),
 
 ### Doughnut plots - across winners ----
 
-simdata %>%
-  filter(sample_size < 26 &
-           sample_size > 8) %>%
+simdata  %>%
   group_by(moment, sample_size, site, trait) %>%
   count() %>%
   ungroup()%>%
@@ -449,15 +443,11 @@ group_size =
         simdata_rats %>%
           mutate(dataset = rep("Rodents", nrow(.))),
         simdata_plankton %>%
-          mutate(dataset = rep("Plankton", nrow(.)))) %>%
-  filter(sample_size < 26 &
-           sample_size > 8) %>%
+          mutate(dataset = rep("Plankton", nrow(.))))  %>%
   distinct(dataset, moment, sample_size, site, trait) %>%
   group_by(dataset, moment) %>%
   count() %>%
   rename(grp_mn = n)
-
-abs(sim_doughnuts_all$deviation)
 
 sim_doughnuts_all =
   rbind(simdata %>%
@@ -469,9 +459,7 @@ sim_doughnuts_all =
         simdata_rats %>%
           mutate(dataset = rep("Rodents", nrow(.))),
         simdata_plankton %>%
-          mutate(dataset = rep("Plankton", nrow(.)))) %>%
-  filter(sample_size < 26 &
-           sample_size > 8) %>%
+          mutate(dataset = rep("Plankton", nrow(.))))  %>%
   mutate(hit = ifelse(ci_low <= true_value & true_value <= ci_high,
                       2,
                       1),
@@ -882,15 +870,15 @@ lollipop_CO =
                 align_to = 'full', 
                 ignore_tag = TRUE) + theme_void()  +
   plot_annotation(theme = theme(
-                    plot.background = element_rect(fill = "white", colour = NA),
-                    panel.background = element_rect(fill = "white", colour = NA),
-                    text = element_text(face = 'bold'))) +
+    plot.background = element_rect(fill = "white", colour = NA),
+    panel.background = element_rect(fill = "white", colour = NA),
+    text = element_text(face = 'bold'))) +
   plot_layout(heights = c(1, 0.15, 0.15))
 
-ggsave(here::here("figures/Figure_2.png"),
+ggsave(here::here("figures/Figure_4_all_sample_sizes.png"),
        height = 310, width = 180,
        units = "mm", dpi = 600)
-ggsave(here::here("figures/pdf/Figure_2.pdf"),
+ggsave(here::here("figures/pdf/Figure_4_all_sample_sizes.pdf"),
        height = 310, width = 180,
        units = "mm", dpi = 600)
 
