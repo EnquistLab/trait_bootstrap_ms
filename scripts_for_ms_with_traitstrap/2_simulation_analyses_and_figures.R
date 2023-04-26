@@ -138,8 +138,6 @@ simmeans =
           mutate(dataset = rep("Rodents", nrow(.))),
         simdata_plankton %>%
           mutate(dataset = rep("Plankton", nrow(.)))) %>%
-  filter(sample_size < 26 &
-           sample_size > 8) %>%
   group_by(dataset, moment) %>%
   mutate(true_val = mean(true_value)) %>%
   # group_by(dataset, moment) %>%
@@ -157,9 +155,7 @@ simdata_lollipop =
         simdata_rats %>%
           mutate(dataset = rep("Rodents", nrow(.))),
         simdata_plankton %>%
-          mutate(dataset = rep("Plankton", nrow(.)))) %>%
-  filter(sample_size < 26 &
-           sample_size > 8) %>%
+          mutate(dataset = rep("Plankton", nrow(.))))  %>%
   # group_by(dataset, moment) %>%
   # mutate(deviation = scale(deviation)) %>%
   filter(deviation < 10 &
