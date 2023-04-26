@@ -875,10 +875,10 @@ lollipop_CO =
     text = element_text(face = 'bold'))) +
   plot_layout(heights = c(1, 0.15, 0.15))
 
-ggsave(here::here("figures/Figure_2.png"),
+ggsave(here::here("figures/Figure_4_all_sample_sizes.png"),
        height = 310, width = 180,
        units = "mm", dpi = 600)
-ggsave(here::here("figures/pdf/Figure_2.pdf"),
+ggsave(here::here("figures/pdf/Figure_4_all_sample_sizes.pdf"),
        height = 310, width = 180,
        units = "mm", dpi = 600)
 
