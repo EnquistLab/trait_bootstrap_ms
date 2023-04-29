@@ -8,6 +8,7 @@ bootstrapping and mean-field approaches to inferring trait
 distribution.
 
 :books: Associated preprint: https://doi.org/10.22541/au.162196147.76797968/v1
+
 Associated datasets: https://doi.org/10.5281/zenodo.7876647
 
 ## Why bootstrap?
