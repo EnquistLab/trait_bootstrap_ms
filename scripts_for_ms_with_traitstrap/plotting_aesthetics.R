@@ -85,7 +85,6 @@ theme_moon =
     panel.grid.major.y = element_line(size = 0.05),
     strip.background = element_blank(),
     axis.line = element_blank(),
-    strip.placement = 'outside',
     panel.background = element_rect(colour = colorspace::darken("#dddddd", 0.1),
                                     size = 0.6),
     plot.title.position = "panel",
