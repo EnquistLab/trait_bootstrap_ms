@@ -153,6 +153,154 @@ ggsave(here::here("figures/Figure_S2.png"),
        units = "mm", dpi = 600)
 
 # Figure S3 ----
+## a) data ----
+
+simmeans =
+  rbind(simdata %>%
+          mutate(dataset = rep("Herbs", nrow(.))),
+        simdata_frogs %>%
+          mutate(dataset = rep("Tadpoles", nrow(.))),
+        simdata_panama %>%
+          mutate(dataset = rep("Trees", nrow(.))),
+        simdata_rats %>%
+          mutate(dataset = rep("Rodents", nrow(.))),
+        simdata_plankton %>%
+          mutate(dataset = rep("Plankton", nrow(.)))) %>%
+  group_by(dataset, moment) %>%
+  mutate(true_val = mean(true_value)) %>%
+  group_by(dataset, moment, method, true_val) %>%
+  summarise(estimate = mean(deviation))
+
+simdata_lollipop =
+  rbind(simdata %>%
+          mutate(dataset = rep("Herbs", nrow(.))),
+        simdata_frogs %>%
+          mutate(dataset = rep("Tadpoles", nrow(.))),
+        simdata_panama %>%
+          mutate(dataset = rep("Trees", nrow(.))),
+        simdata_rats %>%
+          mutate(dataset = rep("Rodents", nrow(.))),
+        simdata_plankton %>%
+          mutate(dataset = rep("Plankton", nrow(.))))  %>%
+  filter(deviation < 10 &
+           deviation > -10 ) %>%
+  group_by(dataset, moment, method, sample_size) %>%
+  slice_sample(n = 20)
+
+#re-order to match moment 'numbers'
+
+simdata_lollipop$dataset <- factor(simdata_lollipop$dataset,
+                                   levels = c("Herbs",
+                                              "Tadpoles",
+                                              "Trees", 
+                                              "Rodents",
+                                              "Plankton"))
+
+simmeans$dataset <- factor(simmeans$dataset,
+                           levels = c("Herbs",
+                                      "Tadpoles",
+                                      "Trees", 
+                                      "Rodents",
+                                      "Plankton"))
+## b) plot ----
+
+lollipop_all =
+  ggplot(simmeans) +
+  geom_vline(aes(xintercept = 0),
+             color = "grey69",
+             size = 0.7) +
+  geom_segment(data = simmeans,
+               aes(x = 0,
+                   xend = estimate,
+                   y = method,
+                   yend = method),
+               color = "grey69",
+               size = 0.3) +
+  geom_point(data = simdata_lollipop,
+             aes(x = deviation,
+                 y = method,
+                 fill = method,
+                 alpha = hit),
+             color = colorspace::lighten("#5e5e5e", 0.3),
+             size = 1, stroke = 0.2,
+             position = position_jitternormal(sd_x = 0, sd_y = 0.1), 
+             shape = 21) +
+  geom_point(data = simmeans,
+             aes(x = estimate,
+                 y = method,
+                 fill = method,
+                 colour = method),
+             shape = 23, size = 2) +
+  facet_grid(rows = vars(dataset),
+             cols = vars(moment),
+             labeller = labeller(
+               .default = capitalize
+             ),
+             switch = 'y',
+             scales = 'free')  +
+  scale_fill_manual(guide = guide_legend(title = "Method",
+                                         title.position="top",
+                                         title.hjust = 0.5,
+                                         override.aes = list(shape = 21)),
+                    values = pal_df$c,
+                    breaks = pal_df$l) +
+  scale_colour_manual(guide = guide_legend(title = "Method",
+                                           title.position="top",
+                                           title.hjust = 0.5,
+                                           override.aes = list(shape = 21)),
+                      values = colorspace::darken(pal_df$c, 0.5),
+                      breaks = pal_df$l) +
+  scale_alpha_discrete(guide = guide_legend(title = "Value in CI",
+                                            title.position="top",
+                                            title.hjust = 0.5,
+                                            override.aes = list(shape = 16,
+                                                                size = 3,
+                                                                colour = "#5e5e5e")),
+                       range = c(0.5, 0.9)) +
+  labs(
+    x = "Deviation from true value",
+    y = NULL
+  ) +
+  theme_lollipop
+
+lollipop_all  +
+  inset_element(img5,
+                left = 0.0,
+                bottom = 0.26,
+                right = 0.07,
+                top = 0.35, 
+                align_to = 'full') + theme_void() +
+  inset_element(img4,
+                left = 0.0,
+                bottom = 0.4,
+                right = 0.07,
+                top = 0.47, 
+                align_to = 'full') + theme_void() +
+  inset_element(img3,
+                left = 0.01,
+                bottom = 0.54,
+                right = 0.08,
+                top = 0.63, 
+                align_to = 'full') + theme_void() +
+  inset_element(img2,
+                left = 0.01,
+                bottom = 0.67,
+                right = 0.08,
+                top = 0.78, 
+                align_to = 'full') + theme_void() +
+  inset_element(img1,
+                left = 0.0,
+                bottom = 0.83,
+                right = 0.07,
+                top = 0.92, 
+                align_to = 'full') + theme_void()
+
+
+ggsave(here::here("figures/Figure_S3.png"),
+       height = 115, width = 180,
+       units = "mm", dpi = 600)
+
+# Figure S4 ----
 
 ## a) data ----
 simdata_lollipop =
@@ -246,7 +394,319 @@ cowplot::ggdraw(
     width = 0.04
   )
 
-ggsave(here::here("figures/Figure_SI2.png"),
+ggsave(here::here("figures/Figure_S4.png"),
        height = 120, width = 180,
        units = "mm", dpi = 600)
 
+
+# Figure S5 ----
+## a) data ----
+sim_radar =
+  simdata_panama %>%
+  filter(sample_size < 26 &
+           sample_size > 8) %>%
+  mutate(diff = ifelse(abs(estimate) > abs(true_value),
+                       abs(estimate) - abs(true_value),
+                       abs(true_value) - abs(estimate)),
+         hit = ifelse(ci_low <= true_value & true_value <= ci_high,
+                      2,
+                      1)) %>%
+  group_by(trait, moment, sample_size, site) %>%
+  filter(hit == 2) %>%
+  filter(diff == min(diff)) %>%
+  group_by(trait, method, moment) %>%
+  count() %>%
+  group_by(moment, trait) %>%
+  mutate(percentage = n/60) %>%
+  select(-n) %>%
+  mutate(percentage = ifelse(is.na(percentage),
+                             0,
+                             percentage))
+
+sim_win_text =
+  sim_radar %>%
+  group_by(moment, trait) %>%
+  filter(percentage == max(percentage)) %>%
+  mutate(percentage = round(percentage*100))
+
+sim_radar$trait <- factor(sim_radar$trait,
+                          levels = c("Area",
+                                     "Dry.weight",
+                                     "Fresh.weight",
+                                     "LDMC",
+                                     "LMA",
+                                     "LCC",
+                                     "LNC",
+                                     "N.C"))
+
+sim_win_text$trait <- factor(sim_win_text$trait,
+                             levels = c("Area",
+                                        "Dry.weight",
+                                        "Fresh.weight",
+                                        "LDMC",
+                                        "LMA",
+                                        "LCC",
+                                        "LNC",
+                                        "N.C"))
+
+over_under =
+  simdata_panama %>%
+  filter(sample_size < 26 &
+           sample_size > 8) %>%
+  mutate(overunder = ifelse(true_value < estimate,
+                            "over",
+                            "under"),
+         deviation = ifelse(abs(estimate) > abs(true_value),
+                            abs(estimate) - abs(true_value),
+                            abs(true_value) - abs(estimate))) %>%
+  group_by(trait, moment, method, overunder) %>%
+  summarise(dev = mean(deviation),
+            tally = n()) %>%
+  group_by(trait, moment, method) %>%
+  filter(tally == max(tally)) %>%
+  group_by(trait, moment, overunder) %>%
+  mutate(x = dev/max(dev)) %>%
+  mutate(x = ifelse(overunder == "under",
+                    -1*x,
+                    x))
+
+over_under$trait <- factor(over_under$trait,
+                           levels = c("Area",
+                                      "Dry.weight",
+                                      "Fresh.weight",
+                                      "LDMC",
+                                      "LMA",
+                                      "LCC",
+                                      "LNC",
+                                      "N.C"))
+
+## b) plot ----
+
+doughnut =
+  ggplot(sim_radar) +
+  geom_col(aes(
+    x = 2,
+    y = percentage,
+    fill = method
+  ),
+  colour = 'grey96') +
+  xlim(c(0.5, 2.5)) +
+  ylim(c(0, 1)) +
+  #annotation textboxes
+  geom_text(data = sim_win_text,
+            aes(x = 0.5,
+                y = 0.25,
+                colour = method,
+                label = glue::glue("{percentage}%")),
+            hjust = 0.5,
+            show.legend = FALSE,
+            fontface = 'bold',
+            size = 4.5) +
+  coord_polar(theta = 'y') +
+  facet_grid(rows = vars(trait),
+             cols = vars(moment),
+             labeller = labeller(
+               trait = traits_panama,
+               .default = capitalize
+             ),
+             switch = 'y')  +
+  scale_fill_manual(guide = guide_legend(title = "Method",
+                                         title.position="top",
+                                         title.hjust = 0.5),
+                    values = pal_df$c,
+                    breaks = pal_df$l) +
+  scale_colour_manual(guide = guide_legend(title = "Method",
+                                           title.position="top",
+                                           title.hjust = 0.5),
+                      values = colorspace::darken(pal_df$c, 0.2),
+                      breaks = pal_df$l) +
+  # Theme
+  theme_doughnut
+
+inset =
+  ggplot(over_under) +
+  geom_col(aes(y = x,
+               x = method,
+               fill = method),
+           alpha = 0.5,
+           show.legend = FALSE) +
+  facet_grid(rows = vars(trait),
+             cols = vars(moment),
+             labeller = labeller(
+               trait = traits_panama,
+               .default = capitalize
+             ),
+             switch = 'y')  +
+  geom_segment(aes(y = 0,
+                   xend = 4.5,
+                   x = 0.5, yend = 0),
+               colour = 'grey69',
+               size = 0.7) +
+  scale_fill_manual(values = pal_df$c,
+                    breaks = pal_df$l) +
+  lims(y = c(-5,5)) +
+  expand_limits(x= c(-9, 11)) +
+  # Theme
+  theme_void() +
+  theme(
+    strip.text = element_blank()
+  )
+
+
+cowplot::ggdraw(doughnut) +
+  cowplot::draw_plot(inset,
+                     width = 0.76,
+                     height = 0.92,
+                     x = 0.26,
+                     y = 0.09) +
+  cowplot::draw_image(
+    img3, x = 0.06, y = 0.965, hjust = 0.5, vjust = 0.5,
+    width = 0.07
+  )
+
+ggsave(here::here("figures/Figure_S5.png"),
+       height = 314, width = 180,
+       units = "mm", dpi = 600)
+
+# Figure S6 ----
+## a) data ----
+sim_radar =
+  simdata %>%
+  filter(sample_size < 26 &
+           sample_size > 8) %>%
+  mutate(hit = ifelse(ci_low <= true_value & true_value <= ci_high,
+                      2,
+                      1),
+         deviation = ifelse(abs(estimate) > abs(true_value),
+                            abs(estimate) - abs(true_value),
+                            abs(true_value) - abs(estimate))) %>%
+  group_by(trait, moment, sample_size, site) %>%
+  filter(hit == 2) %>%
+  filter(deviation == min(deviation)) %>%
+  group_by(trait, method, moment) %>%
+  count() %>%
+  group_by(moment, trait) %>%
+  mutate(percentage = n/15) %>%
+  select(-n) %>%
+  mutate(percentage = ifelse(is.na(percentage),
+                             0,
+                             percentage))
+
+sim_win_text =
+  sim_radar %>%
+  group_by(moment, trait) %>%
+  filter(percentage == max(percentage)) %>%
+  mutate(percentage = round(percentage*100))
+
+## b) plot ----
+
+doughnut_CO =
+  ggplot(sim_radar) +
+  geom_col(aes(
+    x = 2,
+    y = percentage,
+    fill = method
+  ),
+  colour = 'grey96') +
+  xlim(c(0.5, 2.5)) +
+  ylim(c(0, 1))+
+  #annotation textboxes
+  geom_text(data = sim_win_text,
+            aes(x = 0.5,
+                y = 0.25,
+                colour = method,
+                label = glue::glue("{percentage}%")),
+            #label = glue::glue("{method} - {percentage}%")),
+            #colour = 'grey90',
+            hjust = 0.5,
+            size = 4,
+            show.legend = FALSE,
+            fontface = 'bold') +
+  coord_polar(theta = 'y') +
+  facet_grid(rows = vars(trait),
+             cols = vars(moment),
+             labeller = labeller(
+               trait = traits_parsed,
+               .default = capitalize
+             ),
+             switch = 'y')  +
+  scale_fill_manual(guide = guide_legend(title = "Method",
+                                         title.position="top",
+                                         title.hjust = 0.5),
+                    values = pal_df$c,
+                    breaks = pal_df$l) +
+  scale_colour_manual(guide = guide_legend(title = "Method",
+                                           title.position="top",
+                                           title.hjust = 0.5),
+                      values =colorspace::darken(pal_df$c, 0.2),
+                      breaks = pal_df$l) +
+  # Theme
+  theme_doughnut
+
+over_under =
+  simdata %>%
+  filter(sample_size < 26 &
+           sample_size > 8) %>%
+  group_by(trait, moment, method, overunder) %>%
+  summarise(dev = mean(abs(deviation)),
+            tally = n()) %>%
+  group_by(trait, moment, method) %>%
+  filter(tally == max(tally)) %>%
+  group_by(trait, moment, overunder) %>%
+  mutate(x = dev/max(dev)) %>%
+  mutate(x = ifelse(overunder == "under",
+                    -1*x,
+                    x))
+
+
+over_under$moment <- factor(over_under$moment,
+                            levels = c("mean",
+                                       "variance",
+                                       "skewness",
+                                       "kurtosis"))
+
+inset =
+  ggplot(over_under) +
+  geom_col(aes(y = x,
+               x = method,
+               fill = method),
+           alpha = 0.5,
+           show.legend = FALSE) +
+  facet_grid(rows = vars(trait),
+             cols = vars(moment),
+             labeller = labeller(
+               trait = traits_parsed,
+               .default = capitalize
+             ),
+             switch = 'y')  +
+  geom_segment(aes(y = 0,
+                   xend = 4.5,
+                   x = 0.5, yend = 0),
+               colour = 'grey69',
+               size = 0.7) +
+  scale_fill_manual(values = pal_df$c,
+                    breaks = pal_df$l) +
+  lims(y = c(-5,5)) +
+  expand_limits(x= c(-9, 11)) +
+  # Theme
+  theme_void() +
+  theme(
+    strip.text = element_blank()
+  )
+
+
+cowplot::ggdraw(doughnut_CO) +
+  cowplot::draw_plot(inset,
+                     width = 0.81,
+                     height = 0.87,
+                     x = 0.22,
+                     y = 0.14) +
+  cowplot::draw_image(
+    img1, x = 0.05, y = 0.94, hjust = 0.5, vjust = 0.5,
+    width = 0.08
+  )
+
+ggsave(here::here("figures/Figure_S6.png"),
+       height = 180, width = 147,
+       units = "mm", dpi = 600)
+# Figure S7 ----
