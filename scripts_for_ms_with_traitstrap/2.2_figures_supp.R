@@ -710,3 +710,166 @@ ggsave(here::here("figures/Figure_S6.png"),
        height = 180, width = 147,
        units = "mm", dpi = 600)
 # Figure S7 ----
+## a) data ----
+sim_moon_means =
+  rbind(simdata %>%
+          mutate(dataset = rep("Herbs", nrow(.))),
+        simdata_frogs %>%
+          mutate(dataset = rep("Tadpoles", nrow(.))),
+        simdata_panama %>%
+          mutate(dataset = rep("Trees", nrow(.))),
+        simdata_rats %>%
+          mutate(dataset = rep("Rodents", nrow(.))),
+        simdata_plankton %>%
+          mutate(dataset = rep("Plankton", nrow(.)))) %>%
+  #if true value falls in estimate's CI
+  filter(sample_size < 50) %>%
+  mutate(hit = ifelse(ci_low <= true_value & true_value <= ci_high,
+                      2,
+                      1)) %>%
+  group_by(dataset, method, moment, sample_size) %>%
+  #calcualte proportion of 'hits' per trait, methods, moment
+  summarise(percentage = sum(hit - 1)/n(),
+            deviation = mean(abs(deviation)),
+            avg_error = mean(abs((true_value-estimate)/true_value))*100)
+
+sim_moon_means$moment =
+  ordered(sim_moon_means$moment,levels = c("mean",
+                                           "variance",
+                                           "skewness",
+                                           "kurtosis"))
+
+sim_moon_means$dataset =
+  ordered(sim_moon_means$dataset,levels = c("Herbs",
+                                            "Tadpoles",
+                                            "Trees", 
+                                            "Rodents",
+                                            "Plankton"))
+
+## b) plots ----
+
+plots <- vector('list', 5)
+
+for (i in 1:5) {
+  
+  plots[[i]] = 
+    ggplot(sim_moon_means %>%
+             filter(dataset == levels(sim_moon_means$dataset)[i])) +
+    geom_hline(aes(yintercept = 0),
+               color = "grey50",
+               size = .6) +
+    geom_smooth(aes(
+      x = sample_size,
+      y = avg_error ,
+      color = method),
+      alpha = 0.5,
+      se = FALSE,
+      size = 0.5) +
+    geom_point(aes(
+      x = sample_size,
+      y = avg_error,
+      color = method
+    ),
+    size = 2,
+    alpha = 0.9) +
+    geom_moon(aes(
+      x = sample_size,
+      y = avg_error,
+      ratio = percentage,
+      fill = method
+    ),
+    color = "transparent",
+    size = 2) +
+    coord_cartesian(clip = 'off') +
+    scale_fill_manual(guide = guide_legend(title = "Method",
+                                           title.position="top",
+                                           title.hjust = 0.5),
+                      values = colorspace::darken(pal_df$c, amount = 0.2),
+                      labels = pal_df$l) +
+    scale_colour_manual(guide = guide_legend(title = "Method",
+                                             title.position="top",
+                                             title.hjust = 0.5),
+                        values = colorspace::lighten(pal_df$c, amount = 0.1),
+                        labels = pal_df$l) +
+    facet_grid(rows = vars(moment),
+               cols = vars(method),
+               labeller = labeller(
+                 trait = traits_parsed,
+                 .default = capitalize
+               ),
+               switch = 'y',
+               scales = 'free') +
+    labs(x = "Sample Size",
+         y = "Average percent error (%)",
+         title = paste(levels(sim_moon_means$dataset)[i])) +
+    # Theme
+    figure_theme +
+    theme(
+      axis.text.x = element_text(size = rel(.5)),
+      axis.text.y = element_text(size = rel(.5)),
+      axis.title.x = element_text(size = rel(.5)),
+      axis.title.y = element_text(size = rel(.5)),
+      legend.text = element_text(size = rel(.5)),
+      legend.title = element_text(size = rel(.6)),
+      strip.text.y = element_text(margin = margin(0, 0, 3, 0),
+                                  size = rel(.6), face = "bold"),
+      strip.text.x.top = element_text(margin = margin(0, 0, 3, 0),
+                                      size = rel(.6),face = "bold"),
+      panel.grid.major.y = element_line(size = 0.03),
+      strip.background = element_blank(),
+      axis.line = element_blank(),
+      #strip.placement = 'outside',
+      panel.background = element_rect(colour = colorspace::darken("#dddddd", 0.1),
+                                      size = 0.4),
+      plot.title.position = "panel",
+      plot.title = element_text(margin = margin(0, 0, 10, 0),
+                                size = rel(.7), face = "bold"
+      ),
+      legend.position = 'bottom',
+      plot.margin = margin(2, 2, 2, 2)
+    ) 
+  
+}
+
+(plots[[2]] +
+    labs(title = "A: Tadpoles") +
+    inset_element(img2,
+                  left = 0.02,
+                  bottom = 0.87,
+                  right = 0.11,
+                  top = 1, 
+                  align_to = 'full') + theme_void() + 
+    plots[[3]] +
+    labs(title = "B: Trees") +
+    inset_element(img3,
+                  left = 0.02,
+                  bottom = 0.89,
+                  right = 0.11,
+                  top = 1, 
+                  align_to = 'full') + theme_void())/
+  (plots[[4]] +
+     labs(title = "C: Rodents") +
+     inset_element(img4,
+                   left = 0.02,
+                   bottom = 0.89,
+                   right = 0.11,
+                   top = 1, 
+                   align_to = 'full') + theme_void() + 
+     plots[[5]] +
+     labs(title = "D: Plankton") +
+     inset_element(img5,
+                   left = 0.02,
+                   bottom = 0.89,
+                   right = 0.11,
+                   top = 1, 
+                   align_to = 'full') + theme_void()) +
+  plot_layout(guides = 'collect') +
+  plot_annotation(theme = theme(
+    plot.background = element_rect(fill = "white", colour = NA),
+    panel.background = element_rect(fill = "white", colour = NA),
+    legend.position = 'bottom')) 
+
+ggsave(here::here("figures/Figure_S7.png"),
+       height = 160, width = 180,
+       units = "mm", dpi = 600)
+# Figure S8 ----
