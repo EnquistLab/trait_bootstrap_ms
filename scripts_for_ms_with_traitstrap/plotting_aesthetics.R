@@ -107,7 +107,7 @@ theme_lollipop =
         panel.grid.major.y = element_blank(),
         strip.background = element_blank(),
         axis.line = element_blank(),
-        strip.placement = 'outside',
+        #strip.placement = 'outside',
         axis.ticks.y = element_blank(),
         legend.position = 'bottom',
         legend.text = element_text(size = rel(.7)),
