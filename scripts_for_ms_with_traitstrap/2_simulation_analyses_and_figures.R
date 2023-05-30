@@ -1,10 +1,11 @@
 #analyze and plot simulation results
 
+#load script that determines plotting aesthetics
 source("scripts_for_ms_with_traitstrap/plotting_aesthetics.R")
 #load function to clean data
 source("r_functions/tidy_simdata.R")
 
-#### Read Data ####
+#### 1 Read Data ####
 
 
 #read in data
@@ -27,9 +28,7 @@ simdata_plankton <-
   tidy_simdata(readRDS("output_data/simulation_results_phyto_subset_scaled.RDS"))
 
 
-### Accuracy but using absolutes ----
-
-#All traits
+#### 2 Summarise Data ####
 
 simmeans =
   simdata %>%
@@ -117,11 +116,6 @@ cowplot::ggdraw(
 ggsave(here::here("figures/Figure_SI_4.png"),
        height = 120, width = 180,
        units = "mm", dpi = 600)
-ggsave(here::here("figures/pdf/Figure_SI_4.pdf"),
-       height = 120, width = 180,
-       units = "mm", dpi = 600)
-
-
 
 ### Accuracy Across datasets (creative) ----
 
@@ -421,9 +415,6 @@ cowplot::ggdraw(doughnut_CO) +
 ggsave(here::here("figures/Figure_SI_6.png"),
        height = 180, width = 147,
        units = "mm", dpi = 600)
-ggsave(here::here("figures/pdf/Figure_SI_6.pdf"),
-       height = 180, width = 147,
-       units = "mm", dpi = 600)
 
 ### Doughnut plots - across winners ----
 
@@ -498,44 +489,16 @@ sim_win_text$dataset <- factor(sim_win_text$dataset,
 ### a) BumpPlots ----
 
 bumps =
-  # rbind(simdata %>%
-  #         mutate(dataset = rep("Herbs", nrow(.))),
-  #       simdata_frogs %>%
-  #         mutate(dataset = rep("Tadpoles", nrow(.))),
-  #       simdata_panama %>%
-  #         mutate(dataset = rep("Trees", nrow(.))),
-  #       simdata_rats %>%
-  #         mutate(dataset = rep("Rodents", nrow(.))),
-  #       simdata_plankton %>%
-  #         mutate(dataset = rep("Plankton", nrow(.)))) %>%
-  # mutate(hit = ifelse(ci_low <= true_value & true_value <= ci_high,
-#                     2,
-#                     1),
-#        deviation = ifelse(abs(estimate) > abs(true_value),
-#                           abs(estimate) - abs(true_value),
-#                           abs(true_value) - abs(estimate))) %>%
-# group_by(dataset, moment, sample_size, site, trait) %>%
-# filter(hit == 2) %>%
-# filter(deviation == min(deviation)) %>%
-# group_by(dataset, method, moment, sample_size) %>%
-# count()%>%
-# group_by(dataset, moment, sample_size) %>%
-# mutate(rank = rank(-n,
-#                    ties.method = 'random')) %>%
-# mutate(rank = ifelse(is.na(rank),
-#                      5,
-#                      rank))
-
-rbind(simdata %>%
-        mutate(dataset = rep("Herbs", nrow(.))),
-      simdata_frogs %>%
-        mutate(dataset = rep("Tadpoles", nrow(.))),
-      simdata_panama %>%
-        mutate(dataset = rep("Trees", nrow(.))),
-      simdata_rats %>%
-        mutate(dataset = rep("Rodents", nrow(.))),
-      simdata_plankton %>%
-        mutate(dataset = rep("Plankton", nrow(.)))) %>%
+  rbind(simdata %>%
+          mutate(dataset = rep("Herbs", nrow(.))),
+        simdata_frogs %>%
+          mutate(dataset = rep("Tadpoles", nrow(.))),
+        simdata_panama %>%
+          mutate(dataset = rep("Trees", nrow(.))),
+        simdata_rats %>%
+          mutate(dataset = rep("Rodents", nrow(.))),
+        simdata_plankton %>%
+          mutate(dataset = rep("Plankton", nrow(.)))) %>%
   mutate(hit = ifelse(ci_low <= true_value & true_value <= ci_high,
                       2,
                       1),
@@ -689,9 +652,6 @@ ggplot(bumps %>%
                 align_to = 'full') + theme_void()
 
 ggsave(here::here("figures/Figure_SI_2.png"),
-       height = 130, width = 180,
-       units = "mm", dpi = 600)
-ggsave(here::here("figures/pdf/Figure_SI_2.pdf"),
        height = 130, width = 180,
        units = "mm", dpi = 600)
 
@@ -875,10 +835,7 @@ lollipop_CO =
     text = element_text(face = 'bold'))) +
   plot_layout(heights = c(1, 0.15, 0.15))
 
-ggsave(here::here("figures/Figure_4_all_sample_sizes.png"),
-       height = 310, width = 180,
-       units = "mm", dpi = 600)
-ggsave(here::here("figures/pdf/Figure_4_all_sample_sizes.pdf"),
+ggsave(here::here("figures/Figure_4.png"),
        height = 310, width = 180,
        units = "mm", dpi = 600)
 
@@ -981,8 +938,6 @@ doughnut =
                 y = 0.25,
                 colour = method,
                 label = glue::glue("{percentage}%")),
-            #label = glue::glue("{method} - {percentage}%")),
-            #colour = 'grey90',
             hjust = 0.5,
             show.legend = FALSE,
             fontface = 'bold',
@@ -996,13 +951,11 @@ doughnut =
              ),
              switch = 'y')  +
   scale_fill_manual(guide = guide_legend(title = "Method",
-                                         #nrow = 1,
                                          title.position="top",
                                          title.hjust = 0.5),
                     values = pal_df$c,
                     breaks = pal_df$l) +
   scale_colour_manual(guide = guide_legend(title = "Method",
-                                           #nrow = 1,
                                            title.position="top",
                                            title.hjust = 0.5),
                       values = colorspace::darken(pal_df$c, 0.2),
@@ -1052,8 +1005,5 @@ cowplot::ggdraw(doughnut) +
   )
 
 ggsave(here::here("figures/Figure_SI_5.png"),
-       height = 314, width = 180,
-       units = "mm", dpi = 600)
-ggsave(here::here("figures/pdf/Figure_SI_5.pdf"),
        height = 314, width = 180,
        units = "mm", dpi = 600)
