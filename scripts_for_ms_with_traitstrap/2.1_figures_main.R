@@ -1,4 +1,4 @@
-#analyse and plot simulation results
+# Admin ----
 
 #load script that determines plotting aesthetics
 source("scripts_for_ms_with_traitstrap/plotting_aesthetics.R")
@@ -6,8 +6,8 @@ source("scripts_for_ms_with_traitstrap/plotting_aesthetics.R")
 source("r_functions/tidy_simdata.R")
 library(patchwork)
 
-#### 1 Read Data ####
-
+# Figure 4 ----
+## a) read data ----
 #read in data
 simdata =
   tidy_simdata(readRDS("output_data/simulation_results.RDS"))
@@ -26,9 +26,7 @@ simdata_frogs <-
 
 simdata_plankton <- 
   tidy_simdata(readRDS("output_data/simulation_results_phyto_subset_scaled.RDS"))
-
-#### 2 Figure 4 ####
-### >>a) Panel A ----
+## b) Panel A ----
 
 # organise data for plotting
 simmeans =
@@ -153,7 +151,7 @@ doughnut_plot =
                     values = pal_df$c,
                     breaks = pal_df$l)
 
-### >>b) Panel B ----
+## c) Panel B ----
 
 # organise data
 
@@ -239,7 +237,7 @@ sub_bump =
         plot.margin = margin(0, 2, 0, 0))
 
 
-### >>c) Panel C ----
+## d) Panel C ----
 
 # organise data
 
@@ -330,7 +328,7 @@ lollipop_CO =
         plot.margin = margin(0, 2, 0, 0))
 
 
-### >>d) Combine panels ----
+## e) Combine panels ----
 
 (doughnut_plot +
    labs(tag = "A") +
@@ -408,9 +406,8 @@ ggsave(here::here("figures/Figure_4.png"),
        height = 310, width = 180,
        units = "mm", dpi = 600)
 
-#### 3 Figure 5 ####
-
-#### >>a) Read Data ####
+# Figure 5 ----
+## a) Read Data ----
 
 herbs =
   tidy_simdata(readRDS("output_data/simulation_results.RDS"))  %>%
@@ -438,7 +435,7 @@ herbs_lims =
   mutate(y_max = max(y_max))
 
 
-#### >> b) plot ####
+## b) plot ----
 
 ggplot(herbs) +
   geom_abline(aes(slope = 1,
@@ -1103,3 +1100,4 @@ CC
 ggsave(here::here("figures/Figure_6.png"),
        height = 120, width = 180,
        units = "mm", dpi = 600)
+# Figure 7 ----
