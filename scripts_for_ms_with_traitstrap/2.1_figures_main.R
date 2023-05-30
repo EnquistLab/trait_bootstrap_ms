@@ -1,0 +1,411 @@
+#analyse and plot simulation results
+
+#load script that determines plotting aesthetics
+source("scripts_for_ms_with_traitstrap/plotting_aesthetics.R")
+#load function to clean data
+source("r_functions/tidy_simdata.R")
+library(patchwork)
+
+#### 1 Read Data ####
+
+#read in data
+simdata =
+  tidy_simdata(readRDS("output_data/simulation_results.RDS"))
+
+simdata_biased =
+  tidy_simdata(readRDS("output_data/simulation_results_biased.RDS"))
+
+simdata_panama <-
+  tidy_simdata(readRDS("output_data/panama_simulation_results.RDS"))
+
+simdata_rats <-
+  tidy_simdata(readRDS("output_data/simulation_results_rodents.RDS"))
+
+simdata_frogs <-
+  tidy_simdata(readRDS("output_data/simulation_results_treefrogs.RDS"))
+
+simdata_plankton <- 
+  tidy_simdata(readRDS("output_data/simulation_results_phyto_subset_scaled.RDS"))
+
+#### 2 Figure 4 ####
+### >>a) Panel A ----
+
+# organise data for plotting
+simmeans =
+  rbind(simdata %>%
+          mutate(dataset = rep("Herbs", nrow(.))),
+        simdata_frogs %>%
+          mutate(dataset = rep("Tadpoles", nrow(.))),
+        simdata_panama %>%
+          mutate(dataset = rep("Trees", nrow(.))),
+        simdata_rats %>%
+          mutate(dataset = rep("Rodents", nrow(.))),
+        simdata_plankton %>%
+          mutate(dataset = rep("Plankton", nrow(.)))) %>%
+  group_by(dataset, moment) %>%
+  mutate(true_val = mean(true_value)) %>%
+  group_by(dataset, moment, method, true_val) %>%
+  summarise(estimate = mean(deviation))
+
+simdata  %>%
+  group_by(moment, sample_size, site, trait) %>%
+  count() %>%
+  ungroup()%>%
+  distinct(moment, trait, n)
+
+group_size =
+  rbind(simdata %>%
+          mutate(dataset = rep("Herbs", nrow(.))),
+        simdata_frogs %>%
+          mutate(dataset = rep("Tadpoles", nrow(.))),
+        simdata_panama %>%
+          mutate(dataset = rep("Trees", nrow(.))),
+        simdata_rats %>%
+          mutate(dataset = rep("Rodents", nrow(.))),
+        simdata_plankton %>%
+          mutate(dataset = rep("Plankton", nrow(.))))  %>%
+  distinct(dataset, moment, sample_size, site, trait) %>%
+  group_by(dataset, moment) %>%
+  count() %>%
+  rename(grp_mn = n)
+
+sim_doughnuts_all =
+  rbind(simdata %>%
+          mutate(dataset = rep("Herbs", nrow(.))),
+        simdata_frogs %>%
+          mutate(dataset = rep("Tadpoles", nrow(.))),
+        simdata_panama %>%
+          mutate(dataset = rep("Trees", nrow(.))),
+        simdata_rats %>%
+          mutate(dataset = rep("Rodents", nrow(.))),
+        simdata_plankton %>%
+          mutate(dataset = rep("Plankton", nrow(.))))  %>%
+  mutate(hit = ifelse(ci_low <= true_value & true_value <= ci_high,
+                      2,
+                      1),
+         deviation = ifelse(abs(estimate) > abs(true_value),
+                            abs(estimate) - abs(true_value),
+                            abs(true_value) - abs(estimate))) %>%
+  group_by(dataset, moment, sample_size, site, trait) %>%
+  filter(hit == 2) %>%
+  filter(deviation == min(deviation)) %>%
+  group_by(dataset, method, moment) %>%
+  count()  %>%
+  left_join(.,
+            group_size) %>%
+  mutate(percentage = n/grp_mn)
+
+sim_win_text =
+  sim_doughnuts_all %>%
+  group_by(moment, dataset) %>%
+  filter(percentage == max(percentage)) %>%
+  mutate(percentage = round(percentage*100))
+
+sim_doughnuts_all$dataset <- factor(sim_doughnuts_all$dataset,
+                                    levels = c("Herbs",
+                                               "Tadpoles",
+                                               "Trees",
+                                               "Rodents",
+                                               "Plankton"))
+
+sim_win_text$dataset <- factor(sim_win_text$dataset,
+                               levels = c("Herbs",
+                                          "Tadpoles",
+                                          "Trees",
+                                          "Rodents",
+                                          "Plankton"))
+
+#plot
+
+doughnut_plot = 
+  ggplot(sim_doughnuts_all) +
+  geom_col(aes(
+    x = 2,
+    y = percentage,
+    fill = method
+  ),
+  colour = 'grey96') +
+  xlim(c(0.5, 2.5)) +
+  ylim(c(0, 1)) +
+  #annotation textboxes
+  geom_text(data = sim_win_text,
+            aes(x = 0.5,
+                y = 0.25,
+                colour = method,
+                label = glue::glue("{percentage}%")),
+            hjust = 0.5,
+            show.legend = FALSE,
+            fontface = 'bold',
+            size = 5) +
+  coord_polar(theta = 'y') +
+  facet_grid(rows = vars(dataset),
+             cols = vars(moment),
+             labeller = labeller(
+               trait = traits_parsed,
+               .default = capitalize
+             ),
+             switch = 'y')  +
+  scale_colour_manual(values = colorspace::darken(pal_df$c, 0.2),
+                      breaks = pal_df$l)  +
+  scale_fill_manual(guide = guide_legend(title = "Method",
+                                         title.position="top",
+                                         title.hjust = 0.5),
+                    values = pal_df$c,
+                    breaks = pal_df$l)
+
+### >>b) Panel B ----
+
+# organise data
+
+bumps =
+  rbind(simdata %>%
+          mutate(dataset = rep("Herbs", nrow(.))),
+        simdata_frogs %>%
+          mutate(dataset = rep("Tadpoles", nrow(.))),
+        simdata_panama %>%
+          mutate(dataset = rep("Trees", nrow(.))),
+        simdata_rats %>%
+          mutate(dataset = rep("Rodents", nrow(.))),
+        simdata_plankton %>%
+          mutate(dataset = rep("Plankton", nrow(.)))) %>%
+  mutate(hit = ifelse(ci_low <= true_value & true_value <= ci_high,
+                      2,
+                      1),
+         deviation = ifelse(abs(estimate) > abs(true_value),
+                            abs(estimate) - abs(true_value),
+                            abs(true_value) - abs(estimate))) %>%
+  filter(hit == 2)  %>%
+  group_by(dataset, method, moment, trait, site, sample_size) %>%
+  summarise(n = min(deviation)) %>%
+  group_by(dataset, method, moment, sample_size) %>%
+  summarise(n = mean(n)) %>%
+  group_by(dataset, moment, sample_size) %>%
+  mutate(rank = rank(n)) %>%
+  mutate(rank = ifelse(is.na(rank),
+                       5,
+                       rank))
+
+bumps$dataset <- factor(bumps$dataset,
+                        levels = c("Herbs",
+                                   "Tadpoles",
+                                   "Trees",
+                                   "Rodents",
+                                   "Plankton"))
+# create plot
+
+sub_bump =
+  ggplot(bumps %>%
+           filter(sample_size < 50 &
+                    dataset == "Herbs")) +
+  with_blur(
+    geom_bump(aes(x = sample_size,
+                  y = -rank,
+                  colour = method),
+              size = 0.7, smooth = 8),
+    sigma = 1) +
+  geom_point(aes(x = sample_size,
+                 y = -rank,
+                 colour = method),
+             size = 1.5) +
+  facet_grid(cols = vars(moment),
+             rows = vars(dataset),
+             labeller = labeller(
+               trait = traits_parsed,
+               .default = capitalize
+             ),
+             switch = 'y') +
+  scale_colour_manual(guide = guide_legend(title = "Method"),
+                      values = pal_df$c,
+                      labels = pal_df$l) +
+  labs(x = 'Sample size',
+       y = "") +
+  scale_x_continuous(trans = 'sqrt', breaks = c(1,4,9,16,25, 36,49),
+                     limits = c(1, 50)) +
+  scale_y_continuous(breaks = c(-1,-4),
+                     labels = c("Best", "Worst"),
+                     limits = c(-4.25, -0.75)) +
+  # Theme
+  figure_theme +
+  theme(panel.background = element_rect(colour = colorspace::darken("#dddddd", 0.1),
+                                        size = 0.6),
+        panel.grid.major.y = element_blank(),
+        strip.background = element_blank(),
+        axis.line = element_blank(),
+        axis.ticks.y = element_blank(),
+        legend.position = 'none',
+        strip.text.y = element_blank(),
+        strip.text.x = element_blank(),
+        axis.title.y = element_text(size = rel(0.9)),
+        plot.margin = margin(0, 2, 0, 0))
+
+
+### >>c) Panel C ----
+
+# organise data
+
+simdata_lollipop =
+  rbind(simdata %>%
+          mutate(dataset = rep("Herbs", nrow(.))),
+        simdata_frogs %>%
+          mutate(dataset = rep("Tadpoles", nrow(.))),
+        simdata_panama %>%
+          mutate(dataset = rep("Trees", nrow(.))),
+        simdata_rats %>%
+          mutate(dataset = rep("Rodents", nrow(.))),
+        simdata_plankton %>%
+          mutate(dataset = rep("Plankton", nrow(.))))  %>%
+  filter(deviation < 10 &
+           deviation > -10 ) %>%
+  group_by(dataset, moment, method, sample_size) %>%
+  slice_sample(n = 20)
+
+#plot
+
+lollipop_CO =
+  ggplot(simmeans %>%
+           filter(dataset == "Herbs")) +
+  geom_vline(aes(xintercept = 0),
+             color = "grey69",
+             size = 0.6) +
+  geom_segment(data = simmeans %>%
+                 filter(dataset == "Herbs"),
+               aes(x = 0,
+                   xend = estimate,
+                   y = method,
+                   yend = method),
+               color = "grey69",
+               size = 0.3) +
+  geom_point(data = simdata_lollipop %>%
+               filter(dataset == "Herbs"),
+             aes(x = deviation,
+                 y = method,
+                 fill = method,
+                 alpha = hit),
+             color = colorspace::lighten("#5e5e5e", 0.3),
+             size = 1, stroke = 0.2,
+             position = position_jitternormal(sd_x = 0, sd_y = 0.1), 
+             shape = 21) +
+  geom_point(data = simmeans %>%
+               filter(dataset == "Herbs"),
+             aes(x = estimate,
+                 y = method,
+                 fill = method,
+                 colour = method),
+             shape = 23, size = 2) +
+  facet_grid(rows = vars(dataset),
+             cols = vars(moment),
+             labeller = labeller(
+               .default = capitalize
+             ),
+             switch = 'y',
+             scales = 'free')  +
+  scale_fill_manual(guide = guide_legend(title = "Method",
+                                         override.aes = list(shape = 21)),
+                    values = pal_df$c,
+                    breaks = pal_df$l) +
+  scale_colour_manual(guide = guide_legend(title = "Method",
+                                           override.aes = list(shape = 21)),
+                      values = colorspace::darken(pal_df$c, 0.5),
+                      breaks = pal_df$l) +
+  scale_alpha_discrete(guide = guide_legend(title = "Value in CI",
+                                            override.aes = list(shape = 16,
+                                                                size = 3)),
+                       range = c(0.5, 0.9)) +
+  labs(
+    x = "Deviation from true value",
+    y = NULL
+  ) +
+  # Theme
+  figure_theme +
+  theme(panel.background = element_rect(colour = colorspace::darken("#dddddd", 0.1),
+                                        size = 0.6),
+        panel.grid.major.y = element_blank(),
+        strip.background = element_blank(),
+        axis.line = element_blank(),
+        axis.ticks.y = element_blank(),
+        legend.position = 'none',
+        strip.text.y = element_blank(),
+        strip.text.x = element_blank(),
+        axis.title.y = element_text(size = rel(0.9)),
+        plot.margin = margin(0, 2, 0, 0))
+
+
+### >>d) Combine panels ----
+
+(doughnut_plot +
+   labs(tag = "A") +
+   # Theme
+   theme_doughnut +
+   theme(strip.text.y.left = element_text(margin = margin(0, -1, 5, 0),
+                                          size = rel(0.8), vjust = 0,
+                                          angle = 0),
+         strip.text.x.top = element_text(size = rel(1.3)),
+         legend.position = 'top',
+         legend.background = element_rect(colour = colorspace::darken("#dddddd", 0.1),
+                                          size = 0.4),
+         legend.margin = margin(3, 5, 3, 5),
+         plot.margin = margin(5, 0, 7, 0)) +
+   inset_element(img5,
+                 left = 0.02,
+                 bottom = 0.05,
+                 right = 0.1,
+                 top = 0.14, 
+                 align_to = 'full', 
+                 ignore_tag = TRUE) + theme_void() +
+   inset_element(img4,
+                 left = 0.02,
+                 bottom = 0.23,
+                 right = 0.1,
+                 top = 0.32, 
+                 align_to = 'full', 
+                 ignore_tag = TRUE) + theme_void() +
+   inset_element(img3,
+                 left = 0.03,
+                 bottom = 0.42,
+                 right = 0.1,
+                 top = 0.5, 
+                 align_to = 'full', 
+                 ignore_tag = TRUE) + theme_void() +
+   inset_element(img2,
+                 left = 0.02,
+                 bottom = 0.6,
+                 right = 0.1,
+                 top = 0.67, 
+                 align_to = 'full', 
+                 ignore_tag = TRUE) + theme_void() +
+   inset_element(img1,
+                 left = 0.02,
+                 bottom = 0.78,
+                 right = 0.1,
+                 top = 0.85, 
+                 align_to = 'full', 
+                 ignore_tag = TRUE) + theme_void()) /
+  (sub_bump +
+      labs(tag = "B") +
+     inset_element(img1,
+                   left = 0,
+                   bottom = 0.4,
+                   right = 0.1,
+                   top = 0.7,
+                   align_to = 'full', 
+                   ignore_tag = TRUE) + theme_void())/
+  (lollipop_CO +
+     labs(tag = "C") +
+     inset_element(img1,
+                   left = 0,
+                   bottom = 0.4,
+                   right = 0.1,
+                   top = 0.7, 
+                   align_to = 'full', 
+                   ignore_tag = TRUE) + theme_void())  +
+  plot_annotation(theme = theme(
+    plot.background = element_rect(fill = "white", colour = NA),
+    panel.background = element_rect(fill = "white", colour = NA),
+    text = element_text(face = 'bold'))) +
+  plot_layout(heights = c(1, 0.15, 0.15))
+
+ggsave(here::here("figures/Figure_4.png"),
+       height = 310, width = 180,
+       units = "mm", dpi = 600)
+
+#### 3 Figure 5 ####
