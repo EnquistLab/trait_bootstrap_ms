@@ -409,3 +409,107 @@ ggsave(here::here("figures/Figure_4.png"),
        units = "mm", dpi = 600)
 
 #### 3 Figure 5 ####
+
+#### >>a) Read Data ####
+
+herbs =
+  tidy_simdata(readRDS("output_data/simulation_results.RDS"))  %>%
+  filter(sample_size == "9") %>%
+  group_by(site, trait, moment, method) %>%
+  slice_head(n = 1)
+
+herbs_corr =
+  herbs %>%
+  group_by(moment, method) %>%
+  summarise(corr = sprintf('%.2f',(summary(lm(estimate~true_value))$r.squared)),
+            yint = round(lm(estimate~true_value)$coefficients[[1]],
+                         digits = 2),
+            grad = round(lm(estimate~true_value)$coefficients[[2]],
+                         digits = 2))
+
+herbs_lims =
+  herbs %>%
+  group_by(moment, method) %>%
+  summarise(x_min = min(true_value),
+            y_max = max(estimate)) %>%
+  ungroup() %>%
+  mutate(x_min = min(x_min)) %>%
+  group_by(moment) %>%
+  mutate(y_max = max(y_max))
+
+
+#### >> b) plot ####
+
+ggplot(herbs) +
+  geom_abline(aes(slope = 1,
+                  intercept = 0,
+                  linetype = "1:1 line"),
+              colour = "black") +
+  geom_abline(data = herbs_corr,
+              aes(slope = grad, 
+                  intercept = yint,
+                  linetype = "Regression slope"),
+              colour = "grey69",
+              alpha = 0.9) +
+  geom_point(aes(x = true_value,
+                 y = estimate,
+                 colour = method),
+             alpha = 0.7,
+             shape = 16) +
+  geom_textbox(data = herbs_corr,
+               aes(x = herbs_lims$x_min,
+                   y = herbs_lims$y_max,
+                   label = paste0(glue::glue("R^2 = {corr} Slope = {grad}"))),
+               hjust = 0,
+               size = 1.6,
+               vjust = 1,
+               width = unit(0.27, "npc"),
+               box.padding = unit(c(2.7, 0.9, 2.3, 1.5), "pt")) +
+  facet_grid(cols = vars(method),
+             rows = vars(moment),
+             labeller = labeller(
+               .default = capitalize
+             ),
+             switch = 'y',
+             scales = 'free')  +
+  scale_colour_manual(guide = guide_legend(title = "Method",
+                                           title.position="top",
+                                           title.hjust = 0.5),
+                      values = pal_df$c,
+                      breaks = pal_df$l) +
+  scale_linetype_manual(values=c("1:1 line" = 2,
+                                 "Regression slope" = 1),
+                        guide = guide_legend(title = "Slope",
+                                             title.position="top",
+                                             override.aes = list(colour = c("black","grey69")))) +
+  labs(x = "True value",
+       y = "Estimated value") +
+  figure_theme +
+  theme(axis.ticks.length=unit(.5, "mm"),
+        axis.text = element_text(size = rel(.55)),
+        legend.position = 'bottom',
+        legend.text = element_text(size = rel(.7)),
+        legend.key.size = unit(3, "mm"),
+        strip.text.y.right = element_text(margin = margin(0, 0, 10, 0),
+                                          size = rel(.9), face = "bold"),
+        strip.text.x.top = element_text(margin = margin(0, 0, 5, 0),
+                                        size = rel(.9),
+                                        face = "bold"),
+        panel.grid.major.y = element_line(size = 0.05),
+        strip.background = element_blank(),
+        axis.line = element_blank(),
+        panel.background = element_rect(colour = colorspace::darken("#dddddd", 0.1),
+                                        size = 0.6),
+        plot.title.position = "panel",
+        plot.title = element_text(margin = margin(0, 0, 10, 0),
+                                  size = 15, face = "bold")) +
+  inset_element(img1,
+                left = 0.01,
+                bottom = 0.89,
+                right = 0.08,
+                top = 1, 
+                align_to = 'full') + theme_void()
+
+ggsave(here::here("figures/Figure_5.png"),
+       height = 120, width = 180,
+       units = "mm", dpi = 600)
