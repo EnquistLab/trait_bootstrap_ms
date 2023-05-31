@@ -23,3 +23,10 @@ https://doi.org/10.22541/au.162196147.76797968/v1
   main script
 - `scripts`: scripts used for implementation of {traitstrap} on the various
   datasets as well as figure generation
+
+
+## Dependencies
+
+Dependencies are managed and stored using {renv} so it is possible to restore
+the last 'working state' of this project by calling `renv::restore()`. This
+will install the correct package versions for this project.
