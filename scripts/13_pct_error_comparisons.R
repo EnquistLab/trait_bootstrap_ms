@@ -1,4 +1,4 @@
-source("scripts_for_ms_with_traitstrap/plotting_aesthetics.R")
+source("scripts/plotting_aesthetics.R")
 #load function to clean data
 source("r_functions/tidy_simdata.R")
 
