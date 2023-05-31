@@ -1269,7 +1269,173 @@ ggsave(here::here("figures/Figure_S9.png"),
        units = "mm", dpi = 600)
 # Figure S10 ----
 ## a) data ----
+herb_abun =
+  tidy_simdata(readRDS("output_data/simulation_results_abundance_biased.RDS"))
+
+rats_abun =
+  tidy_simdata(readRDS("output_data/simulation_results_rodents_abundance_biased.RDS"))
 ## b) plots ----
+herb_abun_plot = 
+  ggplot(herb_abun %>%
+           mutate(hit = ifelse(ci_low <= true_value & true_value <= ci_high,
+                               2,
+                               1)) %>%
+           group_by(method, moment, sample_size, sampling_bias) %>%
+           summarise(percentage = sum(hit - 1)/n(),
+                     deviation = mean(abs(deviation)),
+                     avg_error = mean(abs((true_value-estimate)/true_value))*100)) +
+  geom_hline(aes(yintercept = 0),
+             color = "grey50",
+             size = .6) +
+  geom_smooth(aes(
+    x = sample_size,
+    y = avg_error ,
+    color = method,
+    linetype = sampling_bias),
+    alpha = 0.5,
+    se = FALSE,
+    size = 0.3) +
+  coord_cartesian(clip = 'off') +
+  scale_x_continuous(trans = 'sqrt', breaks = c(0,10,50,100,200,500),
+                     limits = c(0, 500)) +
+  scale_colour_manual(guide = guide_legend(title = "Method",
+                                           title.position="top",
+                                           title.hjust = 0.5),
+                      values = colorspace::lighten(pal_df$c, amount = 0.1),
+                      labels = pal_df$l) +
+  scale_linetype_manual(guide = guide_legend(title = "Sampling Bias",
+                                             title.position="top",
+                                             title.hjust = 0.5,
+                                             override.aes = list(colour = "black")),
+                        values = c(2,1,3),
+                        labels = c("Common species bias", "No bias", "Rare species bias")) +
+  facet_grid(rows = vars(moment),
+             cols = vars(method),
+             labeller = labeller(
+               .default = capitalize
+             ),
+             switch = 'y',
+             scales = 'free') +
+  labs(x = "Sample size",
+       y = "Average percent error (%)") +
+  # Theme
+  figure_theme +
+  theme(
+    axis.text.x = element_text(size = rel(.5)),
+    axis.text.y = element_text(size = rel(.5)),
+    axis.title.x = element_text(size = rel(.5)),
+    axis.title.y = element_text(size = rel(.5)),
+    legend.text = element_text(size = rel(.5)),
+    legend.title = element_text(size = rel(.6)),
+    strip.text.y = element_text(margin = margin(0, 0, 3, 0),
+                                size = rel(.6), face = "bold"),
+    strip.text.x.top = element_text(margin = margin(0, 0, 3, 0),
+                                    size = rel(.6),face = "bold"),
+    panel.grid.major.y = element_line(size = 0.03),
+    strip.background = element_blank(),
+    axis.line = element_blank(),
+    panel.background = element_rect(colour = colorspace::darken("#dddddd", 0.1),
+                                    size = 0.4),
+    plot.title.position = "panel",
+    plot.title = element_text(margin = margin(0, 0, 10, 0),
+                              size = rel(.7), face = "bold"
+    ),
+    plot.margin = margin(2, 2, 2, 2)
+  ) 
+
+rats_abun_plot = 
+  ggplot(rats_abun %>%
+           mutate(hit = ifelse(ci_low <= true_value & true_value <= ci_high,
+                               2,
+                               1)) %>%
+           group_by(method, moment, sample_size, sampling_bias) %>%
+           summarise(percentage = sum(hit - 1)/n(),
+                     deviation = mean(abs(deviation)),
+                     avg_error = mean(abs((true_value-estimate)/true_value))*100)) +
+  geom_hline(aes(yintercept = 0),
+             color = "grey50",
+             size = .6) +
+  geom_smooth(aes(
+    x = sample_size,
+    y = avg_error,
+    color = method,
+    linetype = sampling_bias),
+    alpha = 0.5,
+    se = FALSE,
+    size = 0.3) +
+  coord_cartesian(clip = 'off') +
+  scale_x_continuous(trans = 'sqrt', breaks = c(0,10,50,100,200),
+                     limits = c(0, 300)) +
+  scale_colour_manual(guide = guide_legend(title = "Method",
+                                           title.position="top",
+                                           title.hjust = 0.5),
+                      values = colorspace::lighten(pal_df$c, amount = 0.1),
+                      labels = pal_df$l) +
+  scale_linetype_manual(guide = guide_legend(title = "Sampling Bias",
+                                             title.position="top",
+                                             title.hjust = 0.5,
+                                             override.aes = list(colour = "black")),
+                        values = c(2,1,3),
+                        labels = c("Common species bias", "No bias", "Rare species bias")) +
+  facet_grid(rows = vars(moment),
+             cols = vars(method),
+             labeller = labeller(
+               .default = capitalize
+             ),
+             switch = 'y',
+             scales = 'free') +
+  labs(x = "Sample size",
+       y = "Average percent error (%)") +
+  # Theme
+  figure_theme +
+  theme(
+    axis.text.x = element_text(size = rel(.5)),
+    axis.text.y = element_text(size = rel(.5)),
+    axis.title.x = element_text(size = rel(.5)),
+    axis.title.y = element_text(size = rel(.5)),
+    legend.text = element_text(size = rel(.5)),
+    legend.title = element_text(size = rel(.6)),
+    strip.text.y = element_text(margin = margin(0, 0, 3, 0),
+                                size = rel(.6), face = "bold"),
+    strip.text.x.top = element_text(margin = margin(0, 0, 3, 0),
+                                    size = rel(.6),face = "bold"),
+    panel.grid.major.y = element_line(size = 0.03),
+    strip.background = element_blank(),
+    axis.line = element_blank(),
+    panel.background = element_rect(colour = colorspace::darken("#dddddd", 0.1),
+                                    size = 0.4),
+    plot.title.position = "panel",
+    plot.title = element_text(margin = margin(0, 0, 10, 0),
+                              size = rel(.7), face = "bold"
+    ),
+    plot.margin = margin(2, 2, 2, 2)
+  ) 
+
+herb_abun_plot +
+  labs(title = "A: Herbs") +
+  inset_element(img1,
+                left = 0.02,
+                bottom = 0.87,
+                right = 0.09,
+                top = 1, 
+                align_to = 'full') + theme_void() +
+  rats_abun_plot +
+  labs(title = "B: Rodents") +
+  inset_element(img4,
+                left = 0.02,
+                bottom = 0.89,
+                right = 0.14,
+                top = 1, 
+                align_to = 'full') + theme_void() +
+  plot_layout(guides = 'collect') +
+  plot_annotation(theme = theme(
+    plot.background = element_rect(fill = "white", colour = NA),
+    panel.background = element_rect(fill = "white", colour = NA),
+    legend.position = 'bottom')) 
+
+ggsave(here::here("figures/Figure_S10.png"),
+       height = 100, width = 180,
+       units = "mm", dpi = 600)
 # Figure S11 ----
 ## a) data ----
 cwm_methods =
@@ -1912,7 +2078,6 @@ ggsave(here::here("figures/Figure_S14.png"),
        height = 150, width = 150,
        units = "mm", dpi = 600)
 # Figure S15 ----
-## a) data ----
 ## b) plots ----
 cc <- c("#031B88", "#6096FD", "#AAB6FB", "#FB7B8E", "#FAA7B8")
 
@@ -1994,3 +2159,5 @@ cc <- c("#031B88", "#6096FD", "#AAB6FB", "#FB7B8E", "#FAA7B8")
 ggsave(here::here("figures/Figure_S15.png"),
        height = 180, width = 120,
        units = "mm", dpi = 600)
+
+# End of script ----
