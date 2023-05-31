@@ -8,7 +8,7 @@ library(patchwork)
 
 # Figure S1 ----
 
-source("scripts_for_ms_with_traitstrap/3_distribution_figure.R")
+source("scripts_for_ms_with_traitstrap/_distribution_figure.R")
 
 # Figure S2 ----
 ## a) load data ----
