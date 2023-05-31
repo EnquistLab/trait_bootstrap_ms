@@ -1609,7 +1609,388 @@ ggsave(here::here("figures/Figure_S13.png"),
 
 # Figure S14 ----
 ## a) data ----
+multi_method =
+  readRDS(
+    "output_data/multidimensional_bootstrap_sample_size_and_method_sims.RDS") %>%
+  ungroup() %>%
+  pivot_longer(cols = c('FEve', 'FDis', 'RaoQ', 'FRic', 'FDiv'),
+               names_to = 'measure',
+               values_to = 'estimate') %>%
+  pivot_longer(cols = contains('ci_high'),
+               names_to = 'ci_high_measure',
+               values_to = 'ci_high') %>%
+  mutate(ci_high_measure = str_replace(ci_high_measure, 
+                                       "ci_high_", 
+                                       "")) %>%
+  filter(ci_high_measure == measure) %>%
+  pivot_longer(cols = contains('ci_low'),
+               names_to = 'ci_low_measure',
+               values_to = 'ci_low') %>%
+  mutate(ci_low_measure = str_replace(ci_low_measure, 
+                                      "ci_low_", 
+                                      "")) %>%
+  filter(ci_low_measure == measure) %>%
+  pivot_longer(cols = contains('true'),
+               names_to = 'true_measure',
+               values_to = 'true_value') %>%
+  mutate(true_measure = str_replace(true_measure, 
+                                    "true_", 
+                                    ""),
+         method = case_when(method == 'global cwm' ~ 'Cross-Site CW',
+                            method == 'site-specic CWM' ~ 'Site-Specific CW',
+                            method == 'nonparametric bs' ~ 'Nonparametric BS',
+                            method == 'parametric bs' ~ 'Parametric BS',
+                            method == 'original' ~ 'Traditional CWM',
+                            TRUE ~ method)) %>%
+  filter(true_measure == measure) %>%
+  select(-c(true_measure, ci_low_measure, ci_high_measure)) %>%
+  mutate(method = ordered(method,levels = c("Traditional CWM",
+                                            "Cross-Site CW",
+                                            "Site-Specific CW",
+                                            "Nonparametric BS")),
+         overunder = ifelse(true_value <= estimate,
+                            "over",
+                            "under"),
+         deviation = ifelse(abs(estimate) > abs(true_value),
+                            abs(estimate) - abs(true_value),
+                            abs(true_value) - abs(estimate)),
+         hit = ifelse(ci_low <= true_value & true_value <= ci_high,
+                      'Yes',
+                      'No')) %>%
+  mutate(deviation = ifelse(overunder == "under",
+                            -1*deviation,
+                            deviation),
+         measure = ordered(measure,
+                           levels = c('FEve', 'FDis', 'RaoQ', 'FRic', 'FDiv')))
+
+
+multi_rarity =
+  readRDS(
+    "output_data/multidimensional_bootstrap_sample_size_and_method_rarity_sims.RDS") %>%
+  ungroup() %>%
+  pivot_longer(cols = c('avg_uniqueness', 'avg_distinctiveness'),
+               names_to = 'measure',
+               values_to = 'estimate') %>%
+  pivot_longer(cols = contains('ci_high'),
+               names_to = 'ci_high_measure',
+               values_to = 'ci_high') %>%
+  mutate(ci_high_measure = str_replace(ci_high_measure, 
+                                       "ci_high_", 
+                                       "")) %>%
+  filter(ci_high_measure == measure) %>%
+  pivot_longer(cols = contains('ci_low'),
+               names_to = 'ci_low_measure',
+               values_to = 'ci_low') %>%
+  mutate(ci_low_measure = str_replace(ci_low_measure, 
+                                      "ci_low_", 
+                                      "")) %>%
+  filter(ci_low_measure == measure) %>%
+  pivot_longer(cols = contains('true'),
+               names_to = 'true_measure',
+               values_to = 'true_value') %>%
+  mutate(true_measure = case_when(true_measure == "true_mean_uniqueness" ~ "avg_uniqueness",
+                                  true_measure == "true_mean_distinctiveness" ~ "avg_distinctiveness"),
+         method = case_when(method == 'global cwm' ~ 'Cross-Site CW',
+                            method == 'site-specic CWM' ~ 'Site-Specific CW',
+                            method == 'nonparametric bs' ~ 'Nonparametric BS',
+                            method == 'parametric bs' ~ 'Parametric BS',
+                            method == 'original' ~ 'Traditional CWM',
+                            TRUE ~ method)) %>%
+  filter(true_measure == measure) %>%
+  select(-c(true_measure, ci_low_measure, ci_high_measure)) %>%
+  mutate(method = ordered(method,levels = c("Traditional CWM",
+                                            "Cross-Site CW",
+                                            "Site-Specific CW",
+                                            "Nonparametric BS")),
+         overunder = ifelse(true_value <= estimate,
+                            "over",
+                            "under"),
+         deviation = ifelse(abs(estimate) > abs(true_value),
+                            abs(estimate) - abs(true_value),
+                            abs(true_value) - abs(estimate)),
+         hit = ifelse(ci_low <= true_value & true_value <= ci_high,
+                      'Yes',
+                      'No')) %>%
+  mutate(measure = case_when(measure == "avg_uniqueness" ~ "Mean uniqueness",
+                             measure == "avg_distinctiveness" ~ "Mean distinctiveness")) %>%
+  mutate(deviation = ifelse(overunder == "under",
+                            -1*deviation,
+                            deviation),
+         measure = ordered(measure,
+                           levels = c('Mean uniqueness', 'Mean distinctiveness')))
 ## b) plots ----
+overunders = 
+  rbind(multi_method,
+        multi_rarity) %>%
+  filter(estimate != is.na(estimate)) %>%
+  mutate(overunder = ifelse(true_value <= estimate,
+                            "over",
+                            "under"),
+         deviation = ifelse(abs(estimate) > abs(true_value),
+                            abs(estimate) - abs(true_value),
+                            abs(true_value) - abs(estimate))) %>%
+  group_by(measure, method, sample_size, overunder) %>%
+  summarise(dev = mean(abs(deviation), na.rm = TRUE),
+            tally = n()) %>%
+  group_by(measure, method, sample_size) %>%
+  filter(tally == max(tally)) %>%
+  group_by(measure, method) %>%
+  mutate(x = dev/max(dev)) %>%
+  mutate(x = ifelse(overunder == "under",
+                    -1*x,
+                    x))
+
+sim_moon_means =
+  rbind(multi_method,
+        multi_rarity) %>%
+  filter(estimate != is.na(estimate)) %>%
+  mutate(hit = ifelse(ci_low <= true_value & true_value <= ci_high,
+                      2,
+                      1)) %>%
+  group_by(method, measure, sample_size) %>%
+  summarise(percentage = as.numeric(sum(hit - 1)/n()),
+            deviation = mean(ifelse(abs(estimate) > abs(true_value),
+                                    abs(estimate) - abs(true_value),
+                                    abs(true_value) - abs(estimate)),
+                             na.rm = TRUE),
+            avg_error = mean(abs((true_value-estimate)/true_value))*100) %>%
+  ungroup() %>%
+  mutate(method = ordered(method,levels = c("Traditional CWM",
+                                            "Cross-Site CW",
+                                            "Site-Specific CW",
+                                            "Nonparametric BS")))
+
+moon_plots <-
+  ggplot(sim_moon_means %>%
+           filter(method != "Traditional CWM") %>%
+           filter(sample_size %in% c(1,9,25,49,100,169,441))) +
+  geom_hline(aes(yintercept = 0),
+             color = "grey50",
+             size = .3) +
+  geom_smooth(
+    data = rbind(multi_method,
+                 multi_rarity) %>%
+      filter(method != "Traditional CWM") %>%
+      filter(estimate != is.na(estimate)) %>%
+      mutate(deviation = ifelse(abs(estimate) > abs(true_value),
+                                abs(estimate) - abs(true_value),
+                                abs(true_value) - abs(estimate))) %>%
+      mutate(method = ordered(method,levels = c("Traditional CWM",
+                                                "Cross-Site CW",
+                                                "Site-Specific CW",
+                                                "Nonparametric BS"))) %>%
+      group_by(method, measure, sample_size) %>%
+      summarise(avg_error = mean(abs((true_value-estimate)/true_value))*100),
+    aes(
+      x = sample_size,
+      y = avg_error ,
+      color = method),
+    alpha = 0.5,
+    se = FALSE,
+    size = 0.4,
+    linetype = 4) +
+  geom_point(aes(
+    x = sample_size,
+    y = avg_error,
+    color = method
+  ),
+  size = 1,
+  alpha = 0.9) +
+  geom_moon(
+    aes(
+      x = sample_size,
+      y = avg_error,
+      ratio = percentage,
+      fill = method
+    ),
+    color = "transparent",
+    size = 1.4) +
+  scale_fill_manual(guide = guide_legend(title = "Method",
+                                         title.position="top"),
+                    values = colorspace::darken(pal_df$c[c(1,2,4)], 
+                                                amount = 0.25),
+                    labels = pal_df$l) +
+  scale_colour_manual(guide = guide_legend(title = "Method",
+                                           title.position="top"),
+                      values = colorspace::lighten(pal_df$c[c(1,2,4)], 
+                                                   amount = 0.1),
+                      labels = pal_df$l) +
+  facet_grid(rows = vars(measure),
+             cols = vars(method),
+             labeller = labeller(
+               trait = traits_parsed,
+               .default = capitalize
+             ),
+             switch = 'y',
+             scales = 'free') +
+  labs(x = "Sample size",
+       y = "Average percent error (%)") +
+  scale_x_continuous(trans = 'sqrt', breaks = c(0,10,50,100,200,500),
+                     limits = c(0, 500)) +
+  # Theme
+  theme_moon +
+  theme(
+    axis.ticks = element_blank(),
+    axis.text = element_text(size = rel(.5)),
+    axis.title = element_text(size = rel(.6)),
+    legend.text = element_text(size = rel(.4)),
+    legend.title = element_text(size = rel(.6)),
+    strip.text.y = element_text(margin = margin(0, 0, 3, 0),
+                                size = rel(.6), face = "bold"),
+    strip.text.x.top = element_text(margin = margin(0, 0, 3, 0),
+                                    size = rel(.6), face = "bold"),
+    panel.grid.major.y = element_line(size = 0.03),
+    strip.background = element_blank(),
+    axis.line = element_blank(),
+    panel.background = element_rect(colour = colorspace::lighten("#141438", 0.1),
+                                    size = 0.3),
+    plot.title.position = "panel",
+    plot.title = element_text(margin = margin(0, 0, 10, 0),
+                              size = rel(.7), face = "bold"),
+    legend.position = 'right',
+    plot.margin = margin(2, 2, 2, 2),
+    legend.key.size = unit(3, "mm"),
+    axis.ticks.length=unit(0.25, "mm")
+  )
+
+inset_plots =
+  ggplot(overunders) +
+  geom_col(aes(y = x,
+               x = as.factor(sample_size),
+               fill = method,
+               group = method),
+           position = 'dodge',
+           alpha = 0.5,
+           show.legend = FALSE) +
+  facet_grid(rows = vars(measure),
+             cols = vars(method),
+             labeller = labeller(
+               trait = traits_parsed,
+               .default = capitalize
+             ),
+             switch = 'y')  + 
+  geom_segment(aes(y = 0,
+                   xend = 7.5,
+                   x = 0.5, yend = 0),
+               colour = 'grey69',
+               size = 0.2) +
+  scale_fill_manual(values = pal_df$c[c(1,2,4)],
+                    breaks = pal_df$l[c(1,2,4)]) +
+  lims(y = c(-1.3,10)) +
+  scale_x_continuous(trans = 'sqrt', breaks = c(1,4,9,16,25, 36,49),
+                     limits = c(1, 50)) + 
+  expand_limits(x= c(0, 23)) +
+  # Theme
+  theme_void() +
+  theme(
+    strip.text = element_blank()
+  )
+
+
+((moon_plots +
+    theme(legend.position = 'right',
+          plot.tag = element_text(size = rel(0.7), 
+                                  face = "bold")) +
+    inset_element(img1,
+                  left = 0.00,
+                  bottom = 0.95,
+                  right = 0.05,
+                  top = 1, 
+                  align_to = 'full') + theme_void())) +
+  plot_layout(guides = 'collect') +
+  plot_annotation(theme = theme(
+    plot.background = element_rect(fill = "white", colour = NA),
+    legend.position = 'right')) +
+  inset_element(moon_legend,
+                left = 0.86,
+                bottom = 0.57,
+                right = 1,
+                top = 0.7, 
+                align_to = 'full') + theme_void()
+
+ggsave(here::here("figures/Figure_S14.png"),
+       height = 150, width = 150,
+       units = "mm", dpi = 600)
 # Figure S15 ----
 ## a) data ----
 ## b) plots ----
+cc <- c("#031B88", "#6096FD", "#AAB6FB", "#FB7B8E", "#FAA7B8")
+
+
+(ggplot(rbind(multi_method,
+              multi_rarity)  %>%
+          left_join(rbind(multi_method,
+                          multi_rarity) %>%
+                      distinct(measure, site, true_value) %>%
+                      group_by(measure) %>%
+                      mutate(my_ranks = as.factor(order(
+                        order(true_value, 
+                              decreasing=TRUE)))))) +
+    geom_hline(aes(yintercept = true_value,
+                   color = my_ranks,
+                   linetype = "True value"),
+               size = .3) +
+    geom_smooth(
+      aes(
+        x = sample_size,
+        y = estimate,
+        color = my_ranks,
+        linetype = "Estimated value"),
+      alpha = 0.5,
+      se = FALSE,
+      size = 0.4) +
+    facet_grid(cols = vars(method),
+               rows = vars(measure),
+               labeller = labeller(
+                 trait = traits_parsed,
+                 .default = capitalize
+               ),
+               switch = 'y',
+               scales = 'free') +
+    labs(x = "Sample size",
+         y = "Value of metric") +
+    scale_colour_manual(values=cc) +
+    scale_fill_manual(values=cc)  +
+    guides(colour = 'none',
+           fill = 'none') +
+    scale_linetype_manual("Metric type",
+                          values = c("True value" = 1,
+                                     "Estimated value" = 4),
+                          guide = guide_legend(override.aes = list(colour = "grey69"))) +
+    scale_x_continuous(trans = 'sqrt', breaks = c(0,10,50,100,200,500),
+                       limits = c(0, 500)) +
+    # Theme
+    theme_moon +
+    theme(
+      axis.ticks = element_blank(),
+      axis.text = element_text(size = rel(.3)),
+      axis.title = element_text(size = rel(.5)),
+      legend.text = element_text(size = rel(.3)),
+      legend.title = element_text(size = rel(.5)),
+      strip.text.y = element_text(margin = margin(0, 0, 3, 0),
+                                  size = rel(.5), face = "bold"),
+      strip.text.x.top = element_text(margin = margin(0, 0, 3, 0),
+                                      size = rel(.5), face = "bold"),
+      panel.grid.major.y = element_line(size = 0.03),
+      strip.background = element_blank(),
+      axis.line = element_blank(),
+      panel.background = element_rect(colour = colorspace::lighten("#141438", 0.1),
+                                      size = 0.3),
+      plot.title.position = "panel",
+      plot.title = element_text(margin = margin(0, 0, 10, 0),
+                                size = rel(.7), face = "bold"),
+      legend.position = 'right',
+      plot.margin = margin(2, 2, 2, 2),
+      legend.key.size = unit(3, "mm"),
+      axis.ticks.length=unit(0.25, "mm")
+    ) +
+    inset_element(img1,
+                  left = 0.00,
+                  bottom = 0.95,
+                  right = 0.06,
+                  top = 1, 
+                  align_to = 'full') + theme_void())
+
+ggsave(here::here("figures/Figure_S15.png"),
+       height = 180, width = 120,
+       units = "mm", dpi = 600)
