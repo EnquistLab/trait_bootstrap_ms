@@ -1329,3 +1329,5 @@ cowplot::ggdraw(
 ggsave(here::here("figures/Figure_8.png"),
        height = 120, width = 180,
        units = "mm", dpi = 600)
+
+# End of script ----
