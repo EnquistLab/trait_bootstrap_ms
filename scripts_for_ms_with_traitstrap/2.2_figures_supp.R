@@ -1269,6 +1269,9 @@ ggsave(here::here("figures/Figure_S9.png"),
        units = "mm", dpi = 600)
 # Figure S10 ----
 ## a) data ----
+## b) plots ----
+# Figure S11 ----
+## a) data ----
 cwm_methods =
   readRDS("output_data/CWM_methods_comparison.RDS") %>%
   mutate(ci_low = predict(lm(bootstrap_CWM~traditional_CWM), 
@@ -1384,11 +1387,12 @@ cowplot::ggdraw(
     width = 0.045
   )
 
-ggsave(here::here("figures/Figure_S10.png"),
+ggsave(here::here("figures/Figure_S11.png"),
        height = 110, width = 180,
        units = "mm", dpi = 600)
 
-# Figure S11 ----
+
+# Figure S12 ----
 ## a) data ----
 bs_methods =
   tidy_simdata(readRDS("output_data/bootstrap_sample_size_and_method_sims.RDS")) 
@@ -1524,10 +1528,11 @@ for (i in 1:length(samp_size)) {
     legend.position = 'none')
   ) 
 
-ggsave(here::here("figures/Figure_S11.png"),
+ggsave(here::here("figures/Figure_S12.png"),
        height = 190, width = 180,
        units = "mm", dpi = 600)
-# Figure S12 ----
+
+# Figure S13 ----
 ## a) data ----
 bs_ci = 
   bs_methods %>%
@@ -1597,14 +1602,11 @@ ggplot(bs_ci) +
                 align_to = 'full', 
                 ignore_tag = TRUE) + theme_void()
 
-ggsave(here::here("figures/Figure_S12.png"),
+ggsave(here::here("figures/Figure_S13.png"),
        height = 120, width = 180,
        units = "mm", dpi = 600)
 
-# Figure S13 ----
-## a) data ----
 
-## b) plots ----
 # Figure S14 ----
 ## a) data ----
 ## b) plots ----
