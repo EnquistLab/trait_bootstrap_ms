@@ -25,20 +25,26 @@ pearsonMoments()
              dist = rpearson(n = 10000,moments = c(1,1,0,3))))
 
 
-  ggplot(data = mean_ex,
-         mapping = aes(x=dist,
-                       linetype=ex))+
-    geom_density(outline.type = "upper",bw=.5,size=2)+
-    xlab(NULL)+
-    ylab(NULL)+
-    theme(axis.line = element_blank(),
-          panel.grid.major = element_blank(),
-          panel.grid.minor = element_blank(),
-          panel.border = element_blank(),
-          panel.background = element_blank(),
-          axis.text.x = element_blank(),
-          axis.text.y = element_blank(),
-          legend.position = "none") 
+  mean_plot <-
+    ggplot(data = mean_ex,
+           mapping = aes(x=dist,
+                         linetype=ex))+
+      geom_density(outline.type = "upper",bw=.5,size=2)+
+      xlab(NULL)+
+      ylab(NULL)+
+      theme(axis.line = element_blank(),
+            panel.grid.major = element_blank(),
+            panel.grid.minor = element_blank(),
+            panel.border = element_blank(),
+            panel.background = element_blank(),
+            axis.text.x = element_blank(),
+            axis.text.y = element_blank(),
+            legend.position = "none")
+  
+    ggsave(plot = mean_plot,
+           filename = here::here("figures/box_mean.png"),
+           height = 100, width = 100,
+           units = "mm", dpi = 600)
   
 # variance
 
@@ -53,6 +59,7 @@ pearsonMoments()
       data.frame(ex = "3",
                  dist = rpearson(n = 10000,moments = c(0,2,0,3))))
   
+  variance_plot <-
   ggplot(data = var_ex,
          mapping = aes(x=dist,
                        linetype=ex))+
@@ -67,6 +74,12 @@ pearsonMoments()
           axis.text.x = element_blank(),
           axis.text.y = element_blank(),
           legend.position = "none") 
+  
+  ggsave(plot = variance_plot,
+         filename = here::here("figures/box_variance.png"),
+         height = 100, width = 100,
+         units = "mm", dpi = 600)
+  
 
 
 # skewness
@@ -82,6 +95,7 @@ pearsonMoments()
       data.frame(ex = "3",
                  dist = rpearson(n = 10000,moments = c(0,1,1,3))))
   
+  skew_plot <-
   ggplot(data = skew_ex,
          mapping = aes(x=dist,
                        linetype=ex))+
@@ -97,8 +111,13 @@ pearsonMoments()
           axis.text.y = element_blank(),
           legend.position = "none") 
   
+  ggsave(plot = skew_plot,
+         filename = here::here("figures/box_skewness.png"),
+         height = 100, width = 100,
+         units = "mm", dpi = 600)
   
-
+  
+  
 # kurtosis
   
   set.seed(1984)
@@ -113,6 +132,7 @@ pearsonMoments()
       data.frame(ex = "3",
                  dist = rpearson(n = 10000,moments = c(0,1,0,6))))
   
+  kurt_plot <- 
   ggplot(data = kurt_ex,
          mapping = aes(x=dist,
                        linetype=ex))+
@@ -127,6 +147,12 @@ pearsonMoments()
           axis.text.x = element_blank(),
           axis.text.y = element_blank(),
           legend.position = "none") 
+  
+  ggsave(plot = kurt_plot,
+         filename = here::here("figures/box_kurtosis.png"),
+         height = 100, width = 100,
+         units = "mm", dpi = 600)
+  
   
 
 #cullen frey plot
@@ -177,6 +203,7 @@ pearsonMoments()
           legend.position = "none") 
   
   
+  cf_plot <-
   cf_ex %>%
     group_by(ex)%>%
     summarise(skewnness = skewness(dist),
@@ -196,6 +223,12 @@ pearsonMoments()
           legend.position = "none",
           axis.ticks = element_blank(),
           axis.title = element_text(size = 30))
+
+  
+  ggsave(plot = cf_plot,
+         filename = here::here("figures/box_skewness_plus_kurtosis.png"),
+         height = 100, width = 100,
+         units = "mm", dpi = 600)
   
   
   
