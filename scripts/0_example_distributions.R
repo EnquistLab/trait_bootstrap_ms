@@ -42,7 +42,7 @@ pearsonMoments()
             legend.position = "none")
   
     ggsave(plot = mean_plot,
-           filename = here::here("figures/box_mean.png"),
+           filename = here::here("images/box_mean.png"),
            height = 100, width = 100,
            units = "mm", dpi = 600)
   
@@ -76,7 +76,7 @@ pearsonMoments()
           legend.position = "none") 
   
   ggsave(plot = variance_plot,
-         filename = here::here("figures/box_variance.png"),
+         filename = here::here("images/box_variance.png"),
          height = 100, width = 100,
          units = "mm", dpi = 600)
   
@@ -112,7 +112,7 @@ pearsonMoments()
           legend.position = "none") 
   
   ggsave(plot = skew_plot,
-         filename = here::here("figures/box_skewness.png"),
+         filename = here::here("images/box_skewness.png"),
          height = 100, width = 100,
          units = "mm", dpi = 600)
   
@@ -149,7 +149,7 @@ pearsonMoments()
           legend.position = "none") 
   
   ggsave(plot = kurt_plot,
-         filename = here::here("figures/box_kurtosis.png"),
+         filename = here::here("images/box_kurtosis.png"),
          height = 100, width = 100,
          units = "mm", dpi = 600)
   
@@ -226,7 +226,7 @@ pearsonMoments()
 
   
   ggsave(plot = cf_plot,
-         filename = here::here("figures/box_skewness_plus_kurtosis.png"),
+         filename = here::here("images/box_skewness_plus_kurtosis.png"),
          height = 100, width = 100,
          units = "mm", dpi = 600)
   
