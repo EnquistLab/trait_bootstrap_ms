@@ -2,8 +2,12 @@
 
 
 ###########################################
-#Install the older version of traitstrap
-install.packages("traitstrap_0.0.0.901.tar.gz",repos = NULL,method = "source") #this code is designed for version 0.0.0.901 of traitstrap, which we include in this Github repo
+#Install the older version of traitstrap if needed
+
+  if(packageDescription("traitstrap", fields = "Version")!="0.0.0.901" |
+     is.na(packageDescription("traitstrap", fields = "Version"))){
+    install.packages("traitstrap_0.0.0.901.tar.gz",repos = NULL,method = "source") #this code is designed for version 0.0.0.901 of traitstrap, which we include in this Github repo
+  }
 
 #Load stuff in
 
