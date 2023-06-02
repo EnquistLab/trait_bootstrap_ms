@@ -2,6 +2,9 @@
 
 
 ###########################################
+#Install the older version of traitstrap
+install.packages("traitstrap_0.0.0.901.tar.gz",repos = NULL,method = "source") #this code is designed for version 0.0.0.901 of traitstrap, which we include in this Github repo
+
 #Load stuff in
 
 library(BIEN)
@@ -11,6 +14,7 @@ library(devtools)
 library(tidyr)
 library(dplyr)
 library(ggplot2)
+library(purrr)
 
 source("r_functions/parametric_bs.R")
 source("r_functions/draw_traits_tidy.R")
@@ -67,7 +71,7 @@ source("r_functions/get_distributions.R")
 sample_size <- 10 #this is the number of leaf samples to take
 n_distributions <- 1
 sample_size_dist <- 200 #number of samples to draw from the distribution
-elev<-readRDS("data/elevations.RDS")
+elev <- readRDS("data/elevations.RDS")
 
 
 
