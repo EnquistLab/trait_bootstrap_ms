@@ -6,11 +6,11 @@ source("scripts/plotting_aesthetics.R")
 source("r_functions/tidy_simdata.R")
 library(patchwork)
 
-# Figure S1 ----
+# Figure S3 ----
 
 source("scripts/_distribution_figure.R")
 
-# Figure S2 ----
+# Figure S4 ----
 ## a) load data ----
 
 simdata =
@@ -148,11 +148,11 @@ ggplot(bumps %>%
                 top = 0.92, 
                 align_to = 'full') + theme_void()
 
-ggsave(here::here("figures/Figure_S2.png"),
+ggsave(here::here("figures/Figure_S4.png"),
        height = 130, width = 180,
        units = "mm", dpi = 600)
 
-# Figure S3 ----
+# Figure S5 ----
 ## a) data ----
 
 simmeans =
@@ -296,11 +296,11 @@ lollipop_all  +
                 align_to = 'full') + theme_void()
 
 
-ggsave(here::here("figures/Figure_S3.png"),
+ggsave(here::here("figures/Figure_S5.png"),
        height = 115, width = 180,
        units = "mm", dpi = 600)
 
-# Figure S4 ----
+# Figure S6 ----
 
 ## a) data ----
 simdata_lollipop =
@@ -394,12 +394,12 @@ cowplot::ggdraw(
     width = 0.04
   )
 
-ggsave(here::here("figures/Figure_S4.png"),
+ggsave(here::here("figures/Figure_S6.png"),
        height = 120, width = 180,
        units = "mm", dpi = 600)
 
 
-# Figure S5 ----
+# Figure S7 ----
 ## a) data ----
 sim_radar =
   simdata_panama %>%
@@ -564,11 +564,11 @@ cowplot::ggdraw(doughnut) +
     width = 0.07
   )
 
-ggsave(here::here("figures/Figure_S5.png"),
+ggsave(here::here("figures/Figure_S7.png"),
        height = 314, width = 180,
        units = "mm", dpi = 600)
 
-# Figure S6 ----
+# Figure S8 ----
 ## a) data ----
 sim_radar =
   simdata %>%
@@ -706,10 +706,10 @@ cowplot::ggdraw(doughnut_CO) +
     width = 0.08
   )
 
-ggsave(here::here("figures/Figure_S6.png"),
+ggsave(here::here("figures/Figure_S8.png"),
        height = 180, width = 147,
        units = "mm", dpi = 600)
-# Figure S7 ----
+# Figure S9 ----
 ## a) data ----
 sim_moon_means =
   rbind(simdata %>%
@@ -869,10 +869,10 @@ for (i in 1:5) {
     panel.background = element_rect(fill = "white", colour = NA),
     legend.position = 'bottom')) 
 
-ggsave(here::here("figures/Figure_S7.png"),
+ggsave(here::here("figures/Figure_S9.png"),
        height = 160, width = 180,
        units = "mm", dpi = 600)
-# Figure S8 ----
+# Figure S10 ----
 ## a) data ----
 simdata =
   tidy_simdata(readRDS("output_data/simulation_results.RDS"))
@@ -1086,10 +1086,10 @@ ggplot(sim_moon_means %>%
     plot.background = element_rect(fill = "white", colour = NA),
     legend.position = 'bottom')) 
 
-ggsave(here::here("figures/Figure_S8.png"),
+ggsave(here::here("figures/Figure_S10.png"),
        height = 90, width = 150,
        units = "mm", dpi = 600)
-# Figure S9 ----
+# Figure S11 ----
 ## a) data ----
 overunders = 
   panama_percent %>%
@@ -1264,10 +1264,10 @@ moons_pa +
                 top = 1, 
                 align_to = 'full') + theme_void()
 
-ggsave(here::here("figures/Figure_S9.png"),
+ggsave(here::here("figures/Figure_S11.png"),
        height = 100, width = 160,
        units = "mm", dpi = 600)
-# Figure S10 ----
+# Figure S12 ----
 ## a) data ----
 herb_abun =
   tidy_simdata(readRDS("output_data/simulation_results_abundance_biased.RDS"))
@@ -1433,10 +1433,10 @@ herb_abun_plot +
     panel.background = element_rect(fill = "white", colour = NA),
     legend.position = 'bottom')) 
 
-ggsave(here::here("figures/Figure_S10.png"),
+ggsave(here::here("figures/Figure_S12.png"),
        height = 100, width = 180,
        units = "mm", dpi = 600)
-# Figure S11 ----
+# Figure S13 ----
 ## a) data ----
 cwm_methods =
   readRDS("output_data/CWM_methods_comparison.RDS") %>%
@@ -1553,12 +1553,12 @@ cowplot::ggdraw(
     width = 0.045
   )
 
-ggsave(here::here("figures/Figure_S11.png"),
+ggsave(here::here("figures/Figure_S13.png"),
        height = 110, width = 180,
        units = "mm", dpi = 600)
 
 
-# Figure S12 ----
+# Figure S14 ----
 ## a) data ----
 bs_methods =
   tidy_simdata(readRDS("output_data/bootstrap_sample_size_and_method_sims.RDS")) 
@@ -1694,11 +1694,11 @@ for (i in 1:length(samp_size)) {
     legend.position = 'none')
   ) 
 
-ggsave(here::here("figures/Figure_S12.png"),
+ggsave(here::here("figures/Figure_S14.png"),
        height = 190, width = 180,
        units = "mm", dpi = 600)
 
-# Figure S13 ----
+# Figure S15 ----
 ## a) data ----
 bs_ci = 
   bs_methods %>%
@@ -1768,12 +1768,12 @@ ggplot(bs_ci) +
                 align_to = 'full', 
                 ignore_tag = TRUE) + theme_void()
 
-ggsave(here::here("figures/Figure_S13.png"),
+ggsave(here::here("figures/Figure_S15.png"),
        height = 120, width = 180,
        units = "mm", dpi = 600)
 
 
-# Figure S14 ----
+# Figure S16 ----
 ## a) data ----
 multi_method =
   readRDS(
@@ -2074,10 +2074,10 @@ inset_plots =
                 top = 0.7, 
                 align_to = 'full') + theme_void()
 
-ggsave(here::here("figures/Figure_S14.png"),
+ggsave(here::here("figures/Figure_S16.png"),
        height = 150, width = 150,
        units = "mm", dpi = 600)
-# Figure S15 ----
+# Figure S17 ----
 ## b) plots ----
 cc <- c("#031B88", "#6096FD", "#AAB6FB", "#FB7B8E", "#FAA7B8")
 
@@ -2156,7 +2156,7 @@ cc <- c("#031B88", "#6096FD", "#AAB6FB", "#FB7B8E", "#FAA7B8")
                   top = 1, 
                   align_to = 'full') + theme_void())
 
-ggsave(here::here("figures/Figure_S15.png"),
+ggsave(here::here("figures/Figure_S17.png"),
        height = 180, width = 120,
        units = "mm", dpi = 600)
 

@@ -6,7 +6,7 @@ source("scripts/plotting_aesthetics.R")
 source("r_functions/tidy_simdata.R")
 library(patchwork)
 
-# Figure 4 ----
+# Figure 2 ----
 ## a) read data ----
 #read in data
 simdata =
@@ -402,11 +402,11 @@ lollipop_CO =
     text = element_text(face = 'bold'))) +
   plot_layout(heights = c(1, 0.15, 0.15))
 
-ggsave(here::here("figures/Figure_4.png"),
+ggsave(here::here("figures/Figure_2.png"),
        height = 310, width = 180,
        units = "mm", dpi = 600)
 
-# Figure 5 ----
+# Figure 3 ----
 ## a) Read Data ----
 
 herbs =
@@ -507,11 +507,11 @@ ggplot(herbs) +
                 top = 1, 
                 align_to = 'full') + theme_void()
 
-ggsave(here::here("figures/Figure_5.png"),
+ggsave(here::here("figures/Figure_3.png"),
        height = 120, width = 180,
        units = "mm", dpi = 600)
 
-# Figure 6 ----
+# Figure 4 ----
 ## a) read in data  ----
 
 colorado_percent <- readRDS("output_data/Colorado_percent_community_sims.RDS")
@@ -1097,10 +1097,10 @@ CC
                 top = 0.7, 
                 align_to = 'full') + theme_void()
 
-ggsave(here::here("figures/Figure_6.png"),
+ggsave(here::here("figures/Figure_4.png"),
        height = 120, width = 180,
        units = "mm", dpi = 600)
-# Figure 7 ----
+# Figure 5 ----
 ## a) read data ----
 global = 
   readRDS("output_data/global_vs_local_summary.rds") %>%
@@ -1247,11 +1247,11 @@ global_plots[[1]] +
     panel.background = element_rect(fill = "white", colour = NA),
     legend.position = 'bottom'))
 
-ggsave(here::here("figures/Figure_7.png"),
+ggsave(here::here("figures/Figure_5.png"),
        height = 150, width = 180,
        units = "mm", dpi = 600)
 
-# Figure 8 ----
+# Figure 6 ----
 simdata_plankton <- 
   tidy_simdata(readRDS("output_data/simulation_results_phyto_subset_scaled.RDS"))
 
@@ -1326,7 +1326,7 @@ cowplot::ggdraw(
     width = 0.06
   )
 
-ggsave(here::here("figures/Figure_8.png"),
+ggsave(here::here("figures/Figure_6.png"),
        height = 120, width = 180,
        units = "mm", dpi = 600)
 
