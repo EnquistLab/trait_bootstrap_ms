@@ -2944,9 +2944,8 @@
     },
     "traitstrap": {
       "Package": "traitstrap",
-      "Version": "0.1.0",
-      "Source": "Repository",
-      "Repository": "CRAN",
+      "Version": "0.0.0.901",
+      "Source": "unknown",
       "Requirements": [
         "R",
         "dplyr",
@@ -2954,13 +2953,14 @@
         "fitdistrplus",
         "ggplot2",
         "glue",
+        "magrittr",
         "purrr",
         "rlang",
         "stringr",
         "tibble",
         "tidyr"
       ],
-      "Hash": "a733ab2f0d6941a68188d5f16b33d09b"
+      "Hash": "abd5a369aa9856edaa6677ba9faa37d8"
     },
     "tseries": {
       "Package": "tseries",
