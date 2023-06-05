@@ -72,10 +72,6 @@ library(effsize)
 #########################################################
 
 
-
-
-
-
 colorado_effect_sizes %>%
   ggplot(mapping = aes(x=sample_size,y=cohen_d,color = moment))+
   geom_point()+
