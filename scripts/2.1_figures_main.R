@@ -1,7 +1,7 @@
 # Admin ----
 
 #load script that determines plotting aesthetics
-source("scripts/plotting_aesthetics.R")
+source("scripts/_plotting_aesthetics.R")
 #load function to clean data
 source("r_functions/tidy_simdata.R")
 library(patchwork)
