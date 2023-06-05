@@ -13,10 +13,10 @@ These scripts are called within workflows from other scripts.
 
 ## Analyses
 
-- `1_simulations_w_traitstrap.R`:
-- `1.1_global_db_comparison.R`:
-- `1.2_effect_sizes.R`:
-- `1.3_pct_error_comparisons.R`:
+- `1_simulations_w_traitstrap.R`: Runs the sampling simulations used in the manuscript and SI. *Note: This is the slowest and most computationally intensive script.*
+- `1.1_global_db_comparison.R`: Estimates trait distributions for the Colorado herbs dataset using a Global trait database (BIEN).
+- `1.2_effect_sizes.R`: Calculates effect sizes (Cohen's d) between different methods for estimating the moments of trait distributions.  Not used in the manuscript.
+- `1.3_pct_error_comparisons.R`: Generates a table showing the improvement in percent error relative to a cross-site, community-weighted approach for estimating the moments of trait distributions.
 
 ## Figure Generation
 
