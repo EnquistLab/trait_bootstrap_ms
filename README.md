@@ -1,6 +1,6 @@
 ![Header](images/Traitstrap_vice.png)
 
-# On estimating the shape and dynamics of phenotypic distributions in ecology and evolution
+# Sweet Dreams are Made of Bootstrapping: Bootstrapping outperforms community-weighted approaches for estimating the shapes of phenotypic distributions
 
 This project contains code associated with work that compares the performance of
 parametric boostrapping, non-parametric bootstrapping and mean-field approaches
