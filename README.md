@@ -44,3 +44,4 @@ if(packageDescription("traitstrap", fields = "Version")!="0.0.0.901" |
     install.packages("traitstrap_0.0.0.901.tar.gz",repos = NULL,method = "source") #this code is designed for version 0.0.0.901 of traitstrap, which we include in this Github repo
   }
 ```
+[![DOI](https://zenodo.org/badge/153650790.svg)](https://zenodo.org/badge/latestdoi/153650790)
