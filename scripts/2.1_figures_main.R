@@ -230,6 +230,7 @@ sub_bump =
         strip.background = element_blank(),
         axis.line = element_blank(),
         axis.ticks.y = element_blank(),
+        strip.placement = 'outside',
         legend.position = 'none',
         strip.text.y = element_blank(),
         strip.text.x = element_blank(),
@@ -338,6 +339,7 @@ lollipop_CO =
                                           size = rel(0.8), vjust = 0,
                                           angle = 0),
          strip.text.x.top = element_text(size = rel(1.3)),
+         strip.placement = 'outside',
          legend.position = 'top',
          legend.background = element_rect(colour = colorspace::darken("#dddddd", 0.1),
                                           size = 0.4),
@@ -388,6 +390,7 @@ lollipop_CO =
                    align_to = 'full', 
                    ignore_tag = TRUE) + theme_void())/
   (lollipop_CO +
+     theme(axis.text.y = element_blank()) +
      labs(tag = "C") +
      inset_element(img1,
                    left = 0,
@@ -677,6 +680,7 @@ moons_mini <-
     panel.background = element_rect(colour = colorspace::lighten("#141438", 0.1),
                                     size = 0.3),
     plot.title.position = "panel",
+    strip.placement = 'outside',
     plot.title = element_text(margin = margin(0, 0, 10, 0),
                               size = rel(.7), face = "bold"),
     legend.position = 'right',
@@ -801,6 +805,7 @@ moons_AZ <-
     legend.position = 'right',
     plot.margin = margin(2, 2, 2, 2),
     legend.key.size = unit(3, "mm"),
+    strip.placement = 'outside',
     axis.ticks.length=unit(0.25, "mm")
   )
 
@@ -973,6 +978,7 @@ for (i in 1:2) {
       legend.position = 'right',
       plot.margin = margin(2, 2, 2, 2),
       legend.key.size = unit(3, "mm"),
+      strip.placement = 'outside',
       axis.ticks.length=unit(0.25, "mm")
     )
   
@@ -1218,6 +1224,7 @@ for (i in 1:length(trait_select)) {
     theme_moon +
     theme(
       legend.position = 'bottom',
+      strip.placement = 'outside',
       legend.key.size = unit(7, "mm"),
       axis.title = element_text(size = rel(.7)),
       plot.title = element_text(hjust = 0.5,
@@ -1319,7 +1326,8 @@ cowplot::ggdraw(
     theme_moon +
     theme(legend.key.size = unit(5, "mm"),
           axis.text = element_text(size = rel(.55)),
-          legend.position = 'bottom')
+          legend.position = 'bottom',
+          strip.placement = 'outside')
 )+
   cowplot::draw_image(
     img5, x = 0.03, y = 0.94, hjust = 0.5, vjust = 0.5,
