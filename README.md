@@ -6,10 +6,9 @@ This project contains code associated with work that compares the performance of
 parametric boostrapping, non-parametric bootstrapping and mean-field approaches
 to inferring trait distribution.
 
-:newspaper: Associated preprint:
-https://doi.org/10.22541/au.162196147.76797968/v1
-
-:books: Associated datasets: https://doi.org/10.5281/zenodo.7876647
+[![Code](https://zenodo.org/badge/153650790.svg)](https://zenodo.org/badge/latestdoi/153650790)
+[![Datasets](https://zenodo.org/badge/DOI/10.5281/zenodo.7876647.svg)](https://doi.org/10.5281/zenodo.7876647)
+[![Preprint](https://zenodo.org/badge/DOI/10.22541/au.162196147.76797968/v1.svg)](https://doi.org/10.22541/au.162196147.76797968/v1)
 
 ## Repo Structure
 
@@ -44,4 +43,3 @@ if(packageDescription("traitstrap", fields = "Version")!="0.0.0.901" |
     install.packages("traitstrap_0.0.0.901.tar.gz",repos = NULL,method = "source") #this code is designed for version 0.0.0.901 of traitstrap, which we include in this Github repo
   }
 ```
-[![DOI](https://zenodo.org/badge/153650790.svg)](https://zenodo.org/badge/latestdoi/153650790)
