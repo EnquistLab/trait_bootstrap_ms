@@ -112,7 +112,7 @@ ggplot(bumps %>%
         panel.grid.major.y = element_blank(),
         strip.background = element_blank(),
         axis.line = element_blank(),
-        #strip.placement = 'outside',
+        strip.placement = 'outside',
         axis.ticks.y = element_blank(),
         axis.title.y = element_blank(),
         legend.position = 'bottom',
@@ -818,7 +818,7 @@ for (i in 1:5) {
       panel.grid.major.y = element_line(size = 0.03),
       strip.background = element_blank(),
       axis.line = element_blank(),
-      #strip.placement = 'outside',
+      strip.placement = 'outside',
       panel.background = element_rect(colour = colorspace::darken("#dddddd", 0.1),
                                       size = 0.4),
       plot.title.position = "panel",
@@ -980,6 +980,7 @@ ggplot(sim_moon_means %>%
     panel.background = element_rect(colour = colorspace::lighten("#141438", 0.1),
                                     size = 0.3),
     plot.title.position = "panel",
+    strip.placement = 'outside',
     plot.title = element_text(margin = margin(0, 1, 10, 0),
                               size = rel(.7), face = "bold"),
     legend.position = 'bottom',
@@ -1072,6 +1073,7 @@ ggplot(sim_moon_means %>%
     legend.position = 'bottom',
     plot.margin = margin(2, 2, 2, 0),
     legend.key.size = unit(3, "mm"),
+    strip.placement = 'outside',
     axis.ticks.length=unit(0.25, "mm")
   ) +
   inset_element(img4,
@@ -1209,7 +1211,7 @@ moons_pa <-
     panel.grid.major.y = element_line(size = 0.03),
     strip.background = element_blank(),
     axis.line = element_blank(),
-    #strip.placement = 'outside',
+    strip.placement = 'outside',
     panel.background = element_rect(colour = colorspace::lighten("#141438", 0.1),
                                     size = 0.7),
     plot.title.position = "panel",
@@ -1337,6 +1339,7 @@ herb_abun_plot =
     panel.background = element_rect(colour = colorspace::darken("#dddddd", 0.1),
                                     size = 0.4),
     plot.title.position = "panel",
+    strip.placement = 'outside',
     plot.title = element_text(margin = margin(0, 0, 10, 0),
                               size = rel(.7), face = "bold"
     ),
@@ -1405,6 +1408,7 @@ rats_abun_plot =
     panel.background = element_rect(colour = colorspace::darken("#dddddd", 0.1),
                                     size = 0.4),
     plot.title.position = "panel",
+    strip.placement = 'outside',
     plot.title = element_text(margin = margin(0, 0, 10, 0),
                               size = rel(.7), face = "bold"
     ),
@@ -1546,6 +1550,7 @@ cowplot::ggdraw(
     theme(axis.ticks.length=unit(.5, "mm"),
           axis.text = element_text(size = rel(.55)),
           legend.position = 'bottom',
+          strip.placement = 'outside',
           legend.text = element_text(size = rel(.7)),
           legend.key.size = unit(3, "mm")))  +
   cowplot::draw_image(
@@ -1661,6 +1666,7 @@ for (i in 1:length(samp_size)) {
                                 size = rel(.5), face = "bold",
                                 color = "#5e5e5e"),
       legend.position = 'bottom',
+      strip.placement = 'outside',
       plot.margin = margin(2, 2, 2, 2),
       legend.key.size = unit(3, "mm"),
       axis.ticks = element_line(size = 0.03)
@@ -1759,6 +1765,7 @@ ggplot(bs_ci) +
   theme_moon +
   theme(legend.key.size = unit(5, "mm"),
         axis.text = element_text(size = rel(.55)),
+        strip.placement = 'outside',
         legend.position = 'bottom') +
   inset_element(img1,
                 left = 0.0,
@@ -2011,6 +2018,7 @@ moon_plots <-
     panel.background = element_rect(colour = colorspace::lighten("#141438", 0.1),
                                     size = 0.3),
     plot.title.position = "panel",
+    strip.placement = 'outside',
     plot.title = element_text(margin = margin(0, 0, 10, 0),
                               size = rel(.7), face = "bold"),
     legend.position = 'right',
@@ -2142,6 +2150,7 @@ cc <- c("#031B88", "#6096FD", "#AAB6FB", "#FB7B8E", "#FAA7B8")
       panel.background = element_rect(colour = colorspace::lighten("#141438", 0.1),
                                       size = 0.3),
       plot.title.position = "panel",
+      strip.placement = 'outside',
       plot.title = element_text(margin = margin(0, 0, 10, 0),
                                 size = rel(.7), face = "bold"),
       legend.position = 'right',
