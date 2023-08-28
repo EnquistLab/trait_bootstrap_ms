@@ -2,13 +2,13 @@
 
 # Sweet Dreams are Made of Bootstrapping: Bootstrapping outperforms community-weighted approaches for estimating the shapes of phenotypic distributions
 
+[![Code](https://img.shields.io/badge/Code-10.5281/zenodo.153650790-orange)](https://zenodo.org/badge/latestdoi/153650790)
+[![Datasets](https://img.shields.io/badge/Datasets-10.5281/zenodo.7876647-pink)](https://doi.org/10.5281/zenodo.7876647)
+[![Preprint](https://img.shields.io/badge/Preprint-10.22541/au.162196147.76797968/v1-green)](https://doi.org/10.22541/au.162196147.76797968/v1)
+
 This project contains code associated with work that compares the performance of
 parametric boostrapping, non-parametric bootstrapping and mean-field approaches
 to inferring trait distribution.
-
-[![Code](https://zenodo.org/badge/153650790.svg)](https://zenodo.org/badge/latestdoi/153650790)
-[![Datasets](https://zenodo.org/badge/DOI/10.5281/zenodo.7876647.svg)](https://doi.org/10.5281/zenodo.7876647)
-[![Preprint](https://zenodo.org/badge/DOI/10.22541/au.162196147.76797968/v1.svg)](https://doi.org/10.22541/au.162196147.76797968/v1)
 
 ## Repo Structure
 
