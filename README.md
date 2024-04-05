@@ -4,7 +4,7 @@
 
 [![Code](https://img.shields.io/badge/Code-10.5281/zenodo.153650790-f3b155)](https://zenodo.org/badge/latestdoi/153650790)
 [![Datasets](https://img.shields.io/badge/Datasets-10.5281/zenodo.7876647-ff4ccc)](https://doi.org/10.5281/zenodo.7876647)
-[![Preprint](https://img.shields.io/badge/Preprint-10.22541/au.162196147.76797968/v1-90ff4c)](https://doi.org/10.22541/au.162196147.76797968/v1)
+[![Manuscript](https://img.shields.io/badge/Preprint-10.22541/au.162196147.76797968/v1-90ff4c)](https://doi.org/10.1111/2041-210X.14160)
 
 This project contains code associated with work that compares the performance of
 parametric boostrapping, non-parametric bootstrapping and mean-field approaches
